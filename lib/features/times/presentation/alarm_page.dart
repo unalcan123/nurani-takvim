@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
-import '../../settings/data/alert_settings.dart';
+import '../../../theme.dart';
+import '../../settings/data/prayer_sound_playback.dart';
+import '../../settings/data/prayer_sound_settings.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
 
 class AlarmPage extends ConsumerStatefulWidget {
@@ -27,62 +28,32 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
 
   Future<void> _initPlayer() async {
     final settings = ref.read(alertSettingsProvider);
-    String? audioPath;
+    final sound = settings.soundFor(widget.nextPrayerName);
 
-    if (settings.alertType == AlertType.custom) {
-      // Eğer özel ses seçiliyse onu çal, değilse rastgele bir tane çal
-      audioPath = settings.selectedCustomAudioPath;
-      if (audioPath == null && settings.customAudioPaths.isNotEmpty) {
-        final randomIndex = Random().nextInt(settings.customAudioPaths.length);
-        audioPath = settings.customAudioPaths[randomIndex];
-      }
-    } else {
-      audioPath = _getAudioPathForPrayer(settings.alertType, widget.nextPrayerName);
-    }
-
-    if (audioPath == null) {
-      debugPrint("Çalınacak ses dosyası yolu bulunamadı.");
-      return;
-    }
+    if (sound.type == PrayerSoundType.silent) return;
 
     try {
-      if (settings.alertType == AlertType.custom) {
-        await _audioPlayer.setFilePath(audioPath);
-      } else {
-        // Asset yolunun doğru olduğundan emin ol
-        await _audioPlayer.setAsset(audioPath);
+      final played = await playPrayerSound(
+        player: _audioPlayer,
+        prayerName: widget.nextPrayerName,
+        setting: sound,
+        customAudioStore: ref.read(customAudioStoreProvider),
+        volume: settings.ezanVolume,
+      );
+      if (!played) {
+        debugPrint('Çalınacak ses bulunamadı (${widget.nextPrayerName}, ${sound.type}).');
+        return;
       }
-      
+
       _playerStateSubscription = _audioPlayer.processingStateStream.listen((state) {
         if (state == ProcessingState.completed) {
           _closePage();
         }
       });
-      await _audioPlayer.play();
     } catch (e) {
-      debugPrint("Ses dosyası çalınamadı ($audioPath): $e");
+      debugPrint("Ses dosyası çalınamadı (${widget.nextPrayerName}): $e");
       // Saniye bekle ve sayfayı kapatma, kullanıcı görsün
     }
-  }
-
-  String? _getAudioPathForPrayer(AlertType alertType, String prayerName) {
-    if (alertType == AlertType.ezan) {
-      switch (prayerName) {
-        case 'İmsak':
-          return 'assets/audio/sabah_ezan.mp3';
-        case 'Öğle':
-          return 'assets/audio/ogle_ezan.mp3';
-        case 'İkindi':
-          return 'assets/audio/ikindi_ezan.mp3';
-        case 'Akşam':
-          return 'assets/audio/aksam_ezan.mp3';
-        case 'Yatsı':
-          return 'assets/audio/yatsi_ezan.mp3';
-        default:
-          return null;
-      }
-    }
-    return null;
   }
 
   void _closePage() {
@@ -101,7 +72,7 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: tvBgDark,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

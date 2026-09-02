@@ -1,0 +1,44 @@
+{
+  "tr": [
+    {
+      "soz": "Korkma, sönmez bu şafaklarda yüzen al sancak; Sönmeden yurdumun üstünde tüten en son ocak.",
+      "yazar": "Mehmet Âkif Ersoy",
+      "eser": "İstiklâl Marşı, 1. kıta",
+      "kaynak": "İstiklâl Marşı resmî metni (1921)",
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "soz": "Ya olduğun gibi görün, ya göründüğün gibi ol.",
+      "yazar": "Mevlânâ Celâleddîn-i Rûmî'ye atfedilir",
+      "eser": null,
+      "kaynak": "Türkçe kaynaklarda yaygın olarak atfedilir; birincil kaynakta (Mesnevî) doğrulanamamıştır",
+      "verified": false,
+      "isSampleData": true
+    },
+    {
+      "soz": "Gelin tanış olalım, işi kolay kılalım; sevelim sevilelim, dünya kimseye kalmaz.",
+      "yazar": "Yunus Emre'ye atfedilir",
+      "eser": null,
+      "kaynak": "Türkçe kaynaklarda yaygın olarak atfedilir; Divan içindeki kesin yeri doğrulanamamıştır",
+      "verified": false,
+      "isSampleData": true
+    },
+    {
+      "soz": "Evet, hakikî imanı elde eden adam, kâinata meydan okuyabilir.",
+      "yazar": "Bediüzzaman Said Nursî",
+      "eser": "Sözler",
+      "kaynak": "Risale-i Nur Külliyatı, Sözler",
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "soz": "İlim, gönül gözünün nurudur; ilimsiz amel, ruhsuz beden gibidir.",
+      "yazar": "İmam Gazâlî'ye atfedilir",
+      "eser": null,
+      "kaynak": "İslam âlimlerine dair derlemelerde yaygın atıf; birincil kaynak doğrulanamamıştır",
+      "verified": false,
+      "isSampleData": true
+    }
+  ]
+}

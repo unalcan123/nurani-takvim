@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/bg_music_service.dart';
-import 'features/locations/presentation/country_page.dart';
+import 'features/dashboard/presentation/app_shell.dart';
 import 'features/settings/data/prefs_repository.dart';
 import 'features/settings/presentation/alert_settings_controller.dart';
+import 'features/settings/presentation/mode_controller.dart';
 import 'features/settings/presentation/theme_controller.dart';
 import 'features/times/presentation/times_page.dart';
+import 'theme.dart';
 
 /// ✅ Ana uygulama widget'ı — müzik servisi burada başlatılır
 class EzanApp extends ConsumerStatefulWidget {
@@ -35,20 +37,23 @@ class _EzanAppState extends ConsumerState<EzanApp> {
     final themeMode = ref.watch(themeProvider);
     final isMuted = ref.watch(bgMusicMutedProvider);
     final settings = ref.watch(alertSettingsProvider);
+    final appMode = ref.watch(modeProvider);
 
-    final homePage = lastLocation != null
+    // TV Modu: mevcut kiosk ekranı (yalnızca bir konum seçiliyken anlamlı).
+    // Normal mod: yeni "Nurani Takvim" dashboard'u — konum olmasa da açılır.
+    final homePage = appMode == AppMode.tv && lastLocation != null
         ? TimesPage(
             ulke: lastLocation.ulke,
             sehir: lastLocation.sehir,
             ilce: lastLocation.ilce,
           )
-        : const CountryPage();
+        : const AppShell();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Ezan Vakti',
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      title: 'Nurani Takvim',
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: themeMode,
       builder: (context, child) {
         // ✅ Tüm sayfaların üstüne mute butonu ekle

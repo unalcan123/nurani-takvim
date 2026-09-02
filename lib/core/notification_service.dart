@@ -1,11 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../features/locations/data/models.dart';
 import '../features/settings/data/alert_settings.dart';
+import '../features/settings/data/prayer_sound_settings.dart';
+
+/// Bildirim izinlerinin gerçek durumu (kullanıcı hiç sorulmadıysa, izin
+/// verdiyse ya da reddettiyse Ayarlar ekranında dürüstçe gösterilebilsin diye).
+class NotificationPermissionResult {
+  final bool notificationsGranted;
+  final bool? exactAlarmsGranted; // Android 12 öncesi/iOS'ta anlamsız -> null
+  const NotificationPermissionResult({required this.notificationsGranted, this.exactAlarmsGranted});
+}
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
@@ -15,8 +25,22 @@ class NotificationService {
 
   Future<void> init() async {
     tz.initializeTimeZones();
+    await _configureLocalTimezone();
+
     const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    // iOS'ta izin isteme işlemini kendimiz `requestPermissions()` ile ayrı
+    // yapıyoruz (uygulama açılışında sessizce sormak yerine, kullanıcıya bunu
+    // ne için istediğimizi anlatabileceğimiz bir noktada). Bu yüzden burada
+    // otomatik istek göndermiyoruz.
+    const initializationSettingsIOS = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    const initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
     await _notificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (details) {
@@ -27,16 +51,65 @@ class NotificationService {
     await _createNotificationChannels();
   }
 
+  /// Cihazın gerçek IANA saat dilimini (ör. `Europe/Istanbul`) bulup
+  /// `timezone` paketine tanıtır. Bu çağrılmazsa `tz.local` sessizce UTC'ye
+  /// düşer ve TÜM zamanlanmış namaz bildirimleri, cihazın UTC farkı kadar
+  /// (Türkiye'de 3 saat) YANLIŞ saatte tetiklenir.
+  Future<void> _configureLocalTimezone() async {
+    try {
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
+    } catch (e) {
+      // Saat dilimi tespit edilemezse UTC'de kalır; en azından sessizce
+      // yanlış davranmak yerine hata ayıklama günlüğüne düşer.
+      debugPrint('Saat dilimi tespit edilemedi, UTC kullanılacak: $e');
+    }
+  }
+
+  /// Bildirim (ve Android 12+ için kesin alarm) izinlerini kullanıcıya sorar.
+  /// Web'de bu API'ler yoktur (flutter_local_notifications web'i desteklemez),
+  /// bu yüzden web'de her zaman `notificationsGranted: false` döner — ayarlar
+  /// ekranı bunu görüp gerçek durumu gösterebilsin diye.
+  Future<NotificationPermissionResult> requestPermissions() async {
+    if (kIsWeb) {
+      return const NotificationPermissionResult(notificationsGranted: false, exactAlarmsGranted: null);
+    }
+
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) {
+      final notifGranted = await androidPlugin.requestNotificationsPermission() ?? false;
+      final exactGranted = await androidPlugin.requestExactAlarmsPermission();
+      return NotificationPermissionResult(notificationsGranted: notifGranted, exactAlarmsGranted: exactGranted);
+    }
+
+    final iosPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    if (iosPlugin != null) {
+      final granted = await iosPlugin.requestPermissions(alert: true, badge: true, sound: true) ?? false;
+      return NotificationPermissionResult(notificationsGranted: granted, exactAlarmsGranted: null);
+    }
+
+    return const NotificationPermissionResult(notificationsGranted: false, exactAlarmsGranted: null);
+  }
+
+  /// Mevcut izin durumunu (yeniden istemeden) okur — Ayarlar ekranında
+  /// "İzin verildi / reddedildi / henüz sorulmadı" göstermek için.
+  Future<bool?> areNotificationsEnabled() async {
+    if (kIsWeb) return false;
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) return androidPlugin.areNotificationsEnabled();
+    return null; // iOS'ta senkron bir "durumu oku" API'si yok; yalnızca istek sonucu bilinir.
+  }
+
   Future<void> _createNotificationChannels() async {
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidPlugin != null) {
       // Ezan Kanalı
       await androidPlugin.createNotificationChannel(
         const AndroidNotificationChannel(
-          'ezan_vakti_v5', 
+          'ezan_vakti_v5',
           'Ezan Vakti Uyarıları',
           description: 'Namaz vakitlerinde ezan okur.',
-          importance: Importance.max, 
+          importance: Importance.max,
           playSound: true,
           enableVibration: true,
           showBadge: true,
@@ -56,6 +129,16 @@ class NotificationService {
           ),
         );
       }
+      // Test bildirimi kanalı
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'test_bildirimi_v1',
+          'Test Bildirimi',
+          description: 'Ayarlar ekranından gönderilen deneme bildirimi.',
+          importance: Importance.max,
+          playSound: true,
+        ),
+      );
     }
   }
 
@@ -67,6 +150,22 @@ class NotificationService {
       visibility: NotificationVisibility.public,
     );
     await _notificationsPlugin.show(0, 'Vakit Girdi', '$prayerName vakti girdi.', const NotificationDetails(android: androidDetails));
+  }
+
+  /// Ayarlar ekranındaki "Test Bildirimi Gönder" butonu için: gerçek
+  /// planlama/izin/ses altyapısını kullanarak anında bir bildirim gösterir.
+  Future<void> showTestNotification() async {
+    const androidDetails = AndroidNotificationDetails(
+      'test_bildirimi_v1', 'Test Bildirimi',
+      importance: Importance.max, priority: Priority.high,
+      visibility: NotificationVisibility.public,
+    );
+    await _notificationsPlugin.show(
+      999999,
+      'Test Bildirimi',
+      'Bildirim sistemi çalışıyor. Bu bir deneme bildirimidir.',
+      const NotificationDetails(android: androidDetails),
+    );
   }
 
   Future<void> showPrePrayerNotification(String prayerName, int minute, String? assetPath) async {
@@ -93,7 +192,6 @@ class NotificationService {
 
   Future<void> scheduleAlarms(List<Vakit> vakitler, AlertSettings settings) async {
     await _notificationsPlugin.cancelAll();
-    int id = 100;
     final now = DateTime.now();
 
     for (final vakit in vakitler) {
@@ -105,31 +203,31 @@ class NotificationService {
         MapEntry('Yatsı', vakit.yatsi),
       ];
 
-      for (final prayer in prayers) {
+      final prayerDate = _parseVakitDate(vakit.miladiTarihKisaIso8601);
+
+      for (var i = 0; i < prayers.length; i++) {
+        final prayer = prayers[i];
         final prayerTime = _parseDateTime(vakit.miladiTarihKisaIso8601, prayer.value);
         if (prayerTime.isBefore(now)) continue;
 
         if (settings.isPrayerEnabled(prayer.key)) {
-          // RAW resource kontrolü ve uzantı temizliği
-          final soundFileName = _getSoundFileName(prayer.key, settings.alertType);
-          final soundResource = (soundFileName != null && settings.alertType == AlertType.ezan)
-              ? RawResourceAndroidNotificationSound(soundFileName)
-              : null;
+          final sound = settings.soundFor(prayer.key);
+          final androidSound = _resolveAndroidSound(prayer.key, sound.type);
 
           final androidDetails = AndroidNotificationDetails(
             'ezan_vakti_v5',
             'Ezan Vakti Uyarıları',
             importance: Importance.max,
             priority: Priority.high,
-            sound: soundResource,
-            playSound: soundResource != null,
+            sound: androidSound,
+            playSound: sound.type != PrayerSoundType.silent,
             fullScreenIntent: true,
             category: AndroidNotificationCategory.alarm,
             visibility: NotificationVisibility.public,
           );
 
           await _notificationsPlugin.zonedSchedule(
-            id++,
+            prayerNotificationId(prayerDate, i),
             'Vakit Girdi: ${prayer.key}',
             'Ezan okunuyor...',
             tz.TZDateTime.from(prayerTime, tz.local),
@@ -141,7 +239,8 @@ class NotificationService {
 
         if (prayer.key == 'İmsak') continue;
 
-        for (final minute in preNotificationMinutes) {
+        for (var m = 0; m < preNotificationMinutes.length; m++) {
+          final minute = preNotificationMinutes[m];
           if (!settings.isPreNotificationEnabled(minute)) continue;
 
           final preNotificationTime = prayerTime.subtract(Duration(minutes: minute));
@@ -161,7 +260,7 @@ class NotificationService {
           );
 
           await _notificationsPlugin.zonedSchedule(
-            id++,
+            preNotificationId(prayerDate, i, m),
             'Vakit Yaklaşıyor',
             '${prayer.key} vaktine $minute dk kaldı.',
             tz.TZDateTime.from(preNotificationTime, tz.local),
@@ -174,18 +273,35 @@ class NotificationService {
     }
   }
 
-  String? _getSoundFileName(String prayerName, AlertType type) {
-    if (type == AlertType.ezan) {
-      switch (prayerName) {
-        // Not: Android RAW resource isimlerinde dosya uzantısı (.mp3) OLMAZ.
-        case 'İmsak': return 'sabah_ezan'; 
-        case 'Öğle': return 'ogle_ezan';
-        case 'İkindi': return 'ikindi_ezan';
-        case 'Akşam': return 'aksam_ezan';
-        case 'Yatsı': return 'yatsi_ezan';
-      }
+  /// Uygulama önplandayken tam ekran alarm sayfası ([AlarmPage]) gösterilip
+  /// ses orada çalınacaksa, aynı an için zaten planlanmış olan OS bildirimi
+  /// iptal edilir — aksi halde kullanıcı hem sistem bildirimini/sesini hem
+  /// de uygulama içi sesi aynı anda duyar (çift ses/bildirim).
+  Future<void> cancelPrayerNotification(DateTime date, String prayerName) async {
+    final index = prayerNames.indexOf(prayerName);
+    if (index == -1) return;
+    await _notificationsPlugin.cancel(prayerNotificationId(date, index));
+  }
+
+  AndroidNotificationSound? _resolveAndroidSound(String prayerName, PrayerSoundType type) {
+    switch (type) {
+      case PrayerSoundType.adhan:
+        final raw = adhanRawResourceForPrayer(prayerName);
+        return raw == null ? null : RawResourceAndroidNotificationSound(raw);
+      case PrayerSoundType.notification:
+        return RawResourceAndroidNotificationSound(notificationSoundRawResource);
+      case PrayerSoundType.silent:
+        return null;
+      case PrayerSoundType.custom:
+        // Kullanıcının kendi ses dosyası yalnızca uygulama açıkken (ön planda,
+        // AlarmPage üzerinden) tam olarak çalınabilir: Android'in RAW/URI
+        // bildirim sesi API'si, derleme zamanında pakete gömülü olmayan
+        // rastgele bir dosyayı güvenilir şekilde oynatmayı garanti etmez.
+        // Arka planda/uygulama kapalıyken sahte bir "çalışıyor" görüntüsü
+        // vermek yerine, dürüstçe kısa bildirim sesine düşülür — bu davranış
+        // Ayarlar ekranında açıkça belirtilir.
+        return RawResourceAndroidNotificationSound(notificationSoundRawResource);
     }
-    return null;
   }
 
   String? _getPreNotificationSoundFileName(int minute) {
@@ -207,6 +323,25 @@ class NotificationService {
     final t = timeStr.split(':');
     return DateTime(int.parse(d[2]), int.parse(d[1]), int.parse(d[0]), int.parse(t[0]), int.parse(t[1]));
   }
+
+  DateTime _parseVakitDate(String dateStr) {
+    final d = dateStr.split('.');
+    return DateTime(int.parse(d[2]), int.parse(d[1]), int.parse(d[0]));
+  }
+}
+
+/// Belirli bir gün + vakit için kararlı (deterministik) bildirim id'si.
+/// Aynı gün/vakit için her zaman aynı id üretir; böylece hem yeniden
+/// planlamalarda çakışma olmaz hem de tek bir bildirim iptal edilebilir
+/// (bkz. [NotificationService.cancelPrayerNotification]).
+int prayerNotificationId(DateTime date, int prayerIndex) {
+  final daysSinceEpoch = date.difference(DateTime(2020, 1, 1)).inDays;
+  return daysSinceEpoch * 10 + prayerIndex; // prayerIndex: 0..4
+}
+
+int preNotificationId(DateTime date, int prayerIndex, int minuteIndex) {
+  final daysSinceEpoch = date.difference(DateTime(2020, 1, 1)).inDays;
+  return 1000000 + daysSinceEpoch * 100 + prayerIndex * 10 + minuteIndex;
 }
 
 final flutterLocalNotificationsProvider = Provider<FlutterLocalNotificationsPlugin>((ref) => FlutterLocalNotificationsPlugin());

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../favorites/data/models.dart';
 import '../../locations/data/models.dart';
-import 'alert_settings.dart';
 
 final sharedPrefsProvider = Provider<SharedPreferences>((ref) => throw UnimplementedError());
 
@@ -17,9 +17,35 @@ class PrefsRepository {
 
   static const _recentLocationsKey = 'recent_locations';
   static const _themeModeKey = 'theme_mode';
-  static const _alertTypeKey = 'alert_type';
-  static const _customAudioPathsKey = 'custom_audio_paths';
   static const _cachedVakitlerKey = 'cached_vakitler_';
+  static const _favoritesKey = 'favorite_content_items';
+
+  List<FavoriteItem> getFavorites() {
+    final jsonList = _prefs.getStringList(_favoritesKey) ?? [];
+    return jsonList
+        .map((s) => FavoriteItem.fromJson(json.decode(s) as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> saveFavorites(List<FavoriteItem> items) async {
+    final jsonList = items.map((f) => json.encode(f.toJson())).toList();
+    await _prefs.setStringList(_favoritesKey, jsonList);
+  }
+
+  static const _showAyetKey = 'content_show_ayet';
+  static const _showHadithKey = 'content_show_hadith';
+  static const _showEventKey = 'content_show_event';
+  static const _showSozKey = 'content_show_soz';
+
+  bool getShowAyet() => _prefs.getBool(_showAyetKey) ?? true;
+  bool getShowHadith() => _prefs.getBool(_showHadithKey) ?? true;
+  bool getShowEvent() => _prefs.getBool(_showEventKey) ?? true;
+  bool getShowSoz() => _prefs.getBool(_showSozKey) ?? true;
+
+  Future<void> setShowAyet(bool value) => _prefs.setBool(_showAyetKey, value);
+  Future<void> setShowHadith(bool value) => _prefs.setBool(_showHadithKey, value);
+  Future<void> setShowEvent(bool value) => _prefs.setBool(_showEventKey, value);
+  Future<void> setShowSoz(bool value) => _prefs.setBool(_showSozKey, value);
 
   Future<void> saveVakitler(String ilceId, List<Vakit> list) async {
     final data = list.map((v) => v.toJson()).toList();
@@ -58,33 +84,4 @@ class PrefsRepository {
     await _prefs.setString(_themeModeKey, mode.name);
   }
 
-  Future<void> setAlarmSettings(AlertSettings settings) async {
-    await _prefs.setString(_alertTypeKey, settings.alertType.name);
-    await _prefs.setStringList(_customAudioPathsKey, settings.customAudioPaths);
-    for (final preNotif in settings.preNotifications.entries) {
-      await _prefs.setBool('pre_notif_${preNotif.key}', preNotif.value);
-    }
-    for (final prayer in settings.prayerAlarms.entries) {
-      await _prefs.setBool('alarm_${prayer.key}', prayer.value);
-    }
-  }
-
-  Future<AlertSettings> getAlarmSettings() async {
-    final alertTypeName = _prefs.getString(_alertTypeKey);
-    final alertType = AlertType.values.firstWhere(
-      (e) => e.name == alertTypeName, 
-      orElse: () => AlertType.ezan,
-    );
-
-    final prayerAlarms = {for (var name in prayerNames) name: _prefs.getBool('alarm_$name') ?? false};
-    final customAudioPaths = _prefs.getStringList(_customAudioPathsKey) ?? [];
-    final preNotifications = {for (var minute in preNotificationMinutes) minute: _prefs.getBool('pre_notif_$minute') ?? false};
-
-    return AlertSettings(
-      prayerAlarms: prayerAlarms,
-      alertType: alertType,
-      customAudioPaths: customAudioPaths,
-      preNotifications: preNotifications,
-    );
-  }
 }

@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/notification_service.dart';
 import '../../../widgets/app_drawer.dart';
+import '../../daily_content/presentation/daily_content_page.dart';
 import '../../locations/data/location_providers.dart';
 import '../../locations/data/models.dart';
 import '../../settings/data/alert_settings.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
+import '../../../theme.dart';
 import 'alarm_page.dart';
 import 'slayt_widget.dart';
+import 'time_utils.dart';
 
 final timesProvider = FutureProvider.family<List<Vakit>, String>((ref, ilceId) async {
   final repo = ref.watch(locationRepoProvider);
@@ -58,9 +61,15 @@ class _TimesPageState extends ConsumerState<TimesPage> {
 
     _list = list; // ✅
 
-    final today = _findToday(list, DateTime.now());
+    final initialNow = phoneLocalNow();
+    final today = _findToday(list, initialNow);
     if (today != null) {
-      setState(() => _today = today);
+      setState(() {
+        _today = today;
+        _now = phoneLocalNow();
+        _lastDay = DateTime(_now.year, _now.month, _now.day);
+        _updateCountdown(today);
+      });
 
       _startTimer();
 
@@ -74,7 +83,7 @@ class _TimesPageState extends ConsumerState<TimesPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!mounted || _today == null) return;
 
-      final now = DateTime.now();
+      final now = phoneLocalNow();
       final dayKey = DateTime(now.year, now.month, now.day);
 
       // ✅ Gün değişti mi?
@@ -122,12 +131,9 @@ class _TimesPageState extends ConsumerState<TimesPage> {
   }
 
   void _updateCountdown(Vakit today) {
-    _nextPrayer = nextPrayerFromList(today, _now);
-    if (_nextPrayer != null) {
-      _remaining = _nextPrayer!.time.difference(_now);
-    } else {
-      _remaining = Duration.zero;
-    }
+    final tomorrow = _list == null ? null : _findToday(_list!, _now.add(const Duration(days: 1)));
+    _nextPrayer = nextPrayerInfo(today, _now, tomorrow: tomorrow);
+    _remaining = _nextPrayer!.time.difference(_now);
 
     final prayers = [
       (name: 'İmsak', time: _parsePrayerTime(today.imsak, _now)),
@@ -155,6 +161,12 @@ class _TimesPageState extends ConsumerState<TimesPage> {
     if (_remaining.inSeconds <= 0 && _lastTriggeredPrayerName != _nextPrayer!.name) {
       _lastTriggeredPrayerName = _nextPrayer!.name;
       _isCoolingDown = true;
+
+      // Uygulama önplandayken bu sayfa zaten sesi çalacak (AlarmPage); aynı an
+      // için ayrıca zamanlanmış olan sistem bildirimini iptal ederiz — yoksa
+      // kullanıcı hem sistem bildirimi sesini hem uygulama içi sesi birlikte,
+      // çift olarak duyar.
+      ref.read(notificationServiceProvider).cancelPrayerNotification(_now, _nextPrayer!.name);
 
       Navigator.push(context, MaterialPageRoute(builder: (_) => AlarmPage(nextPrayerName: _nextPrayer!.name)));
 
@@ -186,33 +198,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
         }
       }
     }
-  }
-
-  /// ✅ Asıl fix burada: gün bittiğinde yarının imsakını, yarının Vakit datasından al.
-  ({String name, DateTime time})? nextPrayerFromList(Vakit today, DateTime now) {
-    DateTime parse(String timeStr, DateTime date) {
-      final parts = timeStr.split(':');
-      return DateTime(date.year, date.month, date.day, int.parse(parts[0]), int.parse(parts[1]));
-    }
-
-    final prayers = [
-      (name: 'İmsak', time: parse(today.imsak, now)),
-      (name: 'Güneş', time: parse(today.gunes, now)),
-      (name: 'Öğle', time: parse(today.ogle, now)),
-      (name: 'İkindi', time: parse(today.ikindi, now)),
-      (name: 'Akşam', time: parse(today.aksam, now)),
-      (name: 'Yatsı', time: parse(today.yatsi, now)),
-    ];
-
-    for (final p in prayers) {
-      if (p.time.isAfter(now)) return p;
-    }
-
-    final tomorrow = now.add(const Duration(days: 1));
-    final tomorrowVakit = _list == null ? null : _findToday(_list!, tomorrow);
-
-    final imsakStr = tomorrowVakit?.imsak ?? today.imsak; // fallback
-    return (name: 'İmsak', time: parse(imsakStr, tomorrow));
   }
 
   Vakit? _findToday(List<Vakit> list, DateTime now) {
@@ -258,7 +243,7 @@ class _TimesPageState extends ConsumerState<TimesPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Colors.black,
+        color: tvBgDark,
         child: SafeArea(
           child: asyncTimes.when(
             loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
@@ -289,6 +274,26 @@ class _TimesPageState extends ConsumerState<TimesPage> {
                             child: _buildPrayerTimesHorizontalStrip(_today!, _currentPrayerName, context),
                           ),
                           const SizedBox(width: 10),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const DailyContentPage()),
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: const Icon(Icons.auto_stories_outlined, color: Colors.white, size: 20),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Material(
                             color: Colors.transparent,
                             child: InkWell(
@@ -351,6 +356,7 @@ class _TimesPageState extends ConsumerState<TimesPage> {
                                     remaining: _remaining,
                                     nextPrayer: _nextPrayer,
                                     today: _today!,
+                                    now: _now,
                                   ),
                                 ],
                               ),
@@ -394,6 +400,8 @@ class _TimesPageState extends ConsumerState<TimesPage> {
                                           fit: BoxFit.scaleDown,
                                           child: Text(
                                             widget.ilce.ilceAdi.toUpperCase(),
+                                            maxLines: 1,
+                                            softWrap: false,
                                             style: const TextStyle(
                                               color: Colors.white70,
                                               fontSize: 20,
@@ -407,6 +415,8 @@ class _TimesPageState extends ConsumerState<TimesPage> {
                                         remaining: _remaining,
                                         nextPrayer: _nextPrayer,
                                         today: _today!,
+                                        now: _now,
+                                        compact: true,
                                       ),
                                     ],
                                   ),
@@ -450,10 +460,10 @@ class _TimesPageState extends ConsumerState<TimesPage> {
             margin: const EdgeInsets.symmetric(horizontal: 4),
             padding: const EdgeInsets.symmetric(vertical: 1),
             decoration: BoxDecoration(
-              color: isCurrent ? Theme.of(context).colorScheme.primary.withAlpha(100) : const Color(0x33000000),
+              color: isCurrent ? dashboardAccentGold.withValues(alpha: 0.35) : const Color(0x33000000),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isCurrent ? Theme.of(context).colorScheme.primary : Colors.white24,
+                color: isCurrent ? dashboardAccentGold : Colors.white24,
                 width: isCurrent ? 2 : 1,
               ),
             ),
@@ -497,6 +507,7 @@ class NextPrayerCountdownWidget extends StatelessWidget {
   final Duration remaining;
   final ({String name, DateTime time})? nextPrayer;
   final Vakit today;
+  final DateTime now;
   final bool compact;
 
   const NextPrayerCountdownWidget({
@@ -504,6 +515,7 @@ class NextPrayerCountdownWidget extends StatelessWidget {
     required this.remaining,
     required this.nextPrayer,
     required this.today,
+    required this.now,
     this.compact = false,
   });
 
@@ -514,7 +526,7 @@ class NextPrayerCountdownWidget extends StatelessWidget {
     final title = prayerName == 'Güneş' ? 'Güneşin Doğmasına' : '$prayerName Vaktine';
 
     final titleGap = compact ? 10.0 : 20.0;
-    final countdownFont = compact ? 50.0 : 50.0;
+    final countdownFont = compact ? 38.0 : 50.0;
     final clockFont = compact ? 16.0 : 20.0;
     final moonHeight = compact ? 48.0 : 65.0;
     final boxVPad = compact ? 6.0 : 10.0;
@@ -522,29 +534,26 @@ class NextPrayerCountdownWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        LiveClock(fontSize: clockFont),
+        LiveClock(time: now, fontSize: clockFont),
         const Divider(color: Colors.white24, height: 1),
         SizedBox(height: titleGap),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            title,
-            style: textTheme.titleMedium?.copyWith(color: Colors.white70),
+        SizedBox(
+          width: double.infinity,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.visible,
+              style: textTheme.titleMedium?.copyWith(color: Colors.white70),
+            ),
           ),
         ),
         const SizedBox(height: 6),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            formatDurationHHMMSS(remaining),
-            style: TextStyle(
-              fontSize: countdownFont,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'monospace',
-              height: 1.0,
-            ),
-          ),
+        CountdownText(
+          value: formatDurationHHMMSS(remaining),
+          fontSize: countdownFont,
         ),
         const SizedBox(height: 4),
         Image.network(
@@ -597,45 +606,94 @@ class NextPrayerCountdownWidget extends StatelessWidget {
   }
 }
 
-class LiveClock extends StatefulWidget {
+class CountdownText extends StatelessWidget {
+  final String value;
   final double fontSize;
 
-  const LiveClock({Key? key, this.fontSize = 20}) : super(key: key);
+  const CountdownText({
+    super.key,
+    required this.value,
+    required this.fontSize,
+  });
 
   @override
-  State<LiveClock> createState() => _LiveClockState();
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: fontSize + 4,
+      child: CustomPaint(
+        painter: CountdownTextPainter(
+          value: value,
+          fontSize: fontSize,
+        ),
+      ),
+    );
+  }
 }
 
-class _LiveClockState extends State<LiveClock> {
-  late DateTime _now;
-  late final Timer _timer;
+class CountdownTextPainter extends CustomPainter {
+  final String value;
+  final double fontSize;
+
+  const CountdownTextPainter({
+    required this.value,
+    required this.fontSize,
+  });
 
   @override
-  void initState() {
-    super.initState();
-    _now = DateTime.now();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _now = DateTime.now());
-    });
+  void paint(Canvas canvas, Size size) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: value,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontFamily: 'monospace',
+          height: 1.0,
+        ),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: double.infinity);
+
+    final scale = painter.width > size.width ? size.width / painter.width : 1.0;
+    final dx = (size.width - painter.width * scale) / 2;
+    final dy = (size.height - painter.height * scale) / 2;
+
+    canvas.save();
+    canvas.translate(dx, dy);
+    canvas.scale(scale);
+    painter.paint(canvas, Offset.zero);
+    canvas.restore();
   }
 
   @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
+  bool shouldRepaint(covariant CountdownTextPainter oldDelegate) {
+    return oldDelegate.value != value || oldDelegate.fontSize != fontSize;
   }
+}
+
+class LiveClock extends StatelessWidget {
+  final DateTime time;
+  final double fontSize;
+
+  const LiveClock({super.key, required this.time, this.fontSize = 20});
 
   @override
   Widget build(BuildContext context) {
     final time =
-        "${_now.hour.toString().padLeft(2, '0')}:"
-        "${_now.minute.toString().padLeft(2, '0')}:"
-        "${_now.second.toString().padLeft(2, '0')}";
+        "${this.time.hour.toString().padLeft(2, '0')}:"
+        "${this.time.minute.toString().padLeft(2, '0')}:"
+        "${this.time.second.toString().padLeft(2, '0')}";
 
     return Text(
       time,
+      maxLines: 1,
+      softWrap: false,
       style: TextStyle(
-        fontSize: widget.fontSize,
+        fontSize: fontSize,
         fontWeight: FontWeight.w500,
         color: Colors.white60,
         fontFamily: 'monospace',

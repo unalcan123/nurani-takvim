@@ -96,3 +96,29 @@ final darkTheme = ThemeData(
 
 // Default to appTheme being the light one
 final appTheme = lightTheme;
+
+// --- "Nurani Takvim" Dashboard Palette --- //
+// Açık mod: krem/taş zemin + koyu yeşil + altın detaylar.
+const Color dashboardBgLight = Color(0xFFF6F1E9);
+const Color dashboardSidebarLight = Color(0xFFFFFFFF);
+const Color dashboardCardGreenLight = Color(0xFFE7EFE8);
+const Color dashboardCardGoldLight = Color(0xFFF3E8D2);
+
+// Koyu mod: lacivert zemin + koyu yeşil kartlar + altın detaylar.
+const Color dashboardBgDark = Color(0xFF0B1220);
+const Color dashboardSidebarDark = Color(0xFF10192B);
+const Color dashboardCardGreenDark = Color(0xFF16261F);
+const Color dashboardCardGoldDark = Color(0xFF241C10);
+
+// İki modda da sabit kalan vurgu renkleri.
+const Color dashboardAccentGreen = Color(0xFF2F4B3C);
+const Color dashboardAccentGold = Color(0xFFC9A15A);
+
+// TV Modu (kiosk ekranı) zemini — koyu lacivert, mevcut beyaz metinlerle
+// yeterli kontrast sağlar.
+const Color tvBgDark = Color(0xFF0B1220);
+
+Color dashboardBg(Brightness b) => b == Brightness.dark ? dashboardBgDark : dashboardBgLight;
+Color dashboardSidebarBg(Brightness b) => b == Brightness.dark ? dashboardSidebarDark : dashboardSidebarLight;
+Color dashboardCardGreen(Brightness b) => b == Brightness.dark ? dashboardCardGreenDark : dashboardCardGreenLight;
+Color dashboardCardGold(Brightness b) => b == Brightness.dark ? dashboardCardGoldDark : dashboardCardGoldLight;

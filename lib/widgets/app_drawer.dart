@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../features/daily_content/presentation/daily_content_page.dart';
 import '../features/locations/presentation/country_page.dart';
 import '../features/locations/presentation/recent_locations_page.dart';
 import '../features/settings/presentation/mode_controller.dart';
@@ -55,6 +56,18 @@ class AppDrawer extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CountryPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.auto_stories_outlined),
+            title: const Text('Günlük İçerik'),
+            subtitle: const Text('Âyet, hadis, tarihte bugün, söz'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DailyContentPage()),
               );
             },
           ),

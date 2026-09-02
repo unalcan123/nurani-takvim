@@ -1,0 +1,44 @@
+{
+  "tr": [
+    {
+      "metin": "Ameller ancak niyetlere göredir. Herkese ancak niyet ettiği şey vardır.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "Bed'ü'l-vahy",
+      "hadisNo": "1",
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "metin": "Müslüman, elinden ve dilinden diğer müslümanların emin/güvende olduğu kimsedir.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "Îmân",
+      "hadisNo": "4-5",
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "metin": "Sizden biriniz, kendi nefsi için istediğini (mümin) kardeşi için de istemedikçe gerçek anlamda iman etmiş olmaz.",
+      "kaynak": "Sahîh-i Buhârî; Sahîh-i Müslim",
+      "kitapBolum": "Buhârî, Îmân 7; Müslim, Îmân 71",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "metin": "Şüphesiz Allah, sizin bedenlerinize ve suretlerinize değil, kalplerinize ve amellerinize bakar.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Birr ve's-sıla",
+      "hadisNo": "33",
+      "verified": true,
+      "isSampleData": true
+    },
+    {
+      "metin": "Kolaylaştırınız, zorlaştırmayınız; müjdeleyiniz, nefret ettirmeyiniz.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "İlim",
+      "hadisNo": "11",
+      "verified": true,
+      "isSampleData": true
+    }
+  ]
+}

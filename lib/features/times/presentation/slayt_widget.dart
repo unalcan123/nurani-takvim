@@ -10,6 +10,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/platform_file_ops.dart';
+import '../../../theme.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
 
 // ─────────────────────────────────────────────────────────
@@ -504,7 +505,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
         }
 
         return Container(
-          color: Colors.black,
+          color: tvBgDark,
           width: double.infinity,
           height: actualHeight,
           child: Stack(
@@ -625,7 +626,7 @@ class _SmartFittedImageState extends State<_SmartFittedImage> {
             : BoxFit.contain;
 
         return ColoredBox(
-          color: Colors.black,
+          color: tvBgDark,
           child: Center(
             child: Image(
               image: widget.provider,
@@ -852,7 +853,7 @@ class _FullScreenSlaytPageState extends ConsumerState<FullScreenSlaytPage> {
     final screenSize = MediaQuery.sizeOf(context);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: tvBgDark,
       body: GestureDetector(
         onTap: _toggleOverlay,
         child: Stack(

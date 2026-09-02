@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
+
+import '../data/prefs_repository.dart';
 
 // Kabe koordinatları
 const double _kaabaLat = 21.4225;
@@ -34,14 +37,14 @@ double _qiblaOffset(double qiblaDegree, double phoneHeading) {
   return offset;
 }
 
-class QiblaPage extends StatefulWidget {
+class QiblaPage extends ConsumerStatefulWidget {
   const QiblaPage({super.key});
 
   @override
-  State<QiblaPage> createState() => _QiblaPageState();
+  ConsumerState<QiblaPage> createState() => _QiblaPageState();
 }
 
-class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
+class _QiblaPageState extends ConsumerState<QiblaPage> with TickerProviderStateMixin {
   bool _wasAligned = false;
   bool _isAligned = false;
   late AnimationController _pulseController;
@@ -122,8 +125,7 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
       setState(() {
         _qiblaDegree = qiblaDegree;
         _locationLoading = false;
-        _locationInfo =
-            '${position.latitude.toStringAsFixed(2)}°, ${position.longitude.toStringAsFixed(2)}°';
+        _locationInfo = _formatLocationInfo(position);
       });
 
       // 4. Pusula dinlemeye başla — hizalama kontrolü BURADA yapılıyor
@@ -179,6 +181,16 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
   double _calculateDifference() {
     if (_qiblaDegree == null) return 180;
     return _qiblaOffset(_qiblaDegree!, _heading);
+  }
+
+  String _formatLocationInfo(Position position) {
+    final savedLocations = ref.read(prefsRepositoryProvider).getRecentLocations();
+    final savedLocation = savedLocations.isEmpty ? null : savedLocations.first;
+    final coordinates = '${position.latitude.toStringAsFixed(2)}°, ${position.longitude.toStringAsFixed(2)}°';
+
+    if (savedLocation == null) return coordinates;
+
+    return '${savedLocation.ilce.ilceAdi}, ${savedLocation.sehir.sehirAdi} - $coordinates';
   }
 
   @override
@@ -252,14 +264,17 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
         ? Colors.green
         : (diff.abs() < 30 ? Colors.orange : Colors.red.shade300);
 
-    // Açı hesaplamaları
-    final double compassAngle = -_heading * (pi / 180);
-    final double qiblaOffset = _qiblaOffset(_qiblaDegree!, _heading);
-    final double needleAngle = qiblaOffset * (pi / 180);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        final compassSize = isLandscape ? (constraints.maxHeight * 0.46).clamp(160.0, 220.0) : 300.0;
+        final gap = isLandscape ? 8.0 : 24.0;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        return Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: isLandscape ? 8 : 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
         children: [
           // Durum göstergesi
           AnimatedBuilder(
@@ -303,86 +318,18 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
             },
           ),
 
-          const SizedBox(height: 24),
+                  SizedBox(height: gap),
 
           // PUSULA ALANI
-          SizedBox(
-            height: 300,
-            width: 300,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Hizalandığında yeşil halka
-                if (isAligned)
-                  AnimatedBuilder(
-                    animation: _pulseController,
-                    builder: (context, child) {
-                      return Container(
-                        width: 310 + _pulseController.value * 20,
-                        height: 310 + _pulseController.value * 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.green.withValues(alpha: 0.6 - _pulseController.value * 0.4),
-                            width: 4,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                // 1. Pusula Kadranı
-                SizedBox(
-                  width: 280,
-                  height: 280,
-                  child: Transform.rotate(
-                    angle: compassAngle,
-                    child: SvgPicture.asset(
-                      'assets/image/compass.svg',
-                      width: 280,
-                      height: 280,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-
-                // 2. Kıble İbresi
-                SizedBox(
-                  width: 240,
-                  height: 240,
-                  child: Transform.rotate(
-                    angle: needleAngle,
-                    child: SvgPicture.asset(
-                      'assets/image/needle.svg',
-                      width: 240,
-                      height: 240,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-
-                // 3. Merkez İkon
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isAligned ? Colors.green : Colors.black,
-                    boxShadow: isAligned
-                        ? [BoxShadow(color: Colors.green.withValues(alpha: 0.5), blurRadius: 12, spreadRadius: 2)]
-                        : [],
-                  ),
-                  padding: const EdgeInsets.all(6),
-                  child: Icon(
-                    isAligned ? Icons.check : Icons.location_on,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
+                  _CompassView(
+                    size: compassSize,
+                    heading: _heading,
+                    qiblaDegree: _qiblaDegree!,
+                    isAligned: isAligned,
+                    pulseController: _pulseController,
           ),
 
-          const SizedBox(height: 24),
+                  SizedBox(height: gap),
 
           // Kıble açısı ve konum bilgisi
           Text(
@@ -392,14 +339,110 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
           const SizedBox(height: 4),
           Text(
             "Konum: $_locationInfo",
+                    textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 13, color: Colors.black38),
           ),
 
-          const SizedBox(height: 24),
-          const Text(
-            "Telefonu düz tutun ve yavaşça çevirin.\nOk Kabe'yi gösterdiğinde titreşim hissedeceksiniz.",
+                  SizedBox(height: gap),
+                  Text(
+                    isLandscape
+                        ? "Telefonu düz tutun; ok Kabe'yi gösterdiğinde titreşim hissedeceksiniz."
+                        : "Telefonu düz tutun ve yavaşça çevirin.\nOk Kabe'yi gösterdiğinde titreşim hissedeceksiniz.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black45, fontSize: 14),
+                    style: const TextStyle(color: Colors.black45, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          );
+      },
+    );
+  }
+}
+
+class _CompassView extends StatelessWidget {
+  final double size;
+  final double heading;
+  final double qiblaDegree;
+  final bool isAligned;
+  final Animation<double> pulseController;
+
+  const _CompassView({
+    required this.size,
+    required this.heading,
+    required this.qiblaDegree,
+    required this.isAligned,
+    required this.pulseController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final compassAngle = -heading * (pi / 180);
+    final qiblaOffset = _qiblaOffset(qiblaDegree, heading);
+    final needleAngle = qiblaOffset * (pi / 180);
+
+    return SizedBox(
+      height: size,
+      width: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (isAligned)
+            AnimatedBuilder(
+              animation: pulseController,
+              builder: (context, child) {
+                return Container(
+                  width: size + 10 + pulseController.value * 20,
+                  height: size + 10 + pulseController.value * 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.green.withValues(alpha: 0.6 - pulseController.value * 0.4),
+                      width: 4,
+                    ),
+                  ),
+                );
+              },
+            ),
+          SizedBox(
+            width: size * 0.93,
+            height: size * 0.93,
+            child: Transform.rotate(
+              angle: compassAngle,
+              child: SvgPicture.asset(
+                'assets/image/compass.svg',
+                width: size * 0.93,
+                height: size * 0.93,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: size * 0.8,
+            height: size * 0.8,
+            child: Transform.rotate(
+              angle: needleAngle,
+              child: SvgPicture.asset(
+                'assets/image/needle.svg',
+                width: size * 0.8,
+                height: size * 0.8,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isAligned ? Colors.green : Colors.black,
+              boxShadow: isAligned ? [BoxShadow(color: Colors.green.withValues(alpha: 0.5), blurRadius: 12, spreadRadius: 2)] : [],
+            ),
+            padding: EdgeInsets.all(size * 0.02),
+            child: Icon(
+              isAligned ? Icons.check : Icons.location_on,
+              color: Colors.white,
+              size: size * 0.07,
+            ),
           ),
         ],
       ),

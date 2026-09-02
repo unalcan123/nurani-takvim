@@ -6,6 +6,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'core/notification_service.dart';
+import 'core/web_audio_unlock.dart';
 import 'features/settings/data/prefs_repository.dart';
 import 'features/settings/presentation/tv_mode_effect.dart';
 
@@ -35,12 +36,17 @@ Future<void> main() async {
   );
 
   // Bildirim servisini de uygulama başlamadan önce başlat
-  await container.read(notificationServiceProvider).init();
+  final notificationService = container.read(notificationServiceProvider);
+  await notificationService.init();
+  // Bildirim (ve Android 12+ için kesin alarm) izinlerini hemen sor;
+  // kullanıcı reddederse namaz vakti alarmları planlanamaz/gösterilemez —
+  // bu durum Ayarlar > Bildirimler ekranında ayrıca gösterilir.
+  await notificationService.requestPermissions();
 
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const TvModeEffect(child: EzanApp()),
+      child: const TvModeEffect(child: WebAudioUnlocker(child: EzanApp())),
     ),
   );
 }

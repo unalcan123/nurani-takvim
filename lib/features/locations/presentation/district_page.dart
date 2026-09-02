@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../widgets/modern_list_tile.dart';
 import '../data/location_providers.dart';
 import '../data/models.dart';
+import '../../dashboard/presentation/app_shell.dart';
 import '../../settings/data/prefs_repository.dart';
+import '../../settings/presentation/mode_controller.dart';
 import '../../times/presentation/times_page.dart';
 
 final districtsProvider = FutureProvider.family<List<Ilce>, String>((ref, sehirId) async {
@@ -78,13 +80,22 @@ class _DistrictPageState extends ConsumerState<DistrictPage> {
                         // Create a SavedLocation object and add it to recent locations
                         final savedLocation = SavedLocation(ulke: widget.ulke, sehir: widget.sehir, ilce: d);
                         await ref.read(prefsRepositoryProvider).addRecentLocation(savedLocation);
-                        
+
                         if (!context.mounted) return;
 
+                        // TV Modu'ndaysa doğrudan kiosk ekranına (TimesPage), aksi
+                        // halde yeni "Nurani Takvim" dashboard'una (AppShell) dön.
+                        final isTvMode = ref.read(modeProvider) == AppMode.tv;
+                        // Yeni AppShell açılınca Ana Sayfa'da başlasın — sekme
+                        // durumu global kalıcı olduğu için resetlenmezse
+                        // önceki ekranda (ör. Ayarlar) kalmaya devam eder.
+                        ref.read(dashboardSelectedTabProvider.notifier).state = 0;
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => TimesPage(ulke: widget.ulke, sehir: widget.sehir, ilce: d),
+                            builder: (_) => isTvMode
+                                ? TimesPage(ulke: widget.ulke, sehir: widget.sehir, ilce: d)
+                                : const AppShell(),
                           ),
                           (route) => false, // Remove all previous routes
                         );

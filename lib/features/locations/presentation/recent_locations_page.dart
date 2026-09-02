@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../widgets/modern_list_tile.dart';
+import '../../dashboard/presentation/app_shell.dart';
 import '../../settings/data/prefs_repository.dart';
+import '../../settings/presentation/mode_controller.dart';
 import '../../times/presentation/times_page.dart';
 
 class RecentLocationsPage extends ConsumerWidget {
@@ -28,13 +30,17 @@ class RecentLocationsPage extends ConsumerWidget {
                   title: '${location.sehir.sehirAdi} • ${location.ilce.ilceAdi}',
                   subtitle: location.ulke.ulkeAdi,
                   onTap: () {
+                    final isTvMode = ref.read(modeProvider) == AppMode.tv;
+                    ref.read(dashboardSelectedTabProvider.notifier).state = 0;
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (_) => TimesPage(
-                          ulke: location.ulke,
-                          sehir: location.sehir,
-                          ilce: location.ilce,
-                        ),
+                        builder: (_) => isTvMode
+                            ? TimesPage(
+                                ulke: location.ulke,
+                                sehir: location.sehir,
+                                ilce: location.ilce,
+                              )
+                            : const AppShell(),
                       ),
                       (route) => false,
                     );

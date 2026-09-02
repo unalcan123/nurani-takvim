@@ -1,3 +1,5 @@
+import 'prayer_sound_settings.dart';
+
 const List<String> prayerNames = ['İmsak', 'Öğle', 'İkindi', 'Akşam', 'Yatsı'];
 
 const List<int> preNotificationMinutes = [30, 20, 10];
@@ -13,9 +15,13 @@ const String defaultBgMusicPath = 'assets/music/Video download (1).mp3';
 
 class AlertSettings {
   final Map<String, bool> prayerAlarms;
-  final AlertType alertType;
-  final List<String> customAudioPaths;
-  final String? selectedCustomAudioPath;
+
+  /// Her vakit için bağımsız ses ayarı (ezan / kısa bildirim / kendi sesi / sessiz).
+  final Map<String, PrayerSoundSetting> prayerSounds;
+
+  /// Ezan/bildirim ortak ses seviyesi (0.0 - 1.0).
+  final double ezanVolume;
+
   final Map<int, bool> preNotifications;
   final int slideDuration;
   final String slideCategory;
@@ -28,9 +34,8 @@ class AlertSettings {
 
   AlertSettings({
     Map<String, bool>? prayerAlarms,
-    this.alertType = AlertType.ezan,
-    this.customAudioPaths = const [],
-    this.selectedCustomAudioPath,
+    Map<String, PrayerSoundSetting>? prayerSounds,
+    this.ezanVolume = 1.0,
     Map<int, bool>? preNotifications,
     this.slideDuration = 15,
     this.slideCategory = 'resim',
@@ -39,10 +44,15 @@ class AlertSettings {
     this.bgMusicPaths = const [defaultBgMusicPath],
     this.bgMusicEnabled = true,
   })  : prayerAlarms = prayerAlarms ?? {for (var v in prayerNames) v: false},
+        prayerSounds = prayerSounds ?? defaultPrayerSounds(),
         preNotifications = preNotifications ?? {for (var m in preNotificationMinutes) m: false};
 
   bool isPrayerEnabled(String prayerName) {
     return prayerAlarms[prayerName] ?? false;
+  }
+
+  PrayerSoundSetting soundFor(String prayerName) {
+    return prayerSounds[prayerName] ?? const PrayerSoundSetting();
   }
 
   bool isPreNotificationEnabled(int minute) {
@@ -51,9 +61,8 @@ class AlertSettings {
 
   AlertSettings copyWith({
     Map<String, bool>? prayerAlarms,
-    AlertType? alertType,
-    List<String>? customAudioPaths,
-    String? selectedCustomAudioPath,
+    Map<String, PrayerSoundSetting>? prayerSounds,
+    double? ezanVolume,
     Map<int, bool>? preNotifications,
     int? slideDuration,
     String? slideCategory,
@@ -64,9 +73,8 @@ class AlertSettings {
   }) {
     return AlertSettings(
       prayerAlarms: prayerAlarms ?? this.prayerAlarms,
-      alertType: alertType ?? this.alertType,
-      customAudioPaths: customAudioPaths ?? this.customAudioPaths,
-      selectedCustomAudioPath: selectedCustomAudioPath ?? this.selectedCustomAudioPath,
+      prayerSounds: prayerSounds ?? this.prayerSounds,
+      ezanVolume: ezanVolume ?? this.ezanVolume,
       preNotifications: preNotifications ?? this.preNotifications,
       slideDuration: slideDuration ?? this.slideDuration,
       slideCategory: slideCategory ?? this.slideCategory,
@@ -76,14 +84,4 @@ class AlertSettings {
       bgMusicEnabled: bgMusicEnabled ?? this.bgMusicEnabled,
     );
   }
-}
-
-enum AlertType {
-  ezan,
-  custom;
-
-  String get displayName => const {
-        AlertType.ezan: 'Ezan Oku',
-        AlertType.custom: 'Özel Seslerim',
-      }[this]!;
 }

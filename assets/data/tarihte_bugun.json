@@ -1,0 +1,64 @@
+{
+  "tr": [
+    {
+      "ay": 4,
+      "gun": 23,
+      "yil": 1920,
+      "baslik": "TBMM'nin Açılışı",
+      "aciklama": "Türkiye Büyük Millet Meclisi, Mustafa Kemal Atatürk başkanlığında Ankara'da ilk kez toplandı.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "turkiye",
+      "isSampleData": true
+    },
+    {
+      "ay": 5,
+      "gun": 29,
+      "yil": 1453,
+      "baslik": "İstanbul'un Fethi",
+      "aciklama": "Fatih Sultan Mehmed komutasındaki Osmanlı ordusu İstanbul'u (Konstantinopolis) fethetti.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "osmanli",
+      "isSampleData": true
+    },
+    {
+      "ay": 8,
+      "gun": 30,
+      "yil": 1922,
+      "baslik": "Büyük Taarruz Zaferi",
+      "aciklama": "Kurtuluş Savaşı'nda Büyük Taarruz sonucunda kazanılan zafer; bugün Zafer Bayramı olarak kutlanır.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "turkiye",
+      "isSampleData": true
+    },
+    {
+      "ay": 10,
+      "gun": 29,
+      "yil": 1923,
+      "baslik": "Cumhuriyet'in İlanı",
+      "aciklama": "Türkiye Büyük Millet Meclisi'nde Cumhuriyet ilan edildi ve Mustafa Kemal Atatürk ilk Cumhurbaşkanı seçildi.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "turkiye",
+      "isSampleData": true
+    },
+    {
+      "ay": 11,
+      "gun": 3,
+      "yil": 1839,
+      "baslik": "Tanzimat Fermanı'nın İlanı",
+      "aciklama": "Gülhane Hatt-ı Hümayunu ile Osmanlı Devleti'nde köklü idari ve hukuki reformların önü açıldı.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "osmanli",
+      "isSampleData": true
+    },
+    {
+      "ay": 7,
+      "gun": 15,
+      "yil": 2016,
+      "baslik": "15 Temmuz Darbe Girişiminin Bertaraf Edilmesi",
+      "aciklama": "Türkiye'de gerçekleştirilmeye çalışılan askeri darbe girişimi halkın direnişiyle püskürtüldü.",
+      "kaynak": "Genel tarih bilgisi",
+      "kategori": "turkiye",
+      "isSampleData": true
+    }
+  ]
+}

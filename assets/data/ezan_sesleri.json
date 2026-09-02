@@ -1,0 +1,62 @@
+{
+  "sabah": {
+    "file": "assets/audio/ezan_sabah.mp3",
+    "prayer": "İmsak / Sabah",
+    "source": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Eid_al-Fitr_Fajr_azan_at_Malm%C3%B6_Mosque_-_19_August_2012.webm",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "attribution": "Islamic Center Malmö",
+    "title": "Eid al-Fitr Fajr azan at Malmö Mosque - 19 August 2012",
+    "note": "Sabah (İmsak) ezanına özgü 'es-salâtü hayrun mine'n-nevm' ifadesini içeren, camiye ait doğrulanmış bir sabah ezanı kaydıdır. Orijinal video (webm, vp9/opus) dosyasından yalnızca ses izi ffmpeg ile mp3'e (128 kbps) dönüştürülmüş ve seviyesi normalize edilmiştir.",
+    "isSampleData": false
+  },
+  "ogle": {
+    "file": "assets/audio/ezan_ogle.mp3",
+    "prayer": "Öğle",
+    "source": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adhan,_Great_Mosque_of_Mecca_-_Jan_21,_2013.webm",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "attribution": "Seyfula Islam",
+    "title": "Adhan, Great Mosque of Mecca - Jan 21, 2013",
+    "note": "Mescid-i Haram'da (Mekke) okunan genel bir ezan kaydı. Orijinal video (webm, vp8/vorbis) dosyasından yalnızca ses izi ffmpeg ile mp3'e (128 kbps) dönüştürülmüş ve seviyesi normalize edilmiştir.",
+    "isSampleData": false
+  },
+  "ikindi": {
+    "file": "assets/audio/ezan_ikindi.mp3",
+    "prayer": "İkindi",
+    "source": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adhan_in_Shalqar_mosque.webm",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "attribution": "Esetok",
+    "title": "Adhan in Shalqar mosque",
+    "note": "Genel bir ezan kaydı. Orijinal video (webm, vp8/vorbis) dosyasından yalnızca ses izi ffmpeg ile mp3'e (128 kbps) dönüştürülmüş ve seviyesi normalize edilmiştir.",
+    "isSampleData": false
+  },
+  "aksam": {
+    "file": "assets/audio/ezan_aksam.mp3",
+    "prayer": "Akşam",
+    "source": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Maghrib_Adhan_at_the_Masjid_al_Haram,_Mecca_-_25_Feb,_2012.webm",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "attribution": "3omar Faruq",
+    "title": "Maghrib Adhan at the Masjid al Haram, Mecca - 25 Feb, 2012",
+    "note": "Akşam (Mağrib) ezanına özgü, Mescid-i Haram'da okunan doğrulanmış bir kayıt. Orijinal video (webm, vp8/vorbis) dosyasından yalnızca ses izi ffmpeg ile mp3'e (128 kbps) dönüştürülmüş ve seviyesi normalize edilmiştir.",
+    "isSampleData": false
+  },
+  "yatsi": {
+    "file": "assets/audio/ezan_yatsi.mp3",
+    "prayer": "Yatsı",
+    "source": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "attribution": "Atcovi (kayıt: Aaqib Azeez)",
+    "title": "The Adhan - Muslim Call to Prayer - Aaqib Azeez",
+    "note": "Genel bir ezan kaydı; kaynak zaten mp3 formatındaydı, seviyesi normalize edilerek yeniden kodlanmıştır (128 kbps).",
+    "isSampleData": false
+  }
+}

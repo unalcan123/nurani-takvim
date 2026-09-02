@@ -1,22 +1,29 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../data/alert_settings.dart';
+import '../data/custom_audio_store.dart';
+import '../data/prayer_sound_settings.dart';
+
+final customAudioStoreProvider = Provider<CustomAudioStore>((ref) => CustomAudioStore());
 
 final alertSettingsProvider = StateNotifierProvider<AlertSettingsNotifier, AlertSettings>((ref) {
-  return AlertSettingsNotifier();
+  return AlertSettingsNotifier(ref.watch(customAudioStoreProvider));
 });
 
 class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
-  AlertSettingsNotifier() : super(AlertSettings()) {
+  final CustomAudioStore _customAudioStore;
+
+  AlertSettingsNotifier(this._customAudioStore) : super(AlertSettings()) {
     _loadSettings();
   }
 
   static const _keyPrayerAlarms = 'prayer_alarms';
-  static const _keyAlertType = 'alert_type';
-  static const _keyCustomAudios = 'custom_audios';
-  static const _keySelectedAudio = 'selected_audio';
+  static const _keyPrayerSounds = 'prayer_sounds_v1';
+  static const _keyEzanVolume = 'ezan_volume';
   static const _keyPreNotifications = 'pre_notifications';
   static const _keySlideDuration = 'slide_duration';
   static const _keySlideCategory = 'slide_category';
@@ -49,11 +56,26 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
 
     final musicPaths = prefs.getStringList(_keyBgMusicPaths) ?? [defaultBgMusicPath];
 
+    final soundsRaw = prefs.getString(_keyPrayerSounds);
+    Map<String, PrayerSoundSetting> prayerSounds = defaultPrayerSounds();
+    if (soundsRaw != null) {
+      try {
+        final decoded = Map<String, dynamic>.from(json.decode(soundsRaw));
+        prayerSounds = {
+          for (var name in prayerNames)
+            name: decoded.containsKey(name)
+                ? PrayerSoundSetting.fromJson(Map<String, dynamic>.from(decoded[name]))
+                : const PrayerSoundSetting(),
+        };
+      } catch (_) {
+        // Bozuk kayıt varsa varsayılanlara dön.
+      }
+    }
+
     state = state.copyWith(
       prayerAlarms: alarmMap,
-      alertType: AlertType.values[prefs.getInt(_keyAlertType) ?? 0],
-      customAudioPaths: prefs.getStringList(_keyCustomAudios) ?? [],
-      selectedCustomAudioPath: prefs.getString(_keySelectedAudio),
+      prayerSounds: prayerSounds,
+      ezanVolume: prefs.getDouble(_keyEzanVolume) ?? 1.0,
       preNotifications: preNotifyMap,
       slideDuration: prefs.getInt(_keySlideDuration) ?? 15,
       slideCategory: prefs.getString(_keySlideCategory) ?? 'resim',
@@ -72,50 +94,60 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     state = state.copyWith(prayerAlarms: newAlarms);
   }
 
-  Future<void> setAlertType(AlertType type) async {
+  Future<void> _persistPrayerSounds(Map<String, PrayerSoundSetting> sounds) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyAlertType, type.index);
-    state = state.copyWith(alertType: type);
+    final encoded = json.encode({for (final e in sounds.entries) e.key: e.value.toJson()});
+    await prefs.setString(_keyPrayerSounds, encoded);
   }
 
-  Future<void> pickCustomAudio() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.audio);
-    if (result != null && result.files.single.path != null) {
-      final path = result.files.single.path!;
-      final newList = [...state.customAudioPaths, path];
-      
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_keyCustomAudios, newList);
-      
-      state = state.copyWith(customAudioPaths: newList);
-      if (state.selectedCustomAudioPath == null) {
-        selectCustomAudio(path);
+  /// [prayerName] için ses türünü değiştirir. `custom` seçiliyorsa
+  /// [customAudioId] verilmelidir (bkz. [pickAndAssignCustomAudio]).
+  Future<void> setPrayerSoundType(String prayerName, PrayerSoundType type, {String? customAudioId}) async {
+    final newSounds = Map<String, PrayerSoundSetting>.from(state.prayerSounds);
+    final current = newSounds[prayerName] ?? const PrayerSoundSetting();
+    newSounds[prayerName] = current.copyWith(
+      type: type,
+      customAudioId: type == PrayerSoundType.custom ? (customAudioId ?? current.customAudioId) : null,
+      clearCustomAudioId: type != PrayerSoundType.custom,
+    );
+    await _persistPrayerSounds(newSounds);
+    state = state.copyWith(prayerSounds: newSounds);
+  }
+
+  /// [prayerName] için doğrudan bir kayıtlı özel ses dosyasını atar (dosya
+  /// zaten [CustomAudioStore] içindeyse — örn. bir vaktin sesi bir başka
+  /// vaktin daha önce yüklediği dosyayla değiştiriliyorsa).
+  Future<void> assignCustomAudio(String prayerName, String customAudioId) async {
+    await setPrayerSoundType(prayerName, PrayerSoundType.custom, customAudioId: customAudioId);
+  }
+
+  /// Bayt dizisinden yeni bir özel ses dosyası oluşturup [prayerName]'e atar.
+  Future<CustomAudioFile> addAndAssignCustomAudio(String prayerName, String fileName, Uint8List bytes) async {
+    final file = await _customAudioStore.add(fileName, bytes);
+    await assignCustomAudio(prayerName, file.id);
+    return file;
+  }
+
+  /// Bir özel ses dosyasını kalıcı olarak siler. Bu dosyayı kullanan bir
+  /// vakit varsa, o vakit varsayılan (ezan) sesine döner — sessizce kırık bir
+  /// referansta bırakılmaz.
+  Future<void> deleteCustomAudio(String customAudioId) async {
+    final newSounds = Map<String, PrayerSoundSetting>.from(state.prayerSounds);
+    for (final entry in newSounds.entries) {
+      if (entry.value.type == PrayerSoundType.custom && entry.value.customAudioId == customAudioId) {
+        newSounds[entry.key] = const PrayerSoundSetting(type: PrayerSoundType.adhan);
       }
     }
+    await _customAudioStore.remove(customAudioId);
+    await _persistPrayerSounds(newSounds);
+    state = state.copyWith(prayerSounds: newSounds);
   }
 
-  Future<void> selectCustomAudio(String path) async {
+  Future<void> setEzanVolume(double volume) async {
+    final clamped = volume.clamp(0.0, 1.0);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keySelectedAudio, path);
-    state = state.copyWith(selectedCustomAudioPath: path);
-  }
-
-  Future<void> removeCustomAudio(String path) async {
-    final newList = state.customAudioPaths.where((p) => p != path).toList();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_keyCustomAudios, newList);
-    
-    String? newSelected = state.selectedCustomAudioPath;
-    if (newSelected == path) {
-      newSelected = newList.isNotEmpty ? newList.first : null;
-      if (newSelected != null) {
-        await prefs.setString(_keySelectedAudio, newSelected);
-      } else {
-        await prefs.remove(_keySelectedAudio);
-      }
-    }
-    
-    state = state.copyWith(customAudioPaths: newList, selectedCustomAudioPath: newSelected);
+    await prefs.setDouble(_keyEzanVolume, clamped);
+    state = state.copyWith(ezanVolume: clamped);
   }
 
   Future<void> togglePreNotification(int minute, bool value) async {

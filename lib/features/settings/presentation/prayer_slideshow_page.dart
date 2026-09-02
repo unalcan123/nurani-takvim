@@ -178,18 +178,9 @@ class TopInfoPanel extends StatelessWidget {
           const SizedBox(height: 6),
 
           // ✅ geri sayım
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              remaining,
-              style: const TextStyle(
-                fontSize: 60,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontFamily: 'monospace',
-                height: 1.0,
-              ),
-            ),
+          _CountdownText(
+            value: remaining,
+            fontSize: 52,
           ),
 
           const SizedBox(height: 10),
@@ -236,6 +227,74 @@ class TopInfoPanel extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _CountdownText extends StatelessWidget {
+  final String value;
+  final double fontSize;
+
+  const _CountdownText({
+    required this.value,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: fontSize + 4,
+      child: CustomPaint(
+        painter: _CountdownTextPainter(
+          value: value,
+          fontSize: fontSize,
+        ),
+      ),
+    );
+  }
+}
+
+class _CountdownTextPainter extends CustomPainter {
+  final String value;
+  final double fontSize;
+
+  const _CountdownTextPainter({
+    required this.value,
+    required this.fontSize,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: value,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontFamily: 'monospace',
+          height: 1.0,
+        ),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: double.infinity);
+
+    final scale = painter.width > size.width ? size.width / painter.width : 1.0;
+    final dx = (size.width - painter.width * scale) / 2;
+    final dy = (size.height - painter.height * scale) / 2;
+
+    canvas.save();
+    canvas.translate(dx, dy);
+    canvas.scale(scale);
+    painter.paint(canvas, Offset.zero);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _CountdownTextPainter oldDelegate) {
+    return oldDelegate.value != value || oldDelegate.fontSize != fontSize;
   }
 }
 

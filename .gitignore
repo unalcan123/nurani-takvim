@@ -43,3 +43,39 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets / credentials — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.keystore
+*.jks
+android/key.properties
+android/app/key.properties
+**/android/local.properties
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json
+**/*.local.properties
+
+# Node (in case any tooling/scripts add these)
+node_modules/
+npm-debug.log*
+
+# Build caches / outputs (in addition to /build/ above)
+.gradle/
+android/.gradle/
+android/gradlew.bat.log
+*.tmp
+Thumbs.db
+
+# Stray local `flutter analyze` log dumps left in the project root
+/analysis.txt
+/analysis_v2.txt
+/analysis_elifbe*.txt
+
+# Stale local GitHub Pages build output — the repo now deploys via a
+# GitHub Actions workflow (.github/workflows/deploy.yml) that builds fresh
+# on every push instead of committing a pre-built `docs/` folder.
+/docs/
