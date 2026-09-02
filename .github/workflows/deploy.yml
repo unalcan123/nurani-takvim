@@ -29,9 +29,10 @@ jobs:
       - name: Pub get
         run: flutter pub get
 
-      # Project page için base-href şart: /slaytapp/
+      # Project page için base-href şart: repo adı nurani-takvim olduğundan
+      # yayın adresi https://<kullanıcı>.github.io/nurani-takvim/ olacak.
       - name: Build web
-        run: flutter build web --release --base-href "/slaytapp/"
+        run: flutter build web --release --base-href "/nurani-takvim/"
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
