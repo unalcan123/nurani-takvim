@@ -26,7 +26,7 @@ final lightTheme = ThemeData(
     elevation: 0,
     centerTitle: true,
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     color: lightCardColor,
     elevation: 1,
     margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
@@ -74,7 +74,7 @@ final darkTheme = ThemeData(
     elevation: 0,
     centerTitle: true,
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     color: darkCardColor,
     elevation: 2,
     margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
