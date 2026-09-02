@@ -34,9 +34,11 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      # GitHub Pages project URL'i /Namaz2/ olduğu için base-href şart
+      # Repo nurani-takvim olarak yeniden adlandırıldı; GitHub Pages project
+      # URL'i https://<kullanıcı>.github.io/nurani-takvim/ olduğu için
+      # base-href buna göre olmalı.
       - name: Build web
-        run: flutter build web --release --base-href "/Namaz2/"
+        run: flutter build web --release --base-href "/nurani-takvim/"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
