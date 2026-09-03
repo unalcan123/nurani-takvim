@@ -28,6 +28,10 @@ class ContentCard extends ConsumerWidget {
   /// Kart arka planı için özel renk (dashboard yeşil/altın kartları için).
   final Color? backgroundColor;
 
+  /// Verilirse kart tıklanabilir olur (ör. ana ekrandan detay sayfasına
+  /// geçiş için). `null` ise kart tıklamaya tepki vermez.
+  final VoidCallback? onTap;
+
   const ContentCard({
     super.key,
     required this.icon,
@@ -40,6 +44,7 @@ class ContentCard extends ConsumerWidget {
     this.favoriteType,
     this.favoriteRefId,
     this.backgroundColor,
+    this.onTap,
   });
 
   @override
@@ -53,7 +58,10 @@ class ContentCard extends ConsumerWidget {
 
     return Card(
       color: backgroundColor,
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,6 +129,7 @@ class ContentCard extends ConsumerWidget {
               ),
             ],
           ],
+        ),
         ),
       ),
     );

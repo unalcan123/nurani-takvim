@@ -7,9 +7,24 @@ import 'package:image/image.dart' as img;
 
 import '../../../core/platform_file_ops.dart';
 import '../data/alert_settings.dart';
+import '../data/image_categories.dart';
 import 'alert_settings_controller.dart';
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
+
+/// Desteklenen kullanıcı fotoğrafı uzantıları. HEIC/HEIF (bazı iPhone
+/// kameralarının varsayılan formatı) kasıtlı olarak DAHİL EDİLMEZ — ne
+/// `package:image` (çözümleme) ne de web'deki doğrudan-base64 yolu bu
+/// formatı işleyebilir; sessizce atlamak yerine kullanıcıya açıkça
+/// bildirilir (bkz. `_addImagesGeneric`).
+const List<String> supportedImageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+bool isSupportedImageFileName(String fileName) {
+  final dot = fileName.lastIndexOf('.');
+  if (dot == -1) return false;
+  final ext = fileName.substring(dot + 1).toLowerCase();
+  return supportedImageExtensions.contains(ext);
+}
 
 /// ✅ GÖRSEL İŞLEME YARDIMCISI (TV İÇİN NORMALLEŞTİRME)
 class ImageTvFixer {
@@ -45,42 +60,8 @@ class SlideSettingsPage extends ConsumerWidget {
   const SlideSettingsPage({super.key});
   Box get _webBox => Hive.box('web_user_images');
 
-  String _normalizeCategory(String category) {
-    final normalized = category
-        .toLowerCase()
-        .replaceAll('ı', 'i')
-        .replaceAll('ş', 's')
-        .replaceAll('ğ', 'g')
-        .replaceAll('ü', 'u')
-        .replaceAll('ö', 'o')
-        .replaceAll('ç', 'c')
-        .replaceAll('â', 'a')
-        .replaceAll('î', 'i')
-        .replaceAll('û', 'u')
-        .replaceAll(RegExp(r"['’`´]"), '')
-        .trim();
-
-    if (normalized.contains('kullanici')) return 'user';
-    if (normalized.contains('genel')) return 'resim';
-    if (normalized.contains('hadis')) return 'hadis';
-    if (normalized.contains('dua')) return 'dua';
-    if (normalized.contains('besmele')) return 'besmele';
-    if (normalized.contains('namaz')) return 'namaz';
-    if (normalized.contains('ramazan')) return 'ramazan';
-    if (normalized.contains('kuran')) return 'kuran';
-    if (normalized.contains('oruc')) return 'oruc';
-    if (normalized.contains('kabe')) return 'kabe';
-    if (normalized.contains('mekke')) return 'mekke';
-    if (normalized.contains('medine')) return 'medine';
-    if (normalized.contains('hac')) return 'hac';
-    if (normalized.contains('pattern') || normalized.contains('desen')) {
-      return 'islamic_patterns';
-    }
-    return normalized.replaceAll(RegExp(r'\s*/\s*'), '/');
-  }
-
   String _getEffectiveCategory(String category) {
-    return _normalizeCategory(category);
+    return normalizeImageCategory(category);
   }
 
   String _webKey(String category) {
@@ -123,51 +104,67 @@ class SlideSettingsPage extends ConsumerWidget {
     final key = _webKey(selectedKey);
     final List existing = (_webBox.get(key) as List?) ?? [];
 
+    var added = 0;
+    var skipped = 0;
     for (final f in result.files) {
       final bytes = f.bytes;
-      if (bytes == null) continue;
+      if (bytes == null || !isSupportedImageFileName(f.name)) {
+        skipped++;
+        continue;
+      }
       existing.add(base64Encode(bytes));
+      added++;
     }
 
     await _webBox.put(key, existing);
     ref.read(alertSettingsProvider.notifier).touchLastUpdate();
+
+    if (context.mounted) _showAddResultSnackBar(context, added, skipped);
   }
 
-  static const Map<String, String> defaultCategoryMap = {
-    'all_assets': 'Tüm Asset Resimleri',
-    'resim': 'Genel Resimler',
-    'hadis': 'Hadis-i Şerifler',
-    'dua': 'Dualar',
-    'besmele': 'Besmele',
-    'namaz': 'Namaz Bilgileri',
-    'ramazan': 'Ramazan',
-    'islam/namaz': 'İslam / Namaz',
-    'islam/dua': 'İslam / Dua',
-    'islam/kuran': 'İslam / Kur’an',
-    'islam/oruc': 'İslam / Oruç',
-    'islam/ramazan': 'İslam / Ramazan',
-    'islam/kabe': 'İslam / Kâbe',
-    'islam/mekke': 'İslam / Mekke',
-    'islam/medine': 'İslam / Medine',
-    'islam/hac': 'İslam / Hac',
-    'islam/islamic_patterns': 'İslam / Desenler',
-    'hakikat': 'Hakikat Damlaları',
-    'karisik': 'Karışık (Foto + Hakikat)',
-    'Kullanıcı Foto': 'Benim Fotoğraflarım',
-  };
+  /// Eklenen/atlanan fotoğraf sayısını kullanıcıya bildirir — desteklenmeyen
+  /// bir format (ör. HEIC/HEIF) sessizce atlanmaz, açıkça belirtilir.
+  void _showAddResultSnackBar(BuildContext context, int added, int skipped) {
+    final parts = <String>[];
+    if (added > 0) parts.add('$added fotoğraf eklendi.');
+    if (skipped > 0) {
+      parts.add('$skipped dosya desteklenmeyen formatta olduğu için eklenemedi (yalnızca JPG, JPEG, PNG, WEBP desteklenir — HEIC/HEIF desteklenmez).');
+    }
+    if (parts.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(parts.join(' ')),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  /// Hazır (asset) kategoriler [imageCategories]'den (merkezi liste) gelir;
+  /// buraya ayrıca özel, asset-klasörü OLMAYAN kategoriler eklenir.
+  static Map<String, String> get defaultCategoryMap => {
+        for (final c in imageCategories) c.id: c.label,
+        hakikatCategoryId: 'Hakikat Damlaları',
+        karisikCategoryId: 'Karışık (Foto + Hakikat)',
+        userPhotosCategoryId: 'Benim Fotoğraflarım',
+      };
 
   Map<String, String> _getFullCategoryMap(AlertSettings settings) {
     return {...defaultCategoryMap, ...settings.userCategories};
   }
 
+  /// Kullanıcının fotoğraf yükleyebileceği kategoriler: "Tümü" (fiziksel bir
+  /// yükleme hedefi değil, salt bir görünüm filtresidir) ve Hakikat
+  /// Damlaları / Karışık (kendi ses/görsel kaynağı olan özel modlar) hariç
+  /// tüm kategoriler + kullanıcının kendi oluşturduğu kategoriler.
   Map<String, String> _getUserPhotoCategoryMap(AlertSettings settings) {
-    final excluded = {'all_assets', 'hakikat', 'karisik'};
+    final excluded = {'all', hakikatCategoryId, karisikCategoryId};
     return Map.fromEntries(
       _getFullCategoryMap(settings).entries.where((entry) => !excluded.contains(entry.key)),
     );
   }
 
-  String _getInternalDir(String key) => key == 'Kullanıcı Foto' ? 'user' : key;
+  String _getInternalDir(String key) => key == userPhotosCategoryId ? 'user' : key;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -211,7 +208,12 @@ class SlideSettingsPage extends ConsumerWidget {
             ),
             child: Column(
               children: fullCategoryMap.entries.map((entry) {
-                final isSelected = settings.slideCategory == entry.key;
+                // `entry.key` normalize edilmiş (kanonik) kimliklerdir;
+                // `settings.slideCategory` eski bir sürümden kalma normalize
+                // edilmemiş bir değer olabilir (ör. eski 'Kullanıcı Foto'
+                // etiketi) — karşılaştırma her ikisini de normalize ederek
+                // yapılır ki radio seçili görünsün.
+                final isSelected = _getEffectiveCategory(settings.slideCategory) == entry.key;
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -230,7 +232,7 @@ class SlideSettingsPage extends ConsumerWidget {
                       ),
                     ),
                     value: entry.key,
-                    groupValue: settings.slideCategory,
+                    groupValue: _getEffectiveCategory(settings.slideCategory),
                     onChanged: (value) {
                       if (value != null) alertController.setSlideCategory(value);
                     },
@@ -461,15 +463,22 @@ class SlideSettingsPage extends ConsumerWidget {
 
       if (!context.mounted) return;
       _showLoadingDialog(context);
-      int count = 0;
+      var count = 0;
+      var skipped = 0;
 
       for (var file in result.files) {
-        if (file.path == null) continue;
+        if (file.path == null || !isSupportedImageFileName(file.name)) {
+          skipped++;
+          continue;
+        }
 
         final bytes = await readLocalFileBytes(file.path!);
 
         final decoded = img.decodeImage(bytes);
-        if (decoded == null) continue;
+        if (decoded == null) {
+          skipped++;
+          continue;
+        }
 
         final processed = ImageTvFixer.processForTv(decoded);
 
@@ -481,13 +490,7 @@ class SlideSettingsPage extends ConsumerWidget {
       if (context.mounted) {
         Navigator.pop(context);
         ref.read(alertSettingsProvider.notifier).triggerRefresh();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$count fotoğraf TV formatında eklendi."),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+        _showAddResultSnackBar(context, count, skipped);
       }
     }
   }
@@ -550,15 +553,22 @@ class SlideSettingsPage extends ConsumerWidget {
             );
             if (result == null) return;
 
+            var added = 0;
+            var skipped = 0;
             for (final file in result.files) {
               final bytes = file.bytes;
-              if (bytes == null) continue;
+              if (bytes == null || !isSupportedImageFileName(file.name)) {
+                skipped++;
+                continue;
+              }
               images.add(base64Encode(bytes));
+              added++;
             }
 
             await _webBox.put(key, images);
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
+            if (context.mounted) _showAddResultSnackBar(context, added, skipped);
           }
 
           Future<void> deleteAt(int index) async {
@@ -612,12 +622,20 @@ class SlideSettingsPage extends ConsumerWidget {
             );
             if (result == null) return;
 
+            var added = 0;
+            var skipped = 0;
             for (final file in result.files) {
-              if (file.path == null) continue;
+              if (file.path == null || !isSupportedImageFileName(file.name)) {
+                skipped++;
+                continue;
+              }
 
               final bytes = await readLocalFileBytes(file.path!);
               final decoded = img.decodeImage(bytes);
-              if (decoded == null) continue;
+              if (decoded == null) {
+                skipped++;
+                continue;
+              }
 
               final processed = ImageTvFixer.processForTv(decoded);
               final savedPath = await saveUserImageBytes(
@@ -625,10 +643,12 @@ class SlideSettingsPage extends ConsumerWidget {
                 img.encodeJpg(processed, quality: 85),
               );
               images.add(savedPath);
+              added++;
             }
 
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
+            if (context.mounted) _showAddResultSnackBar(context, added, skipped);
           }
 
           Future<void> deleteAt(int index) async {

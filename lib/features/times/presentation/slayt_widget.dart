@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/platform_file_ops.dart';
 import '../../../theme.dart';
+import '../../settings/data/image_categories.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
 
 // ─────────────────────────────────────────────────────────
@@ -94,42 +95,8 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
   ImageStream? _activeStream;
   ImageStreamListener? _activeListener;
 
-  String _normalizeCategory(String category) {
-    final normalized = category
-        .toLowerCase()
-        .replaceAll('ı', 'i')
-        .replaceAll('ş', 's')
-        .replaceAll('ğ', 'g')
-        .replaceAll('ü', 'u')
-        .replaceAll('ö', 'o')
-        .replaceAll('ç', 'c')
-        .replaceAll('â', 'a')
-        .replaceAll('î', 'i')
-        .replaceAll('û', 'u')
-        .replaceAll(RegExp(r"['’`´]"), '')
-        .trim();
-
-    if (normalized.contains('kullanici')) return 'user';
-    if (normalized.contains('genel')) return 'resim';
-    if (normalized.contains('hadis')) return 'hadis';
-    if (normalized.contains('dua')) return 'dua';
-    if (normalized.contains('besmele')) return 'besmele';
-    if (normalized.contains('namaz')) return 'namaz';
-    if (normalized.contains('ramazan')) return 'ramazan';
-    if (normalized.contains('kuran')) return 'kuran';
-    if (normalized.contains('oruc')) return 'oruc';
-    if (normalized.contains('kabe')) return 'kabe';
-    if (normalized.contains('mekke')) return 'mekke';
-    if (normalized.contains('medine')) return 'medine';
-    if (normalized.contains('hac')) return 'hac';
-    if (normalized.contains('pattern') || normalized.contains('desen')) {
-      return 'islamic_patterns';
-    }
-    return normalized.replaceAll(RegExp(r'\s*/\s*'), '/');
-  }
-
   String _getEffectiveCategory(String category) {
-    return _normalizeCategory(category);
+    return normalizeImageCategory(category);
   }
 
   String _webKey(String category) {
@@ -197,8 +164,9 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
   }
 
   List<String> _getAllImages(String category) {
-    if (category == 'hakikat') return []; // hakikat slides use hakikatSlides list
-    if (category == 'Kullanıcı Foto') return userImages;
+    final cat = _getEffectiveCategory(category);
+    if (cat == hakikatCategoryId) return []; // hakikat slides use hakikatSlides list
+    if (cat == userPhotosCategoryId) return userImages;
     return [...assetImages, ...userImages];
   }
 
@@ -240,19 +208,21 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     if (!mounted) return;
     setState(() => isLoading = true);
 
-    if (category == 'hakikat') {
+    final cat = _getEffectiveCategory(category);
+
+    if (cat == hakikatCategoryId) {
       // Sadece hakikat slaytları yükle
       assetImages = [];
       userImages = [];
       await _loadHakikatSlides();
-    } else if (category == 'karisik') {
+    } else if (cat == karisikCategoryId) {
       // Hem foto hem hakikat slaytları yükle
-      await _loadAssetImages('resim');
-      await _loadUserImages('resim');
+      await _loadAssetImages('all');
+      await _loadUserImages('all');
       await _loadHakikatSlides();
     } else {
       hakikatSlides = [];
-      if (category != 'Kullanıcı Foto') {
+      if (cat != userPhotosCategoryId) {
         await _loadAssetImages(category);
       } else {
         assetImages = [];
@@ -281,25 +251,16 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
       final assetPaths = await _loadAssetPaths();
 
       final cat = _getEffectiveCategory(category);
-      final assetFolders = <String>[
-        'assets/resim/$cat/',
-        'resim/$cat/',
-        'assets/images/$cat/',
-        'images/$cat/',
-      ];
-
-      if (!cat.contains('/')) {
-        assetFolders.addAll([
-          'assets/images/islam/$cat/',
-          'images/islam/$cat/',
-        ]);
-      }
+      // "Tümü" (all), her kategori klasörünün TEK bir birleşimidir — kendi
+      // fiziksel `assets/images/all/` klasörü (genel/hero görselleri) de bu
+      // birleşimin doğal bir parçasıdır. Her görsel asset manifestinde zaten
+      // yalnızca bir kez bulunduğu için (tek dosya = tek kayıt) aynı görsel
+      // iki kez listelenmez.
+      final assetFolders = <String>['assets/images/$cat/'];
 
       final images = assetPaths.where((key) {
         final k = key.toLowerCase();
-        final okFolder = cat == 'all_assets'
-            ? k.startsWith('assets/')
-            : assetFolders.any(k.contains);
+        final okFolder = cat == 'all' ? k.startsWith('assets/images/') : assetFolders.any(k.contains);
         final okExt = k.endsWith('.jpg') ||
             k.endsWith('.jpeg') ||
             k.endsWith('.png') ||
@@ -344,13 +305,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
       return MemoryImage(Uint8List.fromList(bytes));
     }
 
-    final isAsset = p.startsWith('assets/') ||
-        p.startsWith('resim/') ||
-        p.contains('/resim/') ||
-        p.startsWith('images/') ||
-        p.contains('/images/');
-
-    if (isAsset) return AssetImage(path);
+    if (p.startsWith('assets/')) return AssetImage(path);
 
     if (kIsWeb) return NetworkImage(path);
     return localFileImageProvider(path);
@@ -424,8 +379,9 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     final settings = ref.watch(alertSettingsProvider);
     final category = settings.slideCategory;
     final allImages = _getAllImages(category);
-    final isHakikat = category == 'hakikat';
-    final isKarisik = category == 'karisik';
+    final effectiveCategory = _getEffectiveCategory(category);
+    final isHakikat = effectiveCategory == hakikatCategoryId;
+    final isKarisik = effectiveCategory == karisikCategoryId;
 
     // Toplam item sayısını belirle
     int totalItems;
@@ -685,7 +641,7 @@ class _HakikatSlideCard extends StatelessWidget {
           children: [
             // Arka plan resmi
             Image.asset(
-              'assets/images/backgrounds/img_${item.image}.jpg',
+              'assets/images/all/img_${item.image}.jpg',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(

@@ -6,7 +6,7 @@
       "kitapBolum": "Bed'ü'l-vahy",
       "hadisNo": "1",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "metin": "Müslüman, elinden ve dilinden diğer müslümanların emin/güvende olduğu kimsedir.",
@@ -14,7 +14,7 @@
       "kitapBolum": "Îmân",
       "hadisNo": "4-5",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "metin": "Sizden biriniz, kendi nefsi için istediğini (mümin) kardeşi için de istemedikçe gerçek anlamda iman etmiş olmaz.",
@@ -22,7 +22,7 @@
       "kitapBolum": "Buhârî, Îmân 7; Müslim, Îmân 71",
       "hadisNo": null,
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "metin": "Şüphesiz Allah, sizin bedenlerinize ve suretlerinize değil, kalplerinize ve amellerinize bakar.",
@@ -30,7 +30,7 @@
       "kitapBolum": "Birr ve's-sıla",
       "hadisNo": "33",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "metin": "Kolaylaştırınız, zorlaştırmayınız; müjdeleyiniz, nefret ettirmeyiniz.",
@@ -38,7 +38,159 @@
       "kitapBolum": "İlim",
       "hadisNo": "11",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
+    },
+    {
+      "metin": "Din nasihattir (samimi öğüt ve iyi niyettir).",
+      "kaynak": "Sahîh-i Müslim; Ebû Dâvûd; Nesâî",
+      "kitapBolum": "Îmân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Kim bir müminin dünyadaki bir sıkıntısını giderirse, Allah da onun kıyamet günündeki bir sıkıntısını giderir.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Zikir ve Dua",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Sizin en hayırlınız, Kur'ân'ı öğrenen ve öğretendir.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "Fedâilü'l-Kur'ân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Kişi, dostunun dini/yolu üzeredir; onun için her biriniz kiminle dost olduğuna dikkat etsin.",
+      "kaynak": "Ebû Dâvûd; Tirmizî",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Güçlü mümin, Allah katında zayıf müminden daha hayırlı ve daha sevimlidir; her ikisinde de hayır vardır.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Kader",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Sadaka (vermekle) mal eksilmez.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Birr ve's-sıla",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Sizden kim bir kötülük görürse onu eliyle değiştirsin; buna gücü yetmezse diliyle; ona da gücü yetmezse kalbiyle (buğz etsin) — bu imanın en zayıf derecesidir.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Îmân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Allah güzeldir, güzelliği sever.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Îmân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Mü'minlerin iman bakımından en olgunu, ahlakı en güzel olanıdır.",
+      "kaynak": "Tirmizî; Ebû Dâvûd",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Kişi ile şirk ve küfür arasında (fark), namazı terk etmesidir.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Îmân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Temizlik imanın yarısıdır.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Tahâret",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Allah katında amellerin en sevimlisi, az da olsa devamlı olanıdır.",
+      "kaynak": "Sahîh-i Buhârî; Sahîh-i Müslim",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Mümin, bir delikten (bir hataya) iki defa sokulmaz.",
+      "kaynak": "Sahîh-i Buhârî; Sahîh-i Müslim",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Hediyeleşiniz, birbirinizi seversiniz.",
+      "kaynak": "Edebü'l-Müfred (Buhârî)",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "İki nimet vardır ki insanların çoğu onlarda aldanmıştır: Sağlık ve boş vakit.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "Rikâk",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Cennete girmedikçe iman etmiş olmazsınız; birbirinizi sevmedikçe de (gerçek/kâmil) iman etmiş olmazsınız.",
+      "kaynak": "Sahîh-i Müslim",
+      "kitapBolum": "Îmân",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Kolaylaştırın, güçleştirmeyin; müjdeleyin, nefret ettirmeyin; birbirinizle uyum içinde olun, ayrılığa düşmeyin.",
+      "kaynak": "Sahîh-i Buhârî",
+      "kitapBolum": "İlim",
+      "hadisNo": null,
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "metin": "Cennet, annelerin ayakları altındadır.",
+      "kaynak": "Halk arasında yaygın olarak hadis diye anılır; klasik hadis kaynaklarında bu lafızla sahih bir isnadı doğrulanamamıştır (bazı hadis âlimlerince zayıf kabul edilir). Anne hakkının üstünlüğü konusunda ise Sahîh-i Buhârî ve Müslim'de sahih başka rivayetler vardır.",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": false,
+      "isSampleData": false
+    },
+    {
+      "metin": "Komşusu açken tok yatan (bizden/kâmil mümin) değildir.",
+      "kaynak": "Bazı hadis kaynaklarında geçer; isnadı hakkında hadis âlimleri arasında görüş ayrılığı vardır (bir kısmı zayıf kabul eder).",
+      "kitapBolum": null,
+      "hadisNo": null,
+      "verified": false,
+      "isSampleData": false
     }
   ]
 }

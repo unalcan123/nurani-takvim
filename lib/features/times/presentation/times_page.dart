@@ -2,15 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/notification_service.dart';
 import '../../../widgets/app_drawer.dart';
 import '../../daily_content/presentation/daily_content_page.dart';
 import '../../locations/data/location_providers.dart';
 import '../../locations/data/models.dart';
-import '../../settings/data/alert_settings.dart';
-import '../../settings/presentation/alert_settings_controller.dart';
 import '../../../theme.dart';
-import 'alarm_page.dart';
 import 'slayt_widget.dart';
 import 'time_utils.dart';
 
@@ -43,10 +39,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
   String? _currentPrayerName;
   Duration _remaining = Duration.zero;
 
-  String? _lastTriggeredPrayerName;
-  final Map<int, String> _lastTriggeredPrePrayer = {};
-  bool _isCoolingDown = false;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -72,9 +64,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
       });
 
       _startTimer();
-
-      final settings = ref.read(alertSettingsProvider);
-      ref.read(notificationServiceProvider).scheduleAlarms(list, settings);
     }
   }
 
@@ -96,17 +85,11 @@ class _TimesPageState extends ConsumerState<TimesPage> {
         if (newToday != null) {
           setState(() {
             _today = newToday;
-            _lastTriggeredPrayerName = null;
-            _lastTriggeredPrePrayer.clear();
-            _isCoolingDown = false;
           });
           if (oldMoonUrl != null) {
             await NetworkImage(oldMoonUrl).evict();
           }
           await NetworkImage(newToday.ayinSekliURL).evict();
-          // ✅ (Opsiyonel ama tavsiye) yeni gün için alarmları tekrar kur
-          final settings = ref.read(alertSettingsProvider);
-          ref.read(notificationServiceProvider).scheduleAlarms(_list!, settings);
         } else {
           // liste yeni günü kapsamıyorsa yeniden çek
           await _initData();
@@ -117,8 +100,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
       setState(() {
         _now = now;
         _updateCountdown(_today!);
-        _checkAndTriggerAlarm();
-        _checkAndTriggerPreNotification();
       });
     });
   }
@@ -152,54 +133,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
     }
   }
 
-  void _checkAndTriggerAlarm() {
-    if (_nextPrayer == null) return;
-
-    final settings = ref.read(alertSettingsProvider);
-    if (!settings.isPrayerEnabled(_nextPrayer!.name) || _isCoolingDown || _nextPrayer!.name == 'Güneş') return;
-
-    if (_remaining.inSeconds <= 0 && _lastTriggeredPrayerName != _nextPrayer!.name) {
-      _lastTriggeredPrayerName = _nextPrayer!.name;
-      _isCoolingDown = true;
-
-      // Uygulama önplandayken bu sayfa zaten sesi çalacak (AlarmPage); aynı an
-      // için ayrıca zamanlanmış olan sistem bildirimini iptal ederiz — yoksa
-      // kullanıcı hem sistem bildirimi sesini hem uygulama içi sesi birlikte,
-      // çift olarak duyar.
-      ref.read(notificationServiceProvider).cancelPrayerNotification(_now, _nextPrayer!.name);
-
-      Navigator.push(context, MaterialPageRoute(builder: (_) => AlarmPage(nextPrayerName: _nextPrayer!.name)));
-
-      Future.delayed(const Duration(seconds: 20), () {
-        if (mounted) setState(() => _isCoolingDown = false);
-      });
-    }
-  }
-
-  void _checkAndTriggerPreNotification() {
-    if (_nextPrayer == null) return;
-
-    final settings = ref.read(alertSettingsProvider);
-    final prayerName = _nextPrayer!.name;
-
-    if (prayerName == 'İmsak') return;
-
-    for (final minute in preNotificationMinutes) {
-      if (settings.isPreNotificationEnabled(minute)) {
-        if (_remaining.inMinutes == minute &&
-            _remaining.inSeconds % 60 == 0 &&
-            _lastTriggeredPrePrayer[minute] != prayerName) {
-          _lastTriggeredPrePrayer[minute] = prayerName;
-          ref.read(notificationServiceProvider).showPrePrayerNotification(
-            prayerName,
-            minute,
-            preNotificationAssets[minute],
-          );
-        }
-      }
-    }
-  }
-
   Vakit? _findToday(List<Vakit> list, DateTime now) {
     try {
       return list.firstWhere((v) {
@@ -228,14 +161,6 @@ class _TimesPageState extends ConsumerState<TimesPage> {
   @override
   Widget build(BuildContext context) {
     final asyncTimes = ref.watch(timesProvider(widget.ilce.ilceId));
-
-    ref.listen(alertSettingsProvider, (previous, next) {
-      if (previous != next && _today != null) {
-        asyncTimes.whenData((list) {
-          ref.read(notificationServiceProvider).scheduleAlarms(list, next);
-        });
-      }
-    });
 
     return Scaffold(
       key: _scaffoldKey,

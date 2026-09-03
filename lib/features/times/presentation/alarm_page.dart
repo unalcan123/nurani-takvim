@@ -20,6 +20,12 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
   final _audioPlayer = AudioPlayer();
   StreamSubscription? _playerStateSubscription;
 
+  /// Tarayıcı otomatik oynatmayı (autoplay) engellediğinde `true` olur —
+  /// bu durumda kullanıcının tek dokunuşla sesi başlatabilmesi için bir
+  /// buton gösterilir (dokunma, tarayıcının aradığı "kullanıcı etkileşimi"
+  /// sayılır ve engeli aşar).
+  bool _playbackBlocked = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +37,8 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
     final sound = settings.soundFor(widget.nextPrayerName);
 
     if (sound.type == PrayerSoundType.silent) return;
+
+    if (mounted) setState(() => _playbackBlocked = false);
 
     try {
       final played = await playPrayerSound(
@@ -52,7 +60,10 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
       });
     } catch (e) {
       debugPrint("Ses dosyası çalınamadı (${widget.nextPrayerName}): $e");
-      // Saniye bekle ve sayfayı kapatma, kullanıcı görsün
+      // Tarayıcı autoplay'i engellemiş olabilir (kullanıcı etkileşimi
+      // olmadan tetiklenen bir zamanlayıcıdan çağrıldığı için) — sayfayı
+      // kapatmak yerine kullanıcıya manuel başlatma butonu gösterilir.
+      if (mounted) setState(() => _playbackBlocked = true);
     }
   }
 
@@ -89,7 +100,20 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
               'Ezan okunuyor...',
               style: TextStyle(fontSize: 18, color: Colors.white70),
             ),
-            const SizedBox(height: 60),
+            if (_playbackBlocked) ...[
+              const SizedBox(height: 32),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.white70),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                ),
+                onPressed: _initPlayer,
+                icon: const Icon(Icons.volume_up),
+                label: const Text('Sesi Başlat'),
+              ),
+            ],
+            const SizedBox(height: 32),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,

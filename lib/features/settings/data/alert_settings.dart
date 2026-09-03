@@ -38,7 +38,7 @@ class AlertSettings {
     this.ezanVolume = 1.0,
     Map<int, bool>? preNotifications,
     this.slideDuration = 15,
-    this.slideCategory = 'resim',
+    this.slideCategory = 'all',
     this.lastUpdate = 0,
     this.userCategories = const {},
     this.bgMusicPaths = const [defaultBgMusicPath],

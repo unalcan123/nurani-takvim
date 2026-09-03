@@ -327,7 +327,7 @@ class _SlideCard extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         Image.asset(
-          'assets/images/backgrounds/img_${item.image}.jpg',
+          'assets/images/all/img_${item.image}.jpg',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(

@@ -78,7 +78,7 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       ezanVolume: prefs.getDouble(_keyEzanVolume) ?? 1.0,
       preNotifications: preNotifyMap,
       slideDuration: prefs.getInt(_keySlideDuration) ?? 15,
-      slideCategory: prefs.getString(_keySlideCategory) ?? 'resim',
+      slideCategory: prefs.getString(_keySlideCategory) ?? 'all',
       userCategories: userCats,
       bgMusicPaths: musicPaths,
       bgMusicEnabled: prefs.getBool(_keyBgMusicEnabled) ?? true,
@@ -195,7 +195,7 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
 
     String newCategory = state.slideCategory;
     if (state.slideCategory == id) {
-      newCategory = 'resim';
+      newCategory = 'all';
       await prefs.setString(_keySlideCategory, newCategory);
     }
 

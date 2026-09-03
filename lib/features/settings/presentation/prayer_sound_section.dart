@@ -114,6 +114,24 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test bildirimi gönderildi.')));
   }
 
+  /// "Ezan Sesini Test Et" — o vaktin kendi ses ayarından bağımsız olarak
+  /// (o vakit için kullanıcı "sessiz" seçmiş olsa bile) her zaman gerçek
+  /// ezan sesini çalar; amaç cihazda ses çıkışının/otomatik oynatmanın
+  /// gerçekten çalışıp çalışmadığını doğrulamaktır.
+  Future<void> _testEzanSound() async {
+    final settings = ref.read(alertSettingsProvider);
+    await _togglePreview(
+      'ezan_test',
+      () => playPrayerSound(
+        player: _previewPlayer,
+        prayerName: 'Öğle',
+        setting: const PrayerSoundSetting(type: PrayerSoundType.adhan),
+        customAudioStore: ref.read(customAudioStoreProvider),
+        volume: settings.ezanVolume,
+      ),
+    );
+  }
+
   Future<void> _pickCustomAudioFor(String prayerName) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -240,13 +258,28 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection> {
           ),
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _sendTestNotification,
-            icon: const Icon(Icons.notifications_active_outlined),
-            label: const Text('Test Bildirimi Gönder'),
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 4),
+          child: Text('TEST', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey)),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _sendTestNotification,
+                icon: const Icon(Icons.notifications_active_outlined),
+                label: const Text('Bildirim Testi'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _testEzanSound,
+                icon: Icon(_playingKey == 'ezan_test' ? Icons.stop_circle_outlined : Icons.volume_up_outlined),
+                label: const Text('Ezan Sesini Test Et'),
+              ),
+            ),
+          ],
         ),
       ],
     );

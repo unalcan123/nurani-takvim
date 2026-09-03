@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/bg_music_service.dart';
+import 'core/prayer_alarm_watcher.dart';
 import 'features/dashboard/presentation/app_shell.dart';
 import 'features/settings/data/prefs_repository.dart';
 import 'features/settings/presentation/alert_settings_controller.dart';
@@ -91,7 +92,7 @@ class _EzanAppState extends ConsumerState<EzanApp> {
           ],
         );
       },
-      home: homePage,
+      home: PrayerAlarmWatcher(child: homePage),
     );
   }
 }

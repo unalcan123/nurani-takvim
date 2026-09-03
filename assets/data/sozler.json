@@ -6,7 +6,23 @@
       "eser": "İstiklâl Marşı, 1. kıta",
       "kaynak": "İstiklâl Marşı resmî metni (1921)",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
+    },
+    {
+      "soz": "Çatma, kurban olayım, çehreni ey nazlı hilâl! Kahraman ırkıma bir gül; ne bu şiddet, bu celâl?",
+      "yazar": "Mehmet Âkif Ersoy",
+      "eser": "İstiklâl Marşı, 2. kıta",
+      "kaynak": "İstiklâl Marşı resmî metni (1921)",
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "soz": "Bastığın yerleri \"toprak\" diyerek geçme, tanı: Düşün altındaki binlerce kefensiz yatanı.",
+      "yazar": "Mehmet Âkif Ersoy",
+      "eser": "İstiklâl Marşı, 5. kıta",
+      "kaynak": "İstiklâl Marşı resmî metni (1921)",
+      "verified": true,
+      "isSampleData": false
     },
     {
       "soz": "Ya olduğun gibi görün, ya göründüğün gibi ol.",
@@ -14,7 +30,7 @@
       "eser": null,
       "kaynak": "Türkçe kaynaklarda yaygın olarak atfedilir; birincil kaynakta (Mesnevî) doğrulanamamıştır",
       "verified": false,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "soz": "Gelin tanış olalım, işi kolay kılalım; sevelim sevilelim, dünya kimseye kalmaz.",
@@ -22,7 +38,23 @@
       "eser": null,
       "kaynak": "Türkçe kaynaklarda yaygın olarak atfedilir; Divan içindeki kesin yeri doğrulanamamıştır",
       "verified": false,
-      "isSampleData": true
+      "isSampleData": false
+    },
+    {
+      "soz": "İlim ilim bilmektir, ilim kendin bilmektir; Sen kendini bilmezsen, ya nice okumaktır.",
+      "yazar": "Yunus Emre",
+      "eser": "Risâletü'n-Nushiyye",
+      "kaynak": "Yunus Emre külliyatı",
+      "verified": true,
+      "isSampleData": false
+    },
+    {
+      "soz": "Yaratılanı severiz, Yaratan'dan ötürü.",
+      "yazar": "Yunus Emre'ye atfedilir",
+      "eser": "Divan",
+      "kaynak": "Yunus Emre külliyatında yaygın olarak yer alır; bazı akademik neşirlerde tam metindeki yeri tartışmalıdır",
+      "verified": false,
+      "isSampleData": false
     },
     {
       "soz": "Evet, hakikî imanı elde eden adam, kâinata meydan okuyabilir.",
@@ -30,7 +62,7 @@
       "eser": "Sözler",
       "kaynak": "Risale-i Nur Külliyatı, Sözler",
       "verified": true,
-      "isSampleData": true
+      "isSampleData": false
     },
     {
       "soz": "İlim, gönül gözünün nurudur; ilimsiz amel, ruhsuz beden gibidir.",
@@ -38,7 +70,7 @@
       "eser": null,
       "kaynak": "İslam âlimlerine dair derlemelerde yaygın atıf; birincil kaynak doğrulanamamıştır",
       "verified": false,
-      "isSampleData": true
+      "isSampleData": false
     }
   ]
 }

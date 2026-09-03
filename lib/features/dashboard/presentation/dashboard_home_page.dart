@@ -7,6 +7,7 @@ import '../../../theme.dart';
 import '../../daily_content/data/daily_content_repository.dart';
 import '../../daily_content/data/models.dart';
 import '../../daily_content/presentation/content_card.dart';
+import '../../daily_content/presentation/daily_content_page.dart';
 import '../../favorites/data/models.dart';
 import '../../locations/data/models.dart';
 import '../../settings/data/prefs_repository.dart';
@@ -133,6 +134,7 @@ class _MainColumn extends StatelessWidget {
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.ayet,
             favoriteRefId: 'ayet:${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
           ),
         ),
       if (visibility.showHadith && bundle != null)
@@ -149,6 +151,7 @@ class _MainColumn extends StatelessWidget {
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.hadith,
             favoriteRefId: 'hadith:${bundle!.hadith.metin.hashCode}',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
           ),
         ),
       if (visibility.showEvent && bundle != null)
@@ -165,6 +168,7 @@ class _MainColumn extends StatelessWidget {
                   backgroundColor: dashboardCardGold(brightness),
                   favoriteType: FavoriteType.event,
                   favoriteRefId: 'event:${bundle!.tarihiOlay!.ay}-${bundle!.tarihiOlay!.gun}',
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
                 )
               : _EmptyEventCard(brightness: brightness),
         ),
@@ -210,6 +214,7 @@ class _MainColumn extends StatelessWidget {
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.soz,
             favoriteRefId: 'soz:${bundle!.soz.soz.hashCode}',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
           ),
         ],
       ],

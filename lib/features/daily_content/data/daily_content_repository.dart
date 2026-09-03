@@ -60,6 +60,21 @@ class LocalJsonDailyContentSource implements DailyContentSource {
     return date.difference(startOfYear).inDays;
   }
 
+  static const DailyHadith _hadithFallback = DailyHadith(
+    metin: 'Bugün için hadis içeriği henüz eklenmemiş.',
+    kaynak: '-',
+    verified: false,
+    isSampleData: true,
+  );
+
+  static const DailyWord _wordFallback = DailyWord(
+    soz: 'Bugün için söz içeriği henüz eklenmemiş.',
+    yazar: '-',
+    kaynak: '-',
+    verified: false,
+    isSampleData: true,
+  );
+
   @override
   DailyAyet ayetForDate(DateTime date) {
     final list = _ayetler!;
@@ -68,22 +83,37 @@ class LocalJsonDailyContentSource implements DailyContentSource {
 
   @override
   DailyHadith hadithForDate(DateTime date) {
-    final list = _hadisler!;
+    // `verified == false` kayıtlar günlük rotasyonda varsayılan olarak
+    // gösterilmez (yalnızca doğrulanmış hadisler arasından seçim yapılır);
+    // veri setinde hiç doğrulanmış kayıt kalmazsa (olmaması gereken bir
+    // durum) tüm listeye geri dönülür ki uygulama boş kalmasın.
+    final verified = _hadisler!.where((h) => h.verified).toList();
+    final list = verified.isNotEmpty ? verified : _hadisler!;
+    if (list.isEmpty) return _hadithFallback;
     return list[_dayOfYear(date) % list.length];
   }
 
   @override
   DailyWord wordForDate(DateTime date) {
-    final list = _sozler!;
+    final verified = _sozler!.where((s) => s.verified).toList();
+    final list = verified.isNotEmpty ? verified : _sozler!;
+    if (list.isEmpty) return _wordFallback;
     return list[_dayOfYear(date) % list.length];
   }
 
   @override
   HistoricalEvent? historicalEventForDate(DateTime date) {
+    final matches = historicalEventsForDate(date);
+    return matches.isEmpty ? null : matches.first;
+  }
+
+  /// O tarihe ait kayıtlı TÜM tarihî olaylar (öncelik sırasına göre: İslam >
+  /// Osmanlı > Türkiye > Dünya). Tarihte Bugün detay sayfasında yalnızca en
+  /// öncelikli olanı değil, o güne ait bütün olaylar gösterilir.
+  List<HistoricalEvent> historicalEventsForDate(DateTime date) {
     final matches = _tarihiOlaylar!.where((e) => e.ay == date.month && e.gun == date.day).toList();
-    if (matches.isEmpty) return null;
     matches.sort((a, b) => a.oncelik.compareTo(b.oncelik));
-    return matches.first;
+    return matches;
   }
 
   DailyContentBundle bundleForDate(DateTime date) => DailyContentBundle(
@@ -108,4 +138,11 @@ final dailyContentSourceProvider = FutureProvider<LocalJsonDailyContentSource>((
 final dailyContentForDateProvider = Provider.family<DailyContentBundle?, DateTime>((ref, date) {
   final sourceAsync = ref.watch(dailyContentSourceProvider);
   return sourceAsync.whenOrNull(data: (source) => source.bundleForDate(date));
+});
+
+/// O tarihe ait TÜM tarihî olaylar (Tarihte Bugün detay sayfası için).
+/// Kaynak henüz yüklenmediyse boş liste döner.
+final historicalEventsForDateProvider = Provider.family<List<HistoricalEvent>, DateTime>((ref, date) {
+  final sourceAsync = ref.watch(dailyContentSourceProvider);
+  return sourceAsync.whenOrNull(data: (source) => source.historicalEventsForDate(date)) ?? const [];
 });

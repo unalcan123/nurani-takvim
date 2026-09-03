@@ -13,8 +13,6 @@ class SettingsPage extends ConsumerWidget {
     final alertController = ref.read(alertSettingsProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
 
-    final anyAlarmEnabled = settings.prayerAlarms.values.any((isEnabled) => isEnabled);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Uygulama Ayarları'),
@@ -58,11 +56,11 @@ class SettingsPage extends ConsumerWidget {
             ),
           ),
 
-          // --- Namaz Sesleri (vakit başına bağımsız ses ayarı) ---
-          if (anyAlarmEnabled) ...[
-            const SizedBox(height: 24),
-            const PrayerSoundSection(),
-          ],
+          // --- Namaz Sesleri (vakit başına bağımsız ses ayarı) + test butonları.
+          // Hiçbir vakit alarmı açık olmasa bile kullanıcı ses/bildirim
+          // sistemini test edebilsin diye bu bölüm her zaman gösterilir.
+          const SizedBox(height: 24),
+          const PrayerSoundSection(),
           const SizedBox(height: 30),
         ],
       ),

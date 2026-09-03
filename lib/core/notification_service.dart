@@ -191,7 +191,16 @@ class NotificationService {
   }
 
   Future<void> scheduleAlarms(List<Vakit> vakitler, AlertSettings settings) async {
-    await _notificationsPlugin.cancelAll();
+    try {
+      await _notificationsPlugin.cancelAll();
+    } catch (e) {
+      // Cihazda daha önce (eski bir sürümden kalma) bozuk/uyumsuz kayıtlı bir
+      // planlama varsa `cancelAll` bile istisna fırlatabilir (gerçek cihazda
+      // gözlemlendi: flutter_local_notifications'ın eski planlamaları
+      // yeniden yüklemeye çalışırken attığı bir istisna). Bunu yutmazsak bu
+      // fonksiyon hiçbir zaman hiçbir bildirim planlayamaz hale gelir.
+      debugPrint('scheduleAlarms: cancelAll başarısız oldu, yine de devam ediliyor: $e');
+    }
     final now = DateTime.now();
 
     for (final vakit in vakitler) {
@@ -226,15 +235,22 @@ class NotificationService {
             visibility: NotificationVisibility.public,
           );
 
-          await _notificationsPlugin.zonedSchedule(
-            prayerNotificationId(prayerDate, i),
-            'Vakit Girdi: ${prayer.key}',
-            'Ezan okunuyor...',
-            tz.TZDateTime.from(prayerTime, tz.local),
-            NotificationDetails(android: androidDetails),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-          );
+          try {
+            await _notificationsPlugin.zonedSchedule(
+              prayerNotificationId(prayerDate, i),
+              'Vakit Girdi: ${prayer.key}',
+              'Ezan okunuyor...',
+              tz.TZDateTime.from(prayerTime, tz.local),
+              NotificationDetails(android: androidDetails),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+            );
+          } catch (e) {
+            // Tek bir gün/vaktin planlanması (ör. geçersiz/bulunamayan bir
+            // ses kaynağı yüzünden) başarısız olursa, bu diğer tüm
+            // gün/vakitlerin planlanmasını engellememeli.
+            debugPrint('scheduleAlarms: ${prayer.key} (${vakit.miladiTarihKisaIso8601}) planlanamadı: $e');
+          }
         }
 
         if (prayer.key == 'İmsak') continue;
@@ -259,15 +275,19 @@ class NotificationService {
             visibility: NotificationVisibility.public,
           );
 
-          await _notificationsPlugin.zonedSchedule(
-            preNotificationId(prayerDate, i, m),
-            'Vakit Yaklaşıyor',
-            '${prayer.key} vaktine $minute dk kaldı.',
-            tz.TZDateTime.from(preNotificationTime, tz.local),
-            NotificationDetails(android: preAndroidDetails),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-          );
+          try {
+            await _notificationsPlugin.zonedSchedule(
+              preNotificationId(prayerDate, i, m),
+              'Vakit Yaklaşıyor',
+              '${prayer.key} vaktine $minute dk kaldı.',
+              tz.TZDateTime.from(preNotificationTime, tz.local),
+              NotificationDetails(android: preAndroidDetails),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+            );
+          } catch (e) {
+            debugPrint('scheduleAlarms: ${prayer.key} için $minute dk hatırlatması planlanamadı: $e');
+          }
         }
       }
     }

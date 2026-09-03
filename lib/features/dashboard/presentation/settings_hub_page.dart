@@ -51,8 +51,6 @@ class SettingsHubPage extends ConsumerWidget {
           const SizedBox(height: 10),
           const _LocationSection(),
           const SizedBox(height: 10),
-          const _PrayerTimesSection(),
-          const SizedBox(height: 10),
           const _NotificationsSection(),
           const SizedBox(height: 10),
           const _ContentSection(),
@@ -332,29 +330,6 @@ class _LocationSectionState extends ConsumerState<_LocationSection> {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CountryPage())),
         ),
-      ],
-    );
-  }
-}
-
-class _PrayerTimesSection extends StatelessWidget {
-  const _PrayerTimesSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return _CategoryCard(
-      icon: Icons.access_time_outlined,
-      title: 'Namaz Vakitleri',
-      children: [
-        const ListTile(
-          leading: Icon(Icons.info_outline),
-          title: Text('Vakit Kaynağı'),
-          subtitle: Text('Namaz vakitleri Diyanet tabanlı bir kaynaktan otomatik hesaplanır.'),
-        ),
-        const Divider(height: 1),
-        const _ComingSoonTile(icon: Icons.calculate_outlined, title: 'Hesaplama Yöntemi'),
-        const _ComingSoonTile(icon: Icons.groups_outlined, title: 'Mezhep (İkindi hesaplama)'),
-        const _ComingSoonTile(icon: Icons.tune, title: 'Vakit Düzeltmeleri (dakika)'),
       ],
     );
   }

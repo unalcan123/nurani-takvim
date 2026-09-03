@@ -27,6 +27,7 @@ class DailyContentPage extends ConsumerWidget {
     final lastLocation = recentLocations.isNotEmpty ? recentLocations.first : null;
 
     final bundle = ref.watch(dailyContentForDateProvider(selectedDate));
+    final historicalEvents = ref.watch(historicalEventsForDateProvider(selectedDate));
     final visibility = ref.watch(contentVisibilityProvider);
 
     return Container(
@@ -90,19 +91,21 @@ class DailyContentPage extends ConsumerWidget {
                 const SizedBox(height: 10),
               ],
               if (visibility.showEvent) ...[
-                if (bundle.tarihiOlay != null)
-                  ContentCard(
-                    icon: Icons.history_edu_outlined,
-                    title: 'Tarihte Bugün',
-                    body: '${bundle.tarihiOlay!.yil ?? ''} — ${bundle.tarihiOlay!.baslik}\n\n${bundle.tarihiOlay!.aciklama}',
-                    sourceLine: bundle.tarihiOlay!.kaynak,
-                    shareText:
-                        '📜 Tarihte Bugün\n\n${bundle.tarihiOlay!.yil ?? ''} — ${bundle.tarihiOlay!.baslik}\n${bundle.tarihiOlay!.aciklama}\n\nEzan Vakti uygulamasından paylaşıldı.',
-                    isSampleData: bundle.tarihiOlay!.isSampleData,
-                    backgroundColor: dashboardCardGold(brightness),
-                    favoriteType: FavoriteType.event,
-                    favoriteRefId: 'event:${bundle.tarihiOlay!.ay}-${bundle.tarihiOlay!.gun}',
-                  )
+                if (historicalEvents.isNotEmpty)
+                  for (final event in historicalEvents) ...[
+                    ContentCard(
+                      icon: Icons.history_edu_outlined,
+                      title: 'Tarihte Bugün',
+                      body: '${event.yil ?? ''} — ${event.baslik}\n\n${event.aciklama}',
+                      sourceLine: event.kaynak,
+                      shareText: '📜 Tarihte Bugün\n\n${event.yil ?? ''} — ${event.baslik}\n${event.aciklama}\n\nEzan Vakti uygulamasından paylaşıldı.',
+                      isSampleData: event.isSampleData,
+                      backgroundColor: dashboardCardGold(brightness),
+                      favoriteType: FavoriteType.event,
+                      favoriteRefId: 'event:${event.ay}-${event.gun}-${event.baslik.hashCode}',
+                    ),
+                    if (event != historicalEvents.last) const SizedBox(height: 8),
+                  ]
                 else
                   Card(
                     color: dashboardCardGold(brightness),
@@ -113,7 +116,7 @@ class DailyContentPage extends ConsumerWidget {
                           Icon(Icons.history_edu_outlined, color: Theme.of(context).colorScheme.primary),
                           const SizedBox(width: 10),
                           const Expanded(
-                            child: Text('Bu tarih için kayıtlı bir tarihî olay henüz eklenmedi.'),
+                            child: Text('Bu tarih için henüz tarihî olay eklenmemiş.'),
                           ),
                         ],
                       ),

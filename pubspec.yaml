@@ -65,28 +65,16 @@ flutter:
     - assets/music/
     - assets/image/
     - assets/fonts/
-    - assets/resim/
-    - assets/resim/resim/
-    - assets/resim/ramazan/
-    - assets/resim/hadis/
-    - assets/resim/dua/
-    - assets/resim/namaz/
-    - assets/resim/besmele/
     - assets/data/slides.json
     - assets/data/ayetler.json
     - assets/data/hadisler.json
     - assets/data/sozler.json
     - assets/data/tarihte_bugun.json
     - assets/data/ezan_sesleri.json
-    - assets/images/backgrounds/
+    - assets/images/all/
     - assets/images/islam/
-    - assets/images/islam/namaz/
-    - assets/images/islam/dua/
-    - assets/images/islam/kuran/
-    - assets/images/islam/oruc/
-    - assets/images/islam/ramazan/
-    - assets/images/islam/kabe/
-    - assets/images/islam/mekke/
-    - assets/images/islam/medine/
-    - assets/images/islam/hac/
-    - assets/images/islam/islamic_patterns/
+    - assets/images/besmele/
+    - assets/images/dua/
+    - assets/images/hadis/
+    - assets/images/namaz/
+    - assets/images/ramazan/
