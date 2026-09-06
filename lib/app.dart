@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/bg_music_service.dart';
+import 'core/prayer_alarm_coordinator.dart';
 import 'core/prayer_alarm_watcher.dart';
 import 'features/dashboard/presentation/app_shell.dart';
 import 'features/settings/data/prefs_repository.dart';
@@ -25,6 +26,7 @@ class _EzanAppState extends ConsumerState<EzanApp> {
     // Müzik servisini uygulama başlar başlamaz başlat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(bgMusicServiceProvider).init();
+      ref.read(prayerAlarmCoordinatorProvider).handleInitialNotificationLaunch();
     });
   }
 
@@ -51,6 +53,8 @@ class _EzanAppState extends ConsumerState<EzanApp> {
         : const AppShell();
 
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
+      navigatorObservers: [previewRouteObserver],
       debugShowCheckedModeBanner: false,
       title: 'Nurani Takvim',
       theme: lightTheme,

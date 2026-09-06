@@ -7,12 +7,18 @@ import '../features/locations/data/models.dart';
 import '../features/settings/data/alert_settings.dart';
 import '../features/settings/data/prefs_repository.dart';
 import '../features/settings/presentation/alert_settings_controller.dart';
-import '../features/times/presentation/alarm_page.dart';
 import '../features/times/presentation/time_utils.dart';
 import '../features/times/presentation/times_page.dart' show timesProvider;
+import 'prayer_alarm_coordinator.dart';
 import 'notification_service.dart';
 
-const List<String> _alarmPrayerNames = ['İmsak', 'Öğle', 'İkindi', 'Akşam', 'Yatsı'];
+const List<String> _alarmPrayerNames = [
+  'İmsak',
+  'Öğle',
+  'İkindi',
+  'Akşam',
+  'Yatsı',
+];
 
 // Bir vaktin tam saatinden itibaren ne kadar süre içinde hâlâ "yeni girdi"
 // sayılıp ezan tetiklenebileceği. Timer her saniye çalıştığı için normalde
@@ -50,27 +56,39 @@ class PrayerAlarmWatcher extends ConsumerStatefulWidget {
   ConsumerState<PrayerAlarmWatcher> createState() => _PrayerAlarmWatcherState();
 }
 
-class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
+class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
+    with WidgetsBindingObserver {
   Timer? _timer;
   List<Vakit>? _list;
   String? _ilceId;
   bool _isCoolingDown = false;
   bool _triggeredLoaded = false;
 
+  String _scheduledDayKey = '';
   String _triggeredDayKey = '';
   final Set<String> _triggeredToday = {};
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadTriggeredState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _scheduledDayKey = '';
+      _tick();
+    }
   }
 
   String _dayKeyFor(DateTime d) =>
@@ -94,7 +112,10 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
 
   Future<void> _persistTriggeredState() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_triggeredEventsPrefsKey, '$_triggeredDayKey|${_triggeredToday.join('|')}');
+    await prefs.setString(
+      _triggeredEventsPrefsKey,
+      '$_triggeredDayKey|${_triggeredToday.join('|')}',
+    );
   }
 
   bool _wasTriggered(String dayKey, String key) {
@@ -113,7 +134,13 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
 
   DateTime _parseTime(String timeStr, DateTime date) {
     final parts = timeStr.split(':');
-    return DateTime(date.year, date.month, date.day, int.parse(parts[0]), int.parse(parts[1]));
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
   }
 
   String? _timeStrFor(Vakit v, String prayerName) {
@@ -145,6 +172,18 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
     // yanlış kayar).
     final now = phoneLocalNow();
     final dayKey = _dayKeyFor(now);
+    if (_scheduledDayKey != dayKey) {
+      _scheduledDayKey = dayKey;
+      unawaited(
+        ref
+            .read(notificationServiceProvider)
+            .scheduleAlarms(list, ref.read(alertSettingsProvider)),
+      );
+    }
+    // Background delivery belongs to the OS full-screen notification.
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
     final today = findVakitForDate(list, now);
     if (today == null) {
       // Elimizdeki liste bugünü kapsamıyor (ör. ay değişti) — yeniden çek.
@@ -170,15 +209,9 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
       _markTriggered(dayKey, key);
       _isCoolingDown = true;
 
-      // Tam ekran alarm sayfası zaten sesi çalacak; aynı an için
-      // zamanlanmış olan OS bildirimini iptal ederiz — yoksa kullanıcı hem
-      // sistem bildirimi sesini hem uygulama içi sesi birlikte, çift olarak
-      // duyar.
-      notificationService.cancelPrayerNotification(now, name);
-
-      Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute(builder: (_) => AlarmPage(nextPrayerName: name)),
-      );
+      ref
+          .read(prayerAlarmCoordinatorProvider)
+          .triggerPrayerTime(prayerName: name, scheduledDate: prayerTime);
 
       Future.delayed(_alarmCooldown, () {
         _isCoolingDown = false;
@@ -198,15 +231,21 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
         final key = 'pre_${minute}_${next.name}';
         if (_wasTriggered(dayKey, key)) continue;
         _markTriggered(dayKey, key);
-        notificationService.showPrePrayerNotification(next.name, minute, preNotificationAssets[minute]);
+        notificationService.showPrePrayerNotification(
+          next.name,
+          minute,
+          preNotificationAssets[minute],
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final recentLocations = ref.watch(prefsRepositoryProvider).getRecentLocations();
-    final lastLocation = recentLocations.isNotEmpty ? recentLocations.first : null;
+    final recentLocations =
+        ref.watch(prefsRepositoryProvider).getRecentLocations();
+    final lastLocation =
+        recentLocations.isNotEmpty ? recentLocations.first : null;
 
     if (lastLocation == null) {
       _list = null;
@@ -223,7 +262,10 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher> {
           // yeniden planla.
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
-            ref.read(notificationServiceProvider).scheduleAlarms(list, ref.read(alertSettingsProvider));
+            _scheduledDayKey = _dayKeyFor(phoneLocalNow());
+            ref
+                .read(notificationServiceProvider)
+                .scheduleAlarms(list, ref.read(alertSettingsProvider));
           });
         }
       });

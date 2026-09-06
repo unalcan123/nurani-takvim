@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../features/settings/presentation/alert_settings_controller.dart';
 
-/// ✅ Global arka plan müzik servisi — uygulama açıldığı anda çalmaya başlar
+/// Global arka plan müziği; yalnızca kayıtlı kullanıcı tercihi açıksa çalar.
 final bgMusicServiceProvider = Provider<BgMusicService>((ref) {
   final service = BgMusicService(ref);
   ref.onDispose(() => service.dispose());
@@ -16,11 +17,14 @@ final bgMusicMutedProvider = StateProvider<bool>((ref) => false);
 
 class BgMusicService {
   final Ref _ref;
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player;
   bool _initialized = false;
+  bool _suspended = false;
+  int _loadGeneration = 0;
   List<String> _currentPaths = [];
 
-  BgMusicService(this._ref);
+  BgMusicService(this._ref, {AudioPlayer? audioPlayer})
+    : _player = audioPlayer ?? AudioPlayer();
 
   AudioPlayer get player => _player;
 
@@ -42,7 +46,8 @@ class BgMusicService {
 
       // Müzik listesi değiştiyse veya yeni açıldıysa yeniden yükle
       if (next.bgMusicPaths.isNotEmpty &&
-          (_listEquals(next.bgMusicPaths, _currentPaths) == false || !prev.bgMusicEnabled)) {
+          (_listEquals(next.bgMusicPaths, _currentPaths) == false ||
+              !prev.bgMusicEnabled)) {
         _loadPlaylistAndPlay(next.bgMusicPaths);
       }
     });
@@ -70,26 +75,33 @@ class BgMusicService {
   Future<void> _loadPlaylistAndPlay(List<String> paths) async {
     try {
       _currentPaths = List.from(paths);
-      
+
       final playlist = ConcatenatingAudioSource(
-        children: paths.map((path) {
-          if (path.startsWith('assets/')) {
-            return AudioSource.uri(Uri.parse('asset:///$path'));
-          } else if (kIsWeb) {
-            return AudioSource.uri(Uri.parse(path));
-          } else {
-            return AudioSource.uri(Uri.file(path));
-          }
-        }).toList(),
+        children:
+            paths.map((path) {
+              if (path.startsWith('assets/')) {
+                return AudioSource.uri(Uri.parse('asset:///$path'));
+              } else if (kIsWeb) {
+                return AudioSource.uri(Uri.parse(path));
+              } else {
+                return AudioSource.uri(Uri.file(path));
+              }
+            }).toList(),
       );
 
+      final generation = ++_loadGeneration;
       await _player.setAudioSource(playlist, preload: true);
+      if (generation != _loadGeneration) return;
       _player.setLoopMode(LoopMode.all);
 
       final isMuted = _ref.read(bgMusicMutedProvider);
       _player.setVolume(isMuted ? 0.0 : 1.0);
 
-      await _player.play();
+      if (!_suspended && _ref.read(alertSettingsProvider).bgMusicEnabled) {
+        unawaited(
+          _player.play().catchError((Object e) => debugPrint('Müzik: $e')),
+        );
+      }
     } catch (e) {
       debugPrint('BgMusicService çalma listesi hatası: $e');
     }
@@ -98,6 +110,29 @@ class BgMusicService {
   void toggleMute() {
     final notifier = _ref.read(bgMusicMutedProvider.notifier);
     notifier.state = !notifier.state;
+  }
+
+  Future<void> pauseForAlarm() async {
+    _suspended = true;
+    try {
+      await _player.pause();
+    } catch (e) {
+      debugPrint('BgMusicService alarm öncesi durdurma hatası: $e');
+    }
+  }
+
+  Future<void> resumeAfterAlarm() async {
+    _suspended = false;
+    final settings = _ref.read(alertSettingsProvider);
+    if (!settings.bgMusicEnabled || settings.bgMusicPaths.isEmpty) return;
+    if (_player.audioSource == null ||
+        !_listEquals(settings.bgMusicPaths, _currentPaths)) {
+      await _loadPlaylistAndPlay(settings.bgMusicPaths);
+    } else {
+      unawaited(
+        _player.play().catchError((Object e) => debugPrint('Müzik: $e')),
+      );
+    }
   }
 
   void dispose() {

@@ -10,6 +10,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/platform_file_ops.dart';
+import '../../../core/audio_manager.dart';
 import '../../../theme.dart';
 import '../../settings/data/image_categories.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
@@ -376,6 +377,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
       return const SizedBox.shrink();
     }
 
+    final adhanActive = ref.watch(adhanActiveProvider);
     final settings = ref.watch(alertSettingsProvider);
     final category = settings.slideCategory;
     final allImages = _getAllImages(category);
@@ -428,7 +430,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
               viewportFraction: 1.0,
               initialPage: safeInitialPage,
               enlargeCenterPage: false,
-              autoPlay: totalItems > 1,
+              autoPlay: totalItems > 1 && !adhanActive,
               autoPlayInterval: Duration(
                 seconds: settings.slideDuration > 0
                     ? settings.slideDuration

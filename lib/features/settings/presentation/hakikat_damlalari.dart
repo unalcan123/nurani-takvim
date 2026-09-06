@@ -3,16 +3,18 @@ import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/audio_manager.dart';
 import 'package:flutter/services.dart';
 
-class HakikatDamlalariPage extends StatefulWidget {
+class HakikatDamlalariPage extends ConsumerStatefulWidget {
   const HakikatDamlalariPage({super.key});
 
   @override
-  State<HakikatDamlalariPage> createState() => _HakikatDamlalariPageState();
+  ConsumerState<HakikatDamlalariPage> createState() => _HakikatDamlalariPageState();
 }
 
-class _HakikatDamlalariPageState extends State<HakikatDamlalariPage> {
+class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
   final CarouselSliderController _carouselController =
   CarouselSliderController();
 
@@ -56,7 +58,7 @@ class _HakikatDamlalariPageState extends State<HakikatDamlalariPage> {
     if (!autoPlay || slides.isEmpty) return;
 
     _timer = Timer.periodic(Duration(seconds: autoSeconds), (_) {
-      if (!mounted || slides.isEmpty) return;
+      if (!mounted || slides.isEmpty || ref.read(adhanActiveProvider)) return;
       final next = (_currentIndex.value + 1) % slides.length;
       _carouselController.animateToPage(next);
     });

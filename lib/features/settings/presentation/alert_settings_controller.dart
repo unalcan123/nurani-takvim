@@ -5,24 +5,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/alert_settings.dart';
+import '../data/adhan_settings.dart';
 import '../data/custom_audio_store.dart';
+import '../data/prefs_repository.dart';
 import '../data/prayer_sound_settings.dart';
 
 final customAudioStoreProvider = Provider<CustomAudioStore>((ref) => CustomAudioStore());
 
 final alertSettingsProvider = StateNotifierProvider<AlertSettingsNotifier, AlertSettings>((ref) {
-  return AlertSettingsNotifier(ref.watch(customAudioStoreProvider));
+  return AlertSettingsNotifier(ref.watch(customAudioStoreProvider), ref.watch(sharedPrefsProvider));
 });
 
 class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   final CustomAudioStore _customAudioStore;
+  final SharedPreferences _prefs;
 
-  AlertSettingsNotifier(this._customAudioStore) : super(AlertSettings()) {
+  AlertSettingsNotifier(this._customAudioStore, this._prefs) : super(AlertSettings()) {
     _loadSettings();
   }
 
   static const _keyPrayerAlarms = 'prayer_alarms';
   static const _keyPrayerSounds = 'prayer_sounds_v1';
+  static const _keySelectedAdhanType = 'selected_adhan_type';
+  static const _keySelectedAdhanAssetPath = 'selected_adhan_asset_path';
+  static const _keySelectedAdhanCustomAudioId = 'selected_adhan_custom_audio_id';
   static const _keyEzanVolume = 'ezan_volume';
   static const _keyPreNotifications = 'pre_notifications';
   static const _keySlideDuration = 'slide_duration';
@@ -35,28 +41,26 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     state = state.copyWith(lastUpdate: DateTime.now().millisecondsSinceEpoch);
   }
 
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
+  void _loadSettings() {
     final alarmMap = <String, bool>{};
     for (var name in prayerNames) {
-      alarmMap[name] = prefs.getBool('${_keyPrayerAlarms}_$name') ?? false;
+      alarmMap[name] = _prefs.getBool('${_keyPrayerAlarms}_$name') ?? false;
     }
 
     final preNotifyMap = <int, bool>{};
     for (var m in preNotificationMinutes) {
-      preNotifyMap[m] = prefs.getBool('${_keyPreNotifications}_$m') ?? false;
+      preNotifyMap[m] = _prefs.getBool('${_keyPreNotifications}_$m') ?? false;
     }
 
-    final userCatsRaw = prefs.getString(_keyUserCategories);
+    final userCatsRaw = _prefs.getString(_keyUserCategories);
     Map<String, String> userCats = {};
     if (userCatsRaw != null) {
       userCats = Map<String, String>.from(json.decode(userCatsRaw));
     }
 
-    final musicPaths = prefs.getStringList(_keyBgMusicPaths) ?? [defaultBgMusicPath];
+    final musicPaths = _prefs.getStringList(_keyBgMusicPaths) ?? [defaultBgMusicPath];
 
-    final soundsRaw = prefs.getString(_keyPrayerSounds);
+    final soundsRaw = _prefs.getString(_keyPrayerSounds);
     Map<String, PrayerSoundSetting> prayerSounds = defaultPrayerSounds();
     if (soundsRaw != null) {
       try {
@@ -72,16 +76,23 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       }
     }
 
+    final adhanSettings = AdhanSettings(
+      type: AdhanType.fromStorage(_prefs.getString(_keySelectedAdhanType)),
+      worldAssetPath: _prefs.getString(_keySelectedAdhanAssetPath),
+      customAudioId: _prefs.getString(_keySelectedAdhanCustomAudioId),
+    );
+
     state = state.copyWith(
       prayerAlarms: alarmMap,
       prayerSounds: prayerSounds,
-      ezanVolume: prefs.getDouble(_keyEzanVolume) ?? 1.0,
+      ezanVolume: _prefs.getDouble(_keyEzanVolume) ?? 1.0,
+      adhanSettings: adhanSettings,
       preNotifications: preNotifyMap,
-      slideDuration: prefs.getInt(_keySlideDuration) ?? 15,
-      slideCategory: prefs.getString(_keySlideCategory) ?? 'all',
+      slideDuration: _prefs.getInt(_keySlideDuration) ?? 15,
+      slideCategory: _prefs.getString(_keySlideCategory) ?? 'all',
       userCategories: userCats,
       bgMusicPaths: musicPaths,
-      bgMusicEnabled: prefs.getBool(_keyBgMusicEnabled) ?? true,
+      bgMusicEnabled: _prefs.getBool(_keyBgMusicEnabled) ?? false,
     );
   }
 
@@ -148,6 +159,39 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_keyEzanVolume, clamped);
     state = state.copyWith(ezanVolume: clamped);
+  }
+
+  Future<void> selectMakkahAdhan() async {
+    await _persistAdhanSettings(const AdhanSettings(type: AdhanType.makkah));
+  }
+
+  Future<void> selectMadinahAdhan() async {
+    await _persistAdhanSettings(const AdhanSettings(type: AdhanType.madinah));
+  }
+
+  Future<void> selectWorldAdhan(String assetPath) async {
+    await _persistAdhanSettings(AdhanSettings(type: AdhanType.world, worldAssetPath: assetPath));
+  }
+
+  Future<CustomAudioFile> addAndSelectCustomAdhan(String fileName, Uint8List bytes) async {
+    final file = await _customAudioStore.add(fileName, bytes);
+    await _persistAdhanSettings(AdhanSettings(type: AdhanType.custom, customAudioId: file.id));
+    return file;
+  }
+
+  Future<void> _persistAdhanSettings(AdhanSettings settings) async {
+    await _prefs.setString(_keySelectedAdhanType, settings.type.storageValue);
+    if (settings.worldAssetPath == null) {
+      await _prefs.remove(_keySelectedAdhanAssetPath);
+    } else {
+      await _prefs.setString(_keySelectedAdhanAssetPath, settings.worldAssetPath!);
+    }
+    if (settings.customAudioId == null) {
+      await _prefs.remove(_keySelectedAdhanCustomAudioId);
+    } else {
+      await _prefs.setString(_keySelectedAdhanCustomAudioId, settings.customAudioId!);
+    }
+    state = state.copyWith(adhanSettings: settings);
   }
 
   Future<void> togglePreNotification(int minute, bool value) async {

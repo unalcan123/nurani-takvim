@@ -38,10 +38,10 @@ class NotificationCapabilities {
           platformLabel: 'Android',
           backgroundSchedulingWorks: true,
           fullLengthAdhanInBackground: true,
-          fullLengthCustomAudioInBackground: false,
-          note: 'Uygulama kapalıyken/arka plandayken de vakit bildirimi gösterilir ve seçilen ezan sesi çalar '
-              '(kesin alarm izni verilmesi gerekir). Kendi ses dosyanız yalnızca uygulama açıkken tam olarak çalar; '
-              'arka planda onun yerine kısa bildirim sesi çalınır.',
+          fullLengthCustomAudioInBackground: true,
+          note: 'Vakit geldiğinde tam ekran bildirim istenir. Android izinlerine ve cihaz durumuna göre '
+              'ezan ekranı açılır veya bildirime dokunmanız gerekir. Seçilen ses ekran açıldığında başlar; '
+              'ezan başladıktan sonra ekran kilitlense de oynatma servisiyle devam eder.',
         );
       case TargetPlatform.iOS:
         return const NotificationCapabilities(

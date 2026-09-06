@@ -1,27 +1,17 @@
+import 'dart:async';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
 
-import '../data/alert_settings.dart';
-import '../data/custom_audio_store.dart';
-import '../data/notification_capabilities.dart';
-import '../data/prayer_sound_playback.dart';
-import '../data/prayer_sound_settings.dart';
+import '../../../core/audio_manager.dart';
 import '../../../core/notification_service.dart';
+import '../../../core/prayer_alarm_coordinator.dart';
+import '../data/adhan_library.dart';
+import '../data/adhan_settings.dart';
+import '../data/notification_capabilities.dart';
 import 'alert_settings_controller.dart';
 
-const Map<String, String> _prayerDisplayLabels = {
-  'İmsak': 'Sabah / İmsak',
-  'Öğle': 'Öğle',
-  'İkindi': 'İkindi',
-  'Akşam': 'Akşam',
-  'Yatsı': 'Yatsı',
-};
-
-/// "Ayarlar > Bildirimler" içine gömülen, her vakit için bağımsız ses
-/// ayarını, ortak ses seviyesini, izin durumunu ve test butonlarını
-/// içeren bölüm. Ana ekranda gösterilmez — yalnızca burada.
 class PrayerSoundSection extends ConsumerStatefulWidget {
   const PrayerSoundSection({super.key});
 
@@ -29,176 +19,160 @@ class PrayerSoundSection extends ConsumerStatefulWidget {
   ConsumerState<PrayerSoundSection> createState() => _PrayerSoundSectionState();
 }
 
-class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection> {
-  final _previewPlayer = AudioPlayer();
-
-  /// Şu an önizlemesi çalınan şeyin anahtarı (vakit adı ya da 'test').
-  /// Aynı anda yalnızca tek bir önizleme çalınabilsin diye tutulur.
-  String? _playingKey;
-
+class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection>
+    with _PreviewRoute<PrayerSoundSection> {
   bool? _notificationsGranted;
   bool? _exactAlarmsGranted;
+  bool? _fullScreenIntentGranted;
+  String? get _playingKey => audio.previewKey.value;
+  String? _selectedTitle;
 
   @override
   void initState() {
     super.initState();
     _refreshPermissionStatus();
-    _previewPlayer.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed && mounted) {
-        setState(() => _playingKey = null);
-      }
-    });
+    _refreshSelectedTitle();
   }
 
   Future<void> _refreshPermissionStatus() async {
-    final granted = await ref.read(notificationServiceProvider).areNotificationsEnabled();
-    if (mounted) setState(() => _notificationsGranted = granted);
+    final service = ref.read(notificationServiceProvider);
+    final granted = await service.areNotificationsEnabled();
+    final fullScreenGranted = await service.canUseFullScreenIntent();
+    if (!mounted) return;
+    setState(() {
+      _notificationsGranted = granted;
+      _fullScreenIntentGranted = fullScreenGranted;
+    });
   }
 
   Future<void> _requestPermissions() async {
-    final result = await ref.read(notificationServiceProvider).requestPermissions();
+    final result =
+        await ref.read(notificationServiceProvider).requestPermissions();
     if (!mounted) return;
     setState(() {
       _notificationsGranted = result.notificationsGranted;
       _exactAlarmsGranted = result.exactAlarmsGranted;
+      _fullScreenIntentGranted = result.fullScreenIntentGranted;
     });
+    if (result.fullScreenIntentGranted == false) {
+      await ref
+          .read(notificationServiceProvider)
+          .openFullScreenIntentSettings();
+    }
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          result.notificationsGranted ? 'Bildirim izni verildi.' : 'Bildirim izni verilmedi — namaz vakti bildirimleri gösterilemeyecek.',
+          result.notificationsGranted
+              ? 'Bildirim izni verildi.'
+              : 'Bildirim izni verilmedi.',
         ),
       ),
     );
   }
 
-  Future<void> _stopPreview() async {
-    if (_playingKey != null) {
-      await _previewPlayer.stop();
-      if (mounted) setState(() => _playingKey = null);
-    }
-  }
-
-  Future<void> _togglePreview(String key, Future<bool> Function() start) async {
-    if (_playingKey == key) {
-      await _stopPreview();
-      return;
-    }
-    await _stopPreview();
-    final ok = await start();
-    if (!mounted) return;
-    if (ok) {
-      setState(() => _playingKey = key);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bu ses için çalınacak bir dosya bulunamadı.')));
-    }
-  }
-
-  Future<void> _previewPrayerSound(String prayerName) async {
+  Future<void> _refreshSelectedTitle() async {
     final settings = ref.read(alertSettingsProvider);
-    final sound = settings.soundFor(prayerName);
-    await _togglePreview(
-      prayerName,
-      () => playPrayerSound(
-        player: _previewPlayer,
-        prayerName: prayerName,
-        setting: sound,
+    final source = await resolveSelectedAdhan(
+      prayer: PrayerType.dhuhr,
+      settings: settings.adhanSettings,
+      customAudioStore: ref.read(customAudioStoreProvider),
+    );
+    if (mounted) setState(() => _selectedTitle = source.title);
+  }
+
+  Future<void> _stopPreview() => audio.stopPreview(this);
+
+  Future<void> _previewSource(String key, FutureOr<AdhanSource> source) async {
+    if (!mounted) return;
+    try {
+      await audio.playPreview(this, key, source);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ezan önizlemesi başlatılamadı.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _previewCurrent() async {
+    final settings = ref.read(alertSettingsProvider);
+    await _previewSource(
+      'current',
+      resolveSelectedAdhan(
+        prayer: PrayerType.dhuhr,
+        settings: settings.adhanSettings,
         customAudioStore: ref.read(customAudioStoreProvider),
-        volume: settings.ezanVolume,
       ),
     );
   }
 
-  Future<void> _sendTestNotification() async {
-    await ref.read(notificationServiceProvider).showTestNotification();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test bildirimi gönderildi.')));
+  Future<void> _selectMakkah() async {
+    await ref.read(alertSettingsProvider.notifier).selectMakkahAdhan();
+    await _refreshSelectedTitle();
   }
 
-  /// "Ezan Sesini Test Et" — o vaktin kendi ses ayarından bağımsız olarak
-  /// (o vakit için kullanıcı "sessiz" seçmiş olsa bile) her zaman gerçek
-  /// ezan sesini çalar; amaç cihazda ses çıkışının/otomatik oynatmanın
-  /// gerçekten çalışıp çalışmadığını doğrulamaktır.
-  Future<void> _testEzanSound() async {
-    final settings = ref.read(alertSettingsProvider);
-    await _togglePreview(
-      'ezan_test',
-      () => playPrayerSound(
-        player: _previewPlayer,
-        prayerName: 'Öğle',
-        setting: const PrayerSoundSetting(type: PrayerSoundType.adhan),
-        customAudioStore: ref.read(customAudioStoreProvider),
-        volume: settings.ezanVolume,
-      ),
-    );
+  Future<void> _selectMadinah() async {
+    await ref.read(alertSettingsProvider.notifier).selectMadinahAdhan();
+    await _refreshSelectedTitle();
   }
 
-  Future<void> _pickCustomAudioFor(String prayerName) async {
+  Future<void> _pickCustomAdhan() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['mp3', 'm4a', 'wav', 'ogg'],
+      type: FileType.audio,
       withData: true,
     );
     if (result == null || result.files.isEmpty) return;
     final picked = result.files.single;
     if (picked.bytes == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dosya okunamadı.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Dosya okunamadı.')));
       return;
     }
     try {
-      await ref.read(alertSettingsProvider.notifier).addAndAssignCustomAudio(prayerName, picked.name, picked.bytes!);
+      await ref
+          .read(alertSettingsProvider.notifier)
+          .addAndSelectCustomAdhan(picked.name, picked.bytes!);
+      await _refreshSelectedTitle();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
     }
   }
 
-  Future<void> _openSoundPicker(String prayerName) async {
-    final settings = ref.read(alertSettingsProvider);
-    final current = settings.soundFor(prayerName);
-    final customStore = ref.read(customAudioStoreProvider);
-    final existingCustomFiles = await customStore.all();
-
+  Future<void> _openWorldAdhans() async {
+    await _stopPreview();
     if (!mounted) return;
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return _SoundTypeSheet(
-          prayerName: prayerName,
-          displayLabel: _prayerDisplayLabels[prayerName] ?? prayerName,
-          current: current,
-          existingCustomFiles: existingCustomFiles,
-          onSelectType: (type) async {
-            await ref.read(alertSettingsProvider.notifier).setPrayerSoundType(prayerName, type);
-          },
-          onSelectExistingCustom: (id) async {
-            await ref.read(alertSettingsProvider.notifier).assignCustomAudio(prayerName, id);
-          },
-          onPickNewFile: () async {
-            Navigator.pop(sheetContext);
-            await _pickCustomAudioFor(prayerName);
-          },
-          onDeleteCustomFile: (id) async {
-            Navigator.pop(sheetContext);
-            await ref.read(alertSettingsProvider.notifier).deleteCustomAudio(id);
-            // Silme sonrası listeyi güncel haliyle tekrar açmak için sayfayı yeniden aç.
-            await _openSoundPicker(prayerName);
-          },
-        );
-      },
+    final selected = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const WorldAdhanPickerPage()),
     );
+    if (selected == null) return;
+    await ref.read(alertSettingsProvider.notifier).selectWorldAdhan(selected);
+    await _refreshSelectedTitle();
   }
 
-  @override
-  void dispose() {
-    _previewPlayer.dispose();
-    super.dispose();
+  Future<void> _sendTestNotification() async {
+    await ref.read(notificationServiceProvider).showTestNotification();
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Test bildirimi gönderildi.')));
+  }
+
+  Future<void> _runRealAlarmTest() async {
+    await _stopPreview();
+    await ref
+        .read(prayerAlarmCoordinatorProvider)
+        .triggerPrayerTime(prayerName: 'Öğle', isTest: true);
   }
 
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(alertSettingsProvider);
+    final selectedType = settings.adhanSettings.type;
     final capabilities = NotificationCapabilities.current();
 
     return Column(
@@ -209,59 +183,104 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection> {
         _PermissionCard(
           granted: _notificationsGranted,
           exactAlarmsGranted: _exactAlarmsGranted,
+          fullScreenIntentGranted: _fullScreenIntentGranted,
           onRequest: _requestPermissions,
         ),
         const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 4),
-          child: Text('NAMAZ SESLERİ', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey)),
+          child: Text(
+            'EZAN SESİ',
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: Colors.grey),
+          ),
         ),
         Card(
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
-              for (final prayerName in prayerNames) ...[
-                _PrayerSoundTile(
-                  prayerName: prayerName,
-                  displayLabel: _prayerDisplayLabels[prayerName] ?? prayerName,
-                  alarmEnabled: settings.isPrayerEnabled(prayerName),
-                  sound: settings.soundFor(prayerName),
-                  isPlaying: _playingKey == prayerName,
-                  onTapSound: () => _openSoundPicker(prayerName),
-                  onTogglePreview: () => _previewPrayerSound(prayerName),
+              _AdhanChoiceTile(
+                controls: _PreviewControls(
+                  playing: _playingKey == 'makkah',
+                  onListen:
+                      () => _previewSource(
+                        'makkah',
+                        const AdhanSource.asset(
+                          title: 'Mekke - Mescid-i Haram',
+                          path: makkahNormalAdhanAsset,
+                        ),
+                      ),
+                  onStop: _stopPreview,
                 ),
-                if (prayerName != prayerNames.last) const Divider(height: 1),
-              ],
+                title: const Text('Mekke - Mescid-i Haram'),
+                subtitle: const Text('Varsayılan ezan'),
+                selected: selectedType == AdhanType.makkah,
+                onSelect: () => _selectMakkah(),
+              ),
+              const Divider(height: 1),
+              _AdhanChoiceTile(
+                controls: _PreviewControls(
+                  playing: _playingKey == 'madinah',
+                  onListen:
+                      () => _previewSource(
+                        'madinah',
+                        const AdhanSource.asset(
+                          title: 'Medine - Mescid-i Nebevi',
+                          path: madinahNormalAdhanAsset,
+                        ),
+                      ),
+                  onStop: _stopPreview,
+                ),
+                title: const Text('Medine - Mescid-i Nebevi'),
+                subtitle: const Text('Sabah için ayrı fecr kaydı kullanılır'),
+                selected: selectedType == AdhanType.madinah,
+                onSelect: () => _selectMadinah(),
+              ),
+              const Divider(height: 1),
+              RadioListTile<AdhanType>(
+                secondary: const Icon(Icons.chevron_right),
+                title: const Text('Dünya Ezanları'),
+                subtitle: Text(
+                  selectedType == AdhanType.world && _selectedTitle != null
+                      ? 'Seçili: $_selectedTitle'
+                      : '200+ ezan arasından seç',
+                ),
+                value: AdhanType.world,
+                groupValue: selectedType,
+                onChanged: (_) => _openWorldAdhans(),
+              ),
+              const Divider(height: 1),
+              RadioListTile<AdhanType>(
+                secondary: const Icon(Icons.folder_open_outlined),
+                title: const Text('Telefondan Ezan Seç'),
+                subtitle: Text(
+                  selectedType == AdhanType.custom && _selectedTitle != null
+                      ? 'Seçili: $_selectedTitle'
+                      : 'mp3, m4a, wav, ogg',
+                ),
+                value: AdhanType.custom,
+                groupValue: selectedType,
+                onChanged: (_) => _pickCustomAdhan(),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 4),
-          child: Text('EZAN / BİLDİRİM SES SEVİYESİ', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey)),
-        ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                const Icon(Icons.volume_down),
-                Expanded(
-                  child: Slider(
-                    value: settings.ezanVolume,
-                    onChanged: (v) => ref.read(alertSettingsProvider.notifier).setEzanVolume(v),
-                  ),
-                ),
-                const Icon(Icons.volume_up),
-              ],
+        if (_selectedTitle != null) ...[
+          const SizedBox(height: 8),
+          _AudioPreviewLayout(
+            header: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text('Seçili: $_selectedTitle'),
+            ),
+            controls: _PreviewControls(
+              playing: _playingKey == 'current',
+              onListen: _previewCurrent,
+              onStop: _stopPreview,
             ),
           ),
-        ),
+        ],
         const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 4),
-          child: Text('TEST', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey)),
-        ),
         Row(
           children: [
             Expanded(
@@ -271,17 +290,130 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection> {
                 label: const Text('Bildirim Testi'),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _testEzanSound,
-                icon: Icon(_playingKey == 'ezan_test' ? Icons.stop_circle_outlined : Icons.volume_up_outlined),
-                label: const Text('Ezan Sesini Test Et'),
+            if (kDebugMode) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _runRealAlarmTest,
+                  icon: const Icon(Icons.mosque_outlined),
+                  label: const Text('Ezanı Şimdi Test Et'),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ],
+    );
+  }
+}
+
+class WorldAdhanPickerPage extends ConsumerStatefulWidget {
+  const WorldAdhanPickerPage({super.key});
+
+  @override
+  ConsumerState<WorldAdhanPickerPage> createState() =>
+      _WorldAdhanPickerPageState();
+}
+
+class _WorldAdhanPickerPageState extends ConsumerState<WorldAdhanPickerPage>
+    with _PreviewRoute<WorldAdhanPickerPage> {
+  final _library = AdhanLibraryService();
+  final _searchController = TextEditingController();
+  late Future<List<WorldAdhan>> _future;
+  String _query = '';
+  String? get _playingPath => audio.previewKey.value;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _library.loadWorldAdhans();
+  }
+
+  Future<void> _togglePreview(WorldAdhan item) async {
+    try {
+      await audio.playPreview(
+        this,
+        item.assetPath,
+        AdhanSource.asset(title: item.title, path: item.assetPath),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ezan önizlemesi başlatılamadı.')),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedPath =
+        ref.watch(alertSettingsProvider).adhanSettings.worldAssetPath;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dünya Ezanları')),
+      body: FutureBuilder<List<WorldAdhan>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Ezan listesi okunamadı: ${snapshot.error}'),
+            );
+          }
+          final allItems = snapshot.data ?? const <WorldAdhan>[];
+          final query = _query.trim().toLowerCase();
+          final items =
+              query.isEmpty
+                  ? allItems
+                  : allItems
+                      .where((item) => item.title.toLowerCase().contains(query))
+                      .toList();
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hintText: 'Ezan ara',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => setState(() => _query = value),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    final selected = selectedPath == item.assetPath;
+                    final playing = _playingPath == item.assetPath;
+                    return _AdhanChoiceTile(
+                      title: Text(item.title),
+                      selected: selected,
+                      onSelect: () => Navigator.of(context).pop(item.assetPath),
+                      controls: _PreviewControls(
+                        playing: playing,
+                        onListen: () => _togglePreview(item),
+                        onStop: () => audio.stopPreview(this),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -295,7 +427,9 @@ class _CapabilityBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+        color: Theme.of(
+          context,
+        ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -318,9 +452,15 @@ class _CapabilityBanner extends StatelessWidget {
 class _PermissionCard extends StatelessWidget {
   final bool? granted;
   final bool? exactAlarmsGranted;
+  final bool? fullScreenIntentGranted;
   final VoidCallback onRequest;
 
-  const _PermissionCard({required this.granted, required this.exactAlarmsGranted, required this.onRequest});
+  const _PermissionCard({
+    required this.granted,
+    required this.exactAlarmsGranted,
+    required this.fullScreenIntentGranted,
+    required this.onRequest,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -339,165 +479,157 @@ class _PermissionCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.notifications_outlined, color: statusColor),
         title: Text(statusText),
-        subtitle: exactAlarmsGranted == false
-            ? const Text('Kesin alarm izni de gerekli olabilir (Android 12+) — bildirimler zamanında gelmeyebilir.')
-            : null,
-        trailing: TextButton(onPressed: onRequest, child: const Text('İzin İste')),
-      ),
-    );
-  }
-}
-
-class _PrayerSoundTile extends StatelessWidget {
-  final String prayerName;
-  final String displayLabel;
-  final bool alarmEnabled;
-  final PrayerSoundSetting sound;
-  final bool isPlaying;
-  final VoidCallback onTapSound;
-  final VoidCallback onTogglePreview;
-
-  const _PrayerSoundTile({
-    required this.prayerName,
-    required this.displayLabel,
-    required this.alarmEnabled,
-    required this.sound,
-    required this.isPlaying,
-    required this.onTapSound,
-    required this.onTogglePreview,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      enabled: alarmEnabled,
-      leading: const Icon(Icons.mosque_outlined),
-      title: Text(displayLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(alarmEnabled ? sound.type.displayName : 'Bu vakit için alarm kapalı'),
-      onTap: alarmEnabled ? onTapSound : null,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (alarmEnabled && sound.type != PrayerSoundType.silent)
-            IconButton(
-              icon: Icon(isPlaying ? Icons.stop_circle_outlined : Icons.play_circle_outline),
-              tooltip: isPlaying ? 'Durdur' : 'Sesi Test Et',
-              onPressed: onTogglePreview,
-            ),
-          if (alarmEnabled) const Icon(Icons.chevron_right),
-        ],
-      ),
-    );
-  }
-}
-
-class _SoundTypeSheet extends StatelessWidget {
-  final String prayerName;
-  final String displayLabel;
-  final PrayerSoundSetting current;
-  final List<CustomAudioFile> existingCustomFiles;
-  final ValueChanged<PrayerSoundType> onSelectType;
-  final ValueChanged<String> onSelectExistingCustom;
-  final VoidCallback onPickNewFile;
-  final ValueChanged<String> onDeleteCustomFile;
-
-  const _SoundTypeSheet({
-    required this.prayerName,
-    required this.displayLabel,
-    required this.current,
-    required this.existingCustomFiles,
-    required this.onSelectType,
-    required this.onSelectExistingCustom,
-    required this.onPickNewFile,
-    required this.onDeleteCustomFile,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('$displayLabel — Ses Seç', style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(height: 8),
-            for (final type in [PrayerSoundType.adhan, PrayerSoundType.notification, PrayerSoundType.silent])
-              RadioListTile<PrayerSoundType>(
-                title: Text(type.displayName),
-                value: type,
-                groupValue: current.type,
-                onChanged: (v) {
-                  if (v == null) return;
-                  onSelectType(v);
-                  Navigator.pop(context);
-                },
-              ),
-            RadioListTile<PrayerSoundType>(
-              title: const Text('Kendi Sesim'),
-              subtitle: Text(
-                current.type == PrayerSoundType.custom
-                    ? (existingCustomFiles.where((f) => f.id == current.customAudioId).map((f) => f.fileName).firstOrNull ?? 'Dosya seçilmedi')
-                    : (existingCustomFiles.isEmpty ? 'Aşağıdan cihazınızdan bir dosya seçin' : 'Aşağıdan bir dosya seçin'),
-              ),
-              value: PrayerSoundType.custom,
-              groupValue: current.type,
-              onChanged: (v) {
-                // Asıl seçim aşağıdaki dosya listesi / "Dosya Seç..." satırıyla
-                // tamamlanır (hangi dosyanın kullanılacağı belirtilmeden yalnızca
-                // türü 'custom' yapmanın bir anlamı yok); zaten kayıtlı dosya
-                // varsa kolaylık olsun diye ilkini seçilmiş kabul ederiz.
-                if (existingCustomFiles.isNotEmpty) {
-                  onSelectExistingCustom(existingCustomFiles.first.id);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            if (existingCustomFiles.isNotEmpty)
-              ...existingCustomFiles.map(
-                (f) => Padding(
-                  padding: const EdgeInsets.only(left: 32),
-                  child: ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.music_note, size: 20),
-                    title: Text(f.fileName, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${(f.sizeBytes / 1024).toStringAsFixed(0)} KB'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (current.type == PrayerSoundType.custom && current.customAudioId == f.id)
-                          const Icon(Icons.check, color: Colors.green),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                          tooltip: 'Bu dosyayı kaldır',
-                          onPressed: () => onDeleteCustomFile(f.id),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      onSelectExistingCustom(f.id);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.only(left: 32),
-              child: ListTile(
-                dense: true,
-                leading: const Icon(Icons.upload_file_outlined, size: 20),
-                title: const Text('Cihazdan ses dosyası seç...'),
-                subtitle: const Text('mp3, m4a, wav, ogg'),
-                onTap: onPickNewFile,
-              ),
-            ),
-          ],
+        subtitle: _permissionWarning(),
+        trailing: TextButton(
+          onPressed: onRequest,
+          child: const Text('İzin İste'),
         ),
       ),
     );
   }
+
+  Widget? _permissionWarning() {
+    final warnings = <String>[
+      if (exactAlarmsGranted == false)
+        'Kesin alarm izni gerekli olabilir (Android 12+).',
+      if (fullScreenIntentGranted == false)
+        'Tam ekran bildirim izni kapalı görünüyor (Android 14+).',
+    ];
+    if (warnings.isEmpty) return null;
+    return Text(
+      '${warnings.join(' ')} Namaz vakti alarmı zamanında veya tam ekran açılmayabilir.',
+    );
+  }
+}
+
+/// Stop previews when a new route covers the settings as well as on removal.
+mixin _PreviewRoute<T extends ConsumerStatefulWidget> on ConsumerState<T>
+    implements RouteAware {
+  late final AudioManager audio;
+  ModalRoute<dynamic>? _route;
+  @override
+  void initState() {
+    super.initState();
+    audio = ref.read(audioManagerProvider);
+    audio.previewKey.addListener(_previewChanged);
+  }
+
+  void _previewChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (_route == route) return;
+    previewRouteObserver.unsubscribe(this);
+    _route = route;
+    if (route != null) previewRouteObserver.subscribe(this, route);
+  }
+
+  @override
+  void didPushNext() {
+    unawaited(audio.stopPreview(this));
+  }
+
+  @override
+  void didPop() {
+    unawaited(audio.stopPreview(this));
+  }
+
+  @override
+  void didPush() {}
+  @override
+  void didPopNext() {}
+  @override
+  void dispose() {
+    previewRouteObserver.unsubscribe(this);
+    audio.previewKey.removeListener(_previewChanged);
+    unawaited(audio.stopPreview(this));
+    super.dispose();
+  }
+}
+
+class _PreviewControls extends StatelessWidget {
+  const _PreviewControls({
+    required this.playing,
+    required this.onListen,
+    required this.onStop,
+  });
+  final bool playing;
+  final VoidCallback onListen;
+  final VoidCallback onStop;
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      OutlinedButton.icon(
+        onPressed: onListen,
+        icon: const Icon(Icons.play_arrow),
+        label: const Text('Dinle'),
+      ),
+      OutlinedButton.icon(
+        onPressed: playing ? onStop : null,
+        icon: const Icon(Icons.stop),
+        label: const Text('Durdur'),
+      ),
+    ],
+  );
+}
+
+/// Controls are never placed in ListTile's height-constrained trailing slot.
+class _AudioPreviewLayout extends StatelessWidget {
+  const _AudioPreviewLayout({required this.header, required this.controls});
+  final Widget header;
+  final Widget controls;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final actions = Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: controls,
+      );
+      if (constraints.maxWidth >= 600 &&
+          MediaQuery.textScalerOf(context).scale(14) <= 20) {
+        return Row(children: [Expanded(child: header), actions]);
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          header,
+          Align(alignment: AlignmentDirectional.centerEnd, child: actions),
+        ],
+      );
+    },
+  );
+}
+
+class _AdhanChoiceTile extends StatelessWidget {
+  const _AdhanChoiceTile({
+    required this.title,
+    this.subtitle,
+    required this.selected,
+    required this.onSelect,
+    required this.controls,
+  });
+  final Widget title;
+  final Widget? subtitle;
+  final bool selected;
+  final VoidCallback onSelect;
+  final Widget controls;
+
+  @override
+  Widget build(BuildContext context) => _AudioPreviewLayout(
+    header: RadioListTile<bool>(
+      title: title,
+      subtitle: subtitle,
+      value: true,
+      groupValue: selected,
+      onChanged: (_) => onSelect(),
+    ),
+    controls: controls,
+  );
 }

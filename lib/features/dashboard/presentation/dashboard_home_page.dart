@@ -18,7 +18,7 @@ import '../../times/presentation/times_page.dart' show timesProvider;
 import 'date_navigator.dart';
 import 'selected_date_provider.dart';
 
-const _wideBreakpoint = 1000.0;
+const _wideBreakpoint = 840.0;
 
 /// Ana Sayfa. Kasıtlı olarak sade tutulur: yalnızca konum, tarih/hicri
 /// tarih, hero/slayt alanı, namaz vakitleri, sonraki namaza geri sayım ve
@@ -31,17 +31,22 @@ class DashboardHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedDateProvider);
-    final recentLocations = ref.watch(prefsRepositoryProvider).getRecentLocations();
-    final lastLocation = recentLocations.isNotEmpty ? recentLocations.first : null;
+    final recentLocations =
+        ref.watch(prefsRepositoryProvider).getRecentLocations();
+    final lastLocation =
+        recentLocations.isNotEmpty ? recentLocations.first : null;
     final bundle = ref.watch(dailyContentForDateProvider(selectedDate));
     final visibility = ref.watch(contentVisibilityProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= _wideBreakpoint;
-        final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+        final wide =
+            constraints.maxWidth >= _wideBreakpoint &&
+            constraints.maxHeight >= 500;
+        final isLandscape =
+            MediaQuery.of(context).orientation == Orientation.landscape;
 
-        if (!wide && isLandscape) {
+        if (!wide && isLandscape && constraints.maxHeight < 500) {
           return _LandscapeCompactLayout(
             ilceId: lastLocation?.ilce.ilceId,
             ilceAdi: lastLocation?.ilce.ilceAdi,
@@ -50,20 +55,46 @@ class DashboardHomePage extends ConsumerWidget {
         }
 
         final mainContent = _MainColumn(
-          lastLocationLabel: lastLocation == null ? null : '${lastLocation.ilce.ilceAdi}, ${lastLocation.sehir.sehirAdi}',
+          lastLocationLabel:
+              lastLocation == null
+                  ? null
+                  : '${lastLocation.ilce.ilceAdi}, ${lastLocation.sehir.sehirAdi}',
           bundle: bundle,
           visibility: visibility,
-          wide: wide,
+          inlineCountdown:
+              wide
+                  ? null
+                  : lastLocation == null
+                  ? const _NoLocationPanel()
+                  : _SidePanel(
+                    ilceId: lastLocation.ilce.ilceId,
+                    ilceAdi: lastLocation.ilce.ilceAdi,
+                    date: selectedDate,
+                    showTimes: false,
+                    showDetails: false,
+                  ),
         );
 
-        final sidePanel = lastLocation == null
-            ? const _NoLocationPanel()
-            : _SidePanel(ilceId: lastLocation.ilce.ilceId, ilceAdi: lastLocation.ilce.ilceAdi, date: selectedDate);
+        final sidePanel =
+            lastLocation == null
+                ? const _NoLocationPanel()
+                : _SidePanel(
+                  ilceId: lastLocation.ilce.ilceId,
+                  ilceAdi: lastLocation.ilce.ilceAdi,
+                  date: selectedDate,
+                  showCountdown: wide,
+                );
 
         if (!wide) {
           return ListView(
             padding: const EdgeInsets.all(12),
-            children: [mainContent, const SizedBox(height: 12), sidePanel],
+            children: [
+              mainContent,
+              if (lastLocation != null) ...[
+                const SizedBox(height: 12),
+                sidePanel,
+              ],
+            ],
           );
         }
 
@@ -72,11 +103,17 @@ class DashboardHomePage extends ConsumerWidget {
           children: [
             Expanded(
               flex: 2,
-              child: ListView(padding: const EdgeInsets.all(16), children: [mainContent]),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [mainContent],
+              ),
             ),
             SizedBox(
               width: 320,
-              child: ListView(padding: const EdgeInsets.fromLTRB(0, 16, 16, 16), children: [sidePanel]),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
+                children: [sidePanel],
+              ),
             ),
           ],
         );
@@ -100,7 +137,9 @@ class _LocationLabel extends StatelessWidget {
           child: Text(
             label ?? 'Konum seçilmedi',
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -112,9 +151,14 @@ class _MainColumn extends StatelessWidget {
   final String? lastLocationLabel;
   final DailyContentBundle? bundle;
   final ContentVisibility visibility;
-  final bool wide;
+  final Widget? inlineCountdown;
 
-  const _MainColumn({required this.lastLocationLabel, required this.bundle, required this.visibility, required this.wide});
+  const _MainColumn({
+    required this.lastLocationLabel,
+    required this.bundle,
+    required this.visibility,
+    this.inlineCountdown,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +172,18 @@ class _MainColumn extends StatelessWidget {
             icon: Icons.menu_book_outlined,
             title: 'Günün Âyeti',
             body: '"${bundle!.ayet.meal}"',
-            sourceLine: '${bundle!.ayet.sureAdi} Sûresi, ${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
+            sourceLine:
+                '${bundle!.ayet.sureAdi} Sûresi, ${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
             shareText: shareTextForAyet(bundle!),
             isSampleData: bundle!.ayet.isSampleData,
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.ayet,
             favoriteRefId: 'ayet:${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
+                ),
           ),
         ),
       if (visibility.showHadith && bundle != null)
@@ -151,7 +200,11 @@ class _MainColumn extends StatelessWidget {
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.hadith,
             favoriteRefId: 'hadith:${bundle!.hadith.metin.hashCode}',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
+                ),
           ),
         ),
       if (visibility.showEvent && bundle != null)
@@ -159,17 +212,25 @@ class _MainColumn extends StatelessWidget {
           'event',
           bundle!.tarihiOlay != null
               ? ContentCard(
-                  icon: Icons.history_edu_outlined,
-                  title: 'Tarihte Bugün',
-                  body: '${bundle!.tarihiOlay!.yil ?? ''} — ${bundle!.tarihiOlay!.baslik}',
-                  sourceLine: bundle!.tarihiOlay!.kaynak,
-                  shareText: shareTextForEvent(bundle!),
-                  isSampleData: bundle!.tarihiOlay!.isSampleData,
-                  backgroundColor: dashboardCardGold(brightness),
-                  favoriteType: FavoriteType.event,
-                  favoriteRefId: 'event:${bundle!.tarihiOlay!.ay}-${bundle!.tarihiOlay!.gun}',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
-                )
+                icon: Icons.history_edu_outlined,
+                title: 'Tarihte Bugün',
+                body:
+                    '${bundle!.tarihiOlay!.yil ?? ''} — ${bundle!.tarihiOlay!.baslik}',
+                sourceLine: bundle!.tarihiOlay!.kaynak,
+                shareText: shareTextForEvent(bundle!),
+                isSampleData: bundle!.tarihiOlay!.isSampleData,
+                backgroundColor: dashboardCardGold(brightness),
+                favoriteType: FavoriteType.event,
+                favoriteRefId:
+                    'event:${bundle!.tarihiOlay!.ay}-${bundle!.tarihiOlay!.gun}',
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DailyContentPage(),
+                      ),
+                    ),
+              )
               : _EmptyEventCard(brightness: brightness),
         ),
     ];
@@ -179,42 +240,68 @@ class _MainColumn extends StatelessWidget {
       children: [
         _LocationLabel(label: lastLocationLabel),
         const SizedBox(height: 10),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: SlaytWidget(height: wide ? 260 : 200, userImages: const []),
-        ),
-        const SizedBox(height: 12),
         const DateNavigatorBar(),
         const SizedBox(height: 12),
-        if (bundle == null)
-          const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
-        else if (cards.isNotEmpty)
-          wide
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final c in cards) ...[Expanded(child: c.card), if (c != cards.last) const SizedBox(width: 10)],
-                  ],
-                )
-              : Column(
-                  children: [
-                    for (final c in cards) ...[c.card, if (c != cards.last) const SizedBox(height: 10)],
-                  ],
+        LayoutBuilder(
+          builder:
+              (context, constraints) => ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SlaytWidget(
+                  height: (constraints.maxWidth * 9 / 16).clamp(180.0, 320.0),
+                  userImages: const [],
                 ),
+              ),
+        ),
+        const SizedBox(height: 12),
+        if (inlineCountdown != null) ...[
+          KeyedSubtree(
+            key: const ValueKey('home-countdown'),
+            child: inlineCountdown!,
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (bundle == null)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (cards.isNotEmpty)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = (constraints.maxWidth / 320).floor().clamp(1, 3);
+              final cardWidth =
+                  (constraints.maxWidth - (columns - 1) * 10) / columns;
+              return Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (final c in cards)
+                    SizedBox(width: cardWidth, child: c.card),
+                ],
+              );
+            },
+          ),
         if (bundle != null && visibility.showSoz) ...[
           const SizedBox(height: 10),
           ContentCard(
             icon: Icons.format_quote_outlined,
             title: 'Günün Sözü',
             body: '"${bundle!.soz.soz}"',
-            sourceLine: [bundle!.soz.yazar, if (bundle!.soz.eser != null) bundle!.soz.eser!].join(' — '),
+            sourceLine: [
+              bundle!.soz.yazar,
+              if (bundle!.soz.eser != null) bundle!.soz.eser!,
+            ].join(' — '),
             shareText: shareTextForSoz(bundle!),
             isSampleData: bundle!.soz.isSampleData,
             verified: bundle!.soz.verified,
             backgroundColor: dashboardCardGreen(brightness),
             favoriteType: FavoriteType.soz,
             favoriteRefId: 'soz:${bundle!.soz.soz.hashCode}',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyContentPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
+                ),
           ),
         ],
       ],
@@ -234,9 +321,10 @@ String shareTextForAyet(DailyContentBundle b) =>
 String shareTextForHadith(DailyContentBundle b) =>
     '🌿 Günün Hadisi\n\n"${b.hadith.metin}"\n\n(${b.hadith.kaynak})\n\nEzan Vakti uygulamasından paylaşıldı.';
 
-String shareTextForEvent(DailyContentBundle b) => b.tarihiOlay == null
-    ? ''
-    : '📜 Tarihte Bugün\n\n${b.tarihiOlay!.yil ?? ''} — ${b.tarihiOlay!.baslik}\n${b.tarihiOlay!.aciklama}\n\nEzan Vakti uygulamasından paylaşıldı.';
+String shareTextForEvent(DailyContentBundle b) =>
+    b.tarihiOlay == null
+        ? ''
+        : '📜 Tarihte Bugün\n\n${b.tarihiOlay!.yil ?? ''} — ${b.tarihiOlay!.baslik}\n${b.tarihiOlay!.aciklama}\n\nEzan Vakti uygulamasından paylaşıldı.';
 
 String shareTextForSoz(DailyContentBundle b) =>
     '💬 Günün Sözü\n\n"${b.soz.soz}"\n\n— ${b.soz.yazar}${b.soz.eser != null ? ', ${b.soz.eser}' : ''}\n\nEzan Vakti uygulamasından paylaşıldı.';
@@ -256,7 +344,11 @@ class _EmptyEventCard extends StatelessWidget {
           children: [
             Icon(Icons.history_edu_outlined),
             SizedBox(width: 10),
-            Expanded(child: Text('Bu tarih için kayıtlı bir tarihî olay henüz eklenmedi.')),
+            Expanded(
+              child: Text(
+                'Bu tarih için kayıtlı bir tarihî olay henüz eklenmedi.',
+              ),
+            ),
           ],
         ),
       ),
@@ -272,7 +364,9 @@ class _NoLocationPanel extends StatelessWidget {
     return const Card(
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Text('Namaz vakitlerini görmek için Ayarlar > Konum bölümünden bir konum seçin.'),
+        child: Text(
+          'Namaz vakitlerini görmek için Ayarlar > Konum bölümünden bir konum seçin.',
+        ),
       ),
     );
   }
@@ -285,8 +379,17 @@ class _SidePanel extends ConsumerWidget {
   final String ilceAdi;
   final DateTime date;
   final bool showTimes;
+  final bool showDetails;
+  final bool showCountdown;
 
-  const _SidePanel({required this.ilceId, required this.ilceAdi, required this.date, this.showTimes = true});
+  const _SidePanel({
+    required this.ilceId,
+    required this.ilceAdi,
+    required this.date,
+    this.showTimes = true,
+    this.showDetails = true,
+    this.showCountdown = true,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -294,14 +397,19 @@ class _SidePanel extends ConsumerWidget {
     final brightness = Theme.of(context).brightness;
 
     return asyncTimes.when(
-      loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+      loading:
+          () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(),
+            ),
+          ),
       error: (e, _) => Text('Namaz vakitleri alınamadı: $e'),
       data: (list) {
         final vakit = findVakitForDate(list, date);
         if (vakit == null) {
           return const Text('Bu tarih için namaz vakti verisi bulunamadı.');
         }
-        final tomorrow = findVakitForDate(list, date.add(const Duration(days: 1)));
         final now = phoneLocalNow();
         final activeName = currentPrayerName(vakit, now);
 
@@ -310,36 +418,70 @@ class _SidePanel extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              color: dashboardCardGold(brightness),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  children: [
-                    Text(ilceAdi.toUpperCase(), textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                    Text(vakit.miladiTarihUzun, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
-                    Text(vakit.hicriTarihUzun, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
-                  ],
+            if (showDetails)
+              Card(
+                color: dashboardCardGold(brightness),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: [
+                      Text(
+                        ilceAdi.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        vakit.miladiTarihUzun,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        vakit.hicriTarihUzun,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: _LivePrayerCountdown(list: list),
+            if (showDetails && showCountdown) const SizedBox(height: 10),
+            if (showCountdown)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: _LivePrayerCountdown(list: list),
+                ),
               ),
-            ),
             if (showTimes) ...[
               const SizedBox(height: 10),
-              ...times.map((t) => Card(
-                    color: t.$1 == activeName ? dashboardAccentGreen.withValues(alpha: 0.15) : null,
-                    child: ListTile(
-                      dense: true,
-                      title: Text(t.$1, style: TextStyle(fontWeight: t.$1 == activeName ? FontWeight.bold : FontWeight.normal)),
-                      trailing: Text(t.$2, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+              ...times.map(
+                (t) => Card(
+                  color:
+                      t.$1 == activeName
+                          ? dashboardAccentGreen.withValues(alpha: 0.15)
+                          : null,
+                  child: ListTile(
+                    dense: true,
+                    title: Text(
+                      t.$1,
+                      style: TextStyle(
+                        fontWeight:
+                            t.$1 == activeName
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                      ),
                     ),
-                  )),
+                    trailing: Text(
+                      t.$2,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ],
         );
@@ -349,13 +491,13 @@ class _SidePanel extends ConsumerWidget {
 }
 
 List<(String, String)> prayerTimeEntries(Vakit vakit) => [
-      ('İmsak', vakit.imsak),
-      ('Güneş', vakit.gunes),
-      ('Öğle', vakit.ogle),
-      ('İkindi', vakit.ikindi),
-      ('Akşam', vakit.aksam),
-      ('Yatsı', vakit.yatsi),
-    ];
+  ('İmsak', vakit.imsak),
+  ('Güneş', vakit.gunes),
+  ('Öğle', vakit.ogle),
+  ('İkindi', vakit.ikindi),
+  ('Akşam', vakit.aksam),
+  ('Yatsı', vakit.yatsi),
+];
 
 String _formatRemaining(Duration d) {
   if (d.isNegative) return '00:00:00';
@@ -404,14 +546,22 @@ class _LivePrayerCountdownState extends State<_LivePrayerCountdown> {
   @override
   Widget build(BuildContext context) {
     final today = findVakitForDate(widget.list, _now);
-    if (today == null) return const Text('Bugün için namaz vakti verisi bulunamadı.');
+    if (today == null) {
+      return const Text('Bugün için namaz vakti verisi bulunamadı.');
+    }
 
-    final tomorrow = findVakitForDate(widget.list, _now.add(const Duration(days: 1)));
+    final tomorrow = findVakitForDate(
+      widget.list,
+      _now.add(const Duration(days: 1)),
+    );
     final next = nextPrayerInfo(today, _now, tomorrow: tomorrow);
 
     return Column(
       children: [
-        Text('${next.name} Vaktine', style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          '${next.name} Vaktine',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
         SizedBox(
           width: double.infinity,
           height: 42,
@@ -421,7 +571,11 @@ class _LivePrayerCountdownState extends State<_LivePrayerCountdown> {
               _formatRemaining(next.time.difference(_now)),
               maxLines: 1,
               softWrap: false,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'monospace',
+              ),
             ),
           ),
         ),
@@ -429,7 +583,8 @@ class _LivePrayerCountdownState extends State<_LivePrayerCountdown> {
         Image.network(
           today.ayinSekliURL,
           height: 44,
-          errorBuilder: (_, __, ___) => const Icon(Icons.brightness_3, size: 40),
+          errorBuilder:
+              (_, __, ___) => const Icon(Icons.brightness_3, size: 40),
         ),
       ],
     );
@@ -444,7 +599,11 @@ class _LandscapeCompactLayout extends ConsumerWidget {
   final String? ilceAdi;
   final DateTime date;
 
-  const _LandscapeCompactLayout({required this.ilceId, required this.ilceAdi, required this.date});
+  const _LandscapeCompactLayout({
+    required this.ilceId,
+    required this.ilceAdi,
+    required this.date,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -461,22 +620,26 @@ class _LandscapeCompactLayout extends ConsumerWidget {
                   flex: 3,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: const SlaytWidget(height: double.infinity, userImages: []),
+                    child: const SlaytWidget(
+                      height: double.infinity,
+                      userImages: [],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   flex: 1,
-                  child: ilceId == null
-                      ? const _NoLocationPanel()
-                      : SingleChildScrollView(
-                          child: _SidePanel(
-                            ilceId: ilceId!,
-                            ilceAdi: ilceAdi!,
-                            date: date,
-                            showTimes: false,
+                  child:
+                      ilceId == null
+                          ? const _NoLocationPanel()
+                          : SingleChildScrollView(
+                            child: _SidePanel(
+                              ilceId: ilceId!,
+                              ilceAdi: ilceAdi!,
+                              date: date,
+                              showTimes: false,
+                            ),
                           ),
-                        ),
                 ),
               ],
             ),
@@ -505,7 +668,11 @@ class _LandscapePrayerTimesStrip extends ConsumerWidget {
     final asyncTimes = ref.watch(timesProvider(ilceId));
 
     return asyncTimes.when(
-      loading: () => const SizedBox(height: 42, child: Center(child: LinearProgressIndicator())),
+      loading:
+          () => const SizedBox(
+            height: 42,
+            child: Center(child: LinearProgressIndicator()),
+          ),
       error: (_, __) => const SizedBox.shrink(),
       data: (list) {
         final vakit = findVakitForDate(list, date);
@@ -517,37 +684,55 @@ class _LandscapePrayerTimesStrip extends ConsumerWidget {
         return SizedBox(
           height: 42,
           child: Row(
-            children: prayerTimeEntries(vakit).map((entry) {
-              final isActive = entry.$1 == activeName;
-              return Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: isActive ? dashboardAccentGreen.withValues(alpha: 0.18) : Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: isActive ? dashboardAccentGold : Colors.black12),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          entry.$1,
-                          style: TextStyle(fontWeight: isActive ? FontWeight.bold : FontWeight.w500),
+            children:
+                prayerTimeEntries(vakit).map((entry) {
+                  final isActive = entry.$1 == activeName;
+                  return Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isActive
+                                ? dashboardAccentGreen.withValues(alpha: 0.18)
+                                : Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color:
+                              isActive ? dashboardAccentGold : Colors.black12,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          entry.$2,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              entry.$1,
+                              style: TextStyle(
+                                fontWeight:
+                                    isActive
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              entry.$2,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
+                  );
+                }).toList(),
           ),
         );
       },

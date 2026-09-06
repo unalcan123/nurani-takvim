@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:just_audio/just_audio.dart';
 
+import 'adhan_settings.dart';
 import 'custom_audio_store.dart';
-import 'prayer_sound_settings.dart';
 
 /// [player] üzerinde [setting]'e göre ön plan (uygulama açıkken) sesini
 /// hazırlar ve çalar. Sessiz seçiliyse hiçbir şey yapmadan döner.
@@ -16,33 +17,39 @@ import 'prayer_sound_settings.dart';
 Future<bool> playPrayerSound({
   required AudioPlayer player,
   required String prayerName,
-  required PrayerSoundSetting setting,
+  required AdhanSettings adhanSettings,
   required CustomAudioStore customAudioStore,
   double volume = 1.0,
 }) async {
-  if (setting.type == PrayerSoundType.silent) return false;
+  final source = await resolveSelectedAdhan(
+    prayer: PrayerType.fromPrayerName(prayerName),
+    settings: adhanSettings,
+    customAudioStore: customAudioStore,
+  );
+  return playAdhanSource(player: player, source: source, volume: volume);
+}
 
-  switch (setting.type) {
-    case PrayerSoundType.adhan:
-      final asset = adhanAssetForPrayer(prayerName);
-      if (asset == null) return false;
-      await player.setAsset(asset);
-      break;
-    case PrayerSoundType.notification:
-      await player.setAsset(notificationSoundAsset);
-      break;
-    case PrayerSoundType.custom:
-      if (setting.customAudioId == null) return false;
-      final file = await customAudioStore.get(setting.customAudioId!);
-      if (file == null) return false;
-      final uri = Uri.dataFromBytes(file.bytes, mimeType: file.mimeType);
-      await player.setAudioSource(AudioSource.uri(uri));
-      break;
-    case PrayerSoundType.silent:
-      return false;
+Future<bool> playAdhanSource({
+  required AudioPlayer player,
+  required AdhanSource source,
+  double volume = 1.0,
+  bool Function()? canPlay,
+  void Function(Object)? onError,
+}) async {
+  if (source.assetPath != null) {
+    await player.setAsset(source.assetPath!);
+  } else if (source.customFile != null) {
+    final file = source.customFile!;
+    final uri = Uri.dataFromBytes(file.bytes, mimeType: file.mimeType);
+    await player.setAudioSource(AudioSource.uri(uri));
+  } else {
+    return false;
   }
 
   await player.setVolume(volume.clamp(0.0, 1.0));
-  await player.play();
+  if (canPlay != null && !canPlay()) return false;
+  unawaited(player.play().catchError((Object error) {
+    onError?.call(error);
+  }));
   return true;
 }
