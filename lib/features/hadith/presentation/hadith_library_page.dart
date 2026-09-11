@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../dashboard/presentation/app_shell.dart';
 import '../../favorites/data/favorites_repository.dart';
 import '../../favorites/data/models.dart';
 import '../../media/player/media_player_controller.dart';
@@ -51,26 +52,21 @@ class _HadithLibraryPageState extends ConsumerState<HadithLibraryPage> {
   Future<void> _play(HadithAudioManifest manifest, HadithAudioEntry entry) async {
     final controller = ref.read(mediaPlayerControllerProvider);
     final cachedPath = await _cache.cachedFilePath(entry);
-    if (cachedPath != null) {
-      await controller.playTrack(
-        MediaTrack(
-          id: entry.id,
-          title: entry.title,
-          subtitle: manifest.narrator,
-          source: Uri.file(cachedPath),
-        ),
-      );
-      return;
-    }
-    // Henüz indirilmemiş: doğrudan archive.org'dan akışla çal.
+    // Henüz indirilmemişse doğrudan archive.org'dan akışla çal.
+    final source = cachedPath != null
+        ? Uri.file(cachedPath)
+        : Uri.parse(Uri.encodeFull('${manifest.baseUrl}${entry.fileName}'));
     await controller.playTrack(
       MediaTrack(
         id: entry.id,
         title: entry.title,
         subtitle: manifest.narrator,
-        source: Uri.parse(Uri.encodeFull('${manifest.baseUrl}${entry.fileName}')),
+        source: source,
       ),
     );
+    if (!mounted) return;
+    ref.read(dashboardSelectedTabProvider.notifier).state = 0;
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Future<void> _download(HadithAudioManifest manifest, HadithAudioEntry entry) async {

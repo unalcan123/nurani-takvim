@@ -13,8 +13,9 @@ String _formatDuration(Duration d) {
       : '${d.inMinutes}:$seconds';
 }
 
-/// Aranabilir (seek), duraklat/devam ettir kontrollü tam ekran oynatıcı
-/// paneli. [NowPlayingBar]'a dokunulunca alttan açılır.
+/// Aranabilir (seek), önceki/sonraki sûreye geçiş ve duraklat/devam ettir
+/// kontrollü tam ekran oynatıcı paneli. [NowPlayingBar]'a dokunulunca alttan
+/// açılır.
 class FullPlayerSheet extends ConsumerWidget {
   const FullPlayerSheet({super.key});
 
@@ -25,6 +26,7 @@ class FullPlayerSheet extends ConsumerWidget {
       valueListenable: controller.currentTrack,
       builder: (context, track, _) {
         if (track == null) return const SizedBox.shrink();
+        final textTheme = Theme.of(context).textTheme;
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
@@ -46,17 +48,22 @@ class FullPlayerSheet extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(height: 16),
+                // Sûre/bölüm adı: mevcut boyuttan (~16) yaklaşık %35 büyük.
                 Text(
                   track.title,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (track.subtitle != null) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     track.subtitle!,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: textTheme.bodyMedium?.color,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -90,8 +97,18 @@ class FullPlayerSheet extends ConsumerWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(_formatDuration(position)),
-                                  Text(_formatDuration(duration)),
+                                  Text(
+                                    _formatDuration(position),
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDuration(duration),
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -107,29 +124,40 @@ class FullPlayerSheet extends ConsumerWidget {
                   builder: (context, snapshot) {
                     final playing = snapshot.data?.playing ?? false;
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         IconButton(
-                          iconSize: 40,
-                          icon: const Icon(Icons.replay_10),
-                          onPressed: () => controller.seek(
-                            controller.position - const Duration(seconds: 10),
-                          ),
+                          iconSize: 32,
+                          tooltip: 'Önceki Sûre',
+                          icon: const Icon(Icons.skip_previous),
+                          onPressed: controller.hasPrevious
+                              ? controller.playPreviousSurah
+                              : null,
                         ),
-                        const SizedBox(width: 16),
+                        IconButton(
+                          iconSize: 36,
+                          tooltip: '10 saniye geri',
+                          icon: const Icon(Icons.replay_10),
+                          onPressed: controller.seekBackward10Seconds,
+                        ),
                         IconButton.filled(
-                          iconSize: 48,
+                          iconSize: 44,
                           icon: Icon(playing ? Icons.pause : Icons.play_arrow),
                           onPressed: () =>
                               playing ? controller.pause() : controller.resume(),
                         ),
-                        const SizedBox(width: 16),
                         IconButton(
-                          iconSize: 40,
+                          iconSize: 36,
+                          tooltip: '10 saniye ileri',
                           icon: const Icon(Icons.forward_10),
-                          onPressed: () => controller.seek(
-                            controller.position + const Duration(seconds: 10),
-                          ),
+                          onPressed: controller.seekForward10Seconds,
+                        ),
+                        IconButton(
+                          iconSize: 32,
+                          tooltip: 'Sonraki Sûre',
+                          icon: const Icon(Icons.skip_next),
+                          onPressed:
+                              controller.hasNext ? controller.playNextSurah : null,
                         ),
                       ],
                     );

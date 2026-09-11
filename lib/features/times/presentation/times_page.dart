@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/live_clock.dart';
+import '../../../theme.dart';
 import '../../../widgets/app_drawer.dart';
 import '../../dashboard/presentation/dashboard_home_page.dart';
 import '../../locations/data/location_providers.dart';
@@ -28,7 +29,7 @@ class TimesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: calendarBackground,
+    backgroundColor: dashboardBg(Theme.of(context).brightness),
     drawer: const AppDrawer(),
     body: SafeArea(child: DashboardHomePage(
       location: SavedLocation(ulke: ulke, sehir: sehir, ilce: ilce),

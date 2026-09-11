@@ -30,8 +30,9 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(dashboardSelectedTabProvider);
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
-      backgroundColor: calendarBackground,
+      backgroundColor: dashboardBg(brightness),
       drawer: _NavDrawer(
         selectedIndex: selectedIndex,
         onSelect: (i) => ref.read(dashboardSelectedTabProvider.notifier).state = i,
@@ -39,7 +40,7 @@ class AppShell extends ConsumerWidget {
       floatingActionButton: selectedIndex == 0 ? null : Builder(
         builder: (context) => FloatingActionButton.extended(
           tooltip: 'Menüyü aç',
-          backgroundColor: calendarInk,
+          backgroundColor: dashboardAccentGreen,
           foregroundColor: Colors.white,
           onPressed: () => Scaffold.of(context).openDrawer(),
           icon: const Icon(Icons.menu),

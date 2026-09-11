@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tvaap_clean/features/dashboard/presentation/app_shell.dart';
-import 'package:tvaap_clean/features/dashboard/presentation/dashboard_home_page.dart';
+import 'package:tvaap_clean/theme.dart';
 import 'responsive_layout_test.dart' show layoutEnvironment, resize, showLayout;
 
 Future<void> loadScreenshotFonts() async {
@@ -45,7 +45,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('İkindi Vaktine'), findsOneWidget);
       final active = tester.widget<Container>(find.byKey(const ValueKey('prayer-cell-Öğle')));
-      expect((active.decoration as BoxDecoration).border, Border.all(color: calendarGold, width: 3));
+      expect((active.decoration as BoxDecoration).border, Border.all(color: dashboardAccentGold, width: 3));
       final positions = [for (var i = 0; i < 8; i++)
         tester.getCenter(find.byKey(ValueKey('countdown-digit-$i')))];
       now = now.add(const Duration(seconds: 1));

@@ -122,3 +122,29 @@ Color dashboardBg(Brightness b) => b == Brightness.dark ? dashboardBgDark : dash
 Color dashboardSidebarBg(Brightness b) => b == Brightness.dark ? dashboardSidebarDark : dashboardSidebarLight;
 Color dashboardCardGreen(Brightness b) => b == Brightness.dark ? dashboardCardGreenDark : dashboardCardGreenLight;
 Color dashboardCardGold(Brightness b) => b == Brightness.dark ? dashboardCardGoldDark : dashboardCardGoldLight;
+
+// Ana Sayfa'daki "takvim kartı" yüzeyleri (şehir kartı krem, geri sayım
+// kartı beyaz) — koyu modda lacivert kart tonlarına döner.
+const Color dashboardSurfaceCreamLight = Color(0xFFF7F0E1);
+const Color dashboardSurfaceCreamDark = Color(0xFF16213A);
+const Color dashboardSurfaceWhiteLight = Colors.white;
+const Color dashboardSurfaceWhiteDark = Color(0xFF10192B);
+const Color dashboardBorderLight = Color(0xFFE0DDD5);
+const Color dashboardBorderDark = Color(0xFF283552);
+const Color dashboardInkLight = Color(0xFF242B30);
+const Color dashboardInkDark = Color(0xFFE8EAED);
+const Color dashboardMutedLight = Color(0xFF62635E);
+const Color dashboardMutedDark = Color(0xFF9AA3AE);
+const Color dashboardActiveCellLight = Color(0xFFF4E6C5);
+const Color dashboardActiveCellDark = Color(0xFF3A2E12);
+
+Color dashboardSurfaceCream(Brightness b) =>
+    b == Brightness.dark ? dashboardSurfaceCreamDark : dashboardSurfaceCreamLight;
+Color dashboardSurfaceWhite(Brightness b) =>
+    b == Brightness.dark ? dashboardSurfaceWhiteDark : dashboardSurfaceWhiteLight;
+Color dashboardBorder(Brightness b) =>
+    b == Brightness.dark ? dashboardBorderDark : dashboardBorderLight;
+Color dashboardInk(Brightness b) => b == Brightness.dark ? dashboardInkDark : dashboardInkLight;
+Color dashboardMuted(Brightness b) => b == Brightness.dark ? dashboardMutedDark : dashboardMutedLight;
+Color dashboardActiveCell(Brightness b) =>
+    b == Brightness.dark ? dashboardActiveCellDark : dashboardActiveCellLight;

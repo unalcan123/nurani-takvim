@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../dashboard/presentation/app_shell.dart';
 import '../../media/player/media_player_controller.dart';
 import '../../media/player/now_playing_bar.dart';
 import '../data/mp3quran_reciter_service.dart';
@@ -49,21 +50,30 @@ class _ReciterSurahListPageState extends ConsumerState<ReciterSurahListPage> {
 
   String _trackId(int sureNo) => 'q_${widget.reciter.id}_${widget.moshaf.id}_$sureNo';
 
-  Future<void> _play(SurahInfo surah) async {
-    final controller = ref.read(mediaPlayerControllerProvider);
+  Future<MediaTrack> _buildTrack(SurahInfo surah) async {
     final trackId = _trackId(surah.sureNo);
     final cachedPath = await _cache.cachedFilePath(trackId);
     final source = cachedPath != null
         ? Uri.file(cachedPath)
         : Uri.parse(widget.moshaf.surahUrl(surah.sureNo));
-    await controller.playTrack(
-      MediaTrack(
-        id: trackId,
-        title: '${surah.sureNo}. ${surah.turkishName}',
-        subtitle: widget.reciter.name,
-        source: source,
-      ),
+    return MediaTrack(
+      id: trackId,
+      title: '${surah.sureNo}. ${surah.turkishName}',
+      subtitle: widget.reciter.name,
+      source: source,
     );
+  }
+
+  /// [surahs] içindeki [index]'teki sûreden başlayarak tüm listeyi bir çalma
+  /// listesi olarak ayarlar — böylece "sonraki/önceki sûre" ve bir sûre
+  /// bitince otomatik geçiş bu hafızın tüm sûreleri arasında çalışır.
+  Future<void> _play(List<SurahInfo> surahs, int index) async {
+    final controller = ref.read(mediaPlayerControllerProvider);
+    final tracks = await Future.wait(surahs.map(_buildTrack));
+    await controller.playPlaylist(tracks, startIndex: index);
+    if (!mounted) return;
+    ref.read(dashboardSelectedTabProvider.notifier).state = 0;
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Future<void> _download(SurahInfo surah) async {
@@ -114,7 +124,7 @@ class _ReciterSurahListPageState extends ConsumerState<ReciterSurahListPage> {
                 leading: CircleAvatar(child: Text('${surah.sureNo}')),
                 title: Text(surah.turkishName),
                 subtitle: Text('${surah.arabicName} • ${surah.ayahCount} âyet'),
-                onTap: () => _play(surah),
+                onTap: () => _play(surahs, index),
                 trailing: progress != null
                     ? SizedBox(
                         width: 28,

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/live_clock.dart';
+import '../../../theme.dart';
 import '../../locations/data/models.dart';
 import '../../locations/presentation/country_page.dart';
 import '../../media/player/compact_play_controls.dart';
@@ -11,12 +12,6 @@ import '../../times/presentation/time_utils.dart';
 import '../../times/presentation/times_page.dart' show timesProvider;
 import 'date_format.dart';
 
-const calendarBackground = Color(0xFFEEEFEF);
-const calendarCream = Color(0xFFF7F0E1);
-const calendarGold = Color(0xFFB38B42);
-const calendarInk = Color(0xFF242B30);
-const _muted = Color(0xFF62635E);
-
 /// The home screen always shows today's live schedule, independently of the
 /// date being browsed on the separate prayer-times / daily-content pages.
 class DashboardHomePage extends ConsumerWidget {
@@ -25,6 +20,7 @@ class DashboardHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final brightness = Theme.of(context).brightness;
     final now = ref.watch(liveClockProvider);
     final recent = ref.watch(prefsRepositoryProvider).getRecentLocations();
     final selected = location ?? (recent.isEmpty ? null : recent.first);
@@ -39,7 +35,7 @@ class DashboardHomePage extends ConsumerWidget {
         : 'Güncel vakitler yükleniyor';
 
     return ColoredBox(
-      color: calendarBackground,
+      color: dashboardBg(brightness),
       child: LayoutBuilder(builder: (context, constraints) {
         final landscape = constraints.maxWidth > constraints.maxHeight;
         final gap = (constraints.maxWidth * .012).clamp(10.0, 24.0);
@@ -49,11 +45,13 @@ class DashboardHomePage extends ConsumerWidget {
         final strip = PrayerTimeStrip(today: today, now: now);
         final slide = ClipRRect(
           borderRadius: BorderRadius.circular(18),
-          child: const SlaytWidget(
-            key: ValueKey('home-slideshow'),
+          child: SlaytWidget(
+            key: const ValueKey('home-slideshow'),
             height: 0,
             showFullscreenButton: false,
-            backgroundColor: Color(0xFFE3E1DA),
+            backgroundColor: brightness == Brightness.dark
+                ? dashboardSidebarDark
+                : const Color(0xFFE3E1DA),
           ),
         );
         if (landscape) {
@@ -101,34 +99,37 @@ class _CityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final ink = dashboardInk(brightness);
+    final muted = dashboardMuted(brightness);
     return _Surface(
       key: const ValueKey('home-city-card'),
-      color: calendarCream,
+      color: dashboardSurfaceCream(brightness),
       child: LayoutBuilder(builder: (context, c) {
         final size = (c.maxWidth * .095).clamp(18.0, 44.0);
         return Center(child: FittedBox(fit: BoxFit.scaleDown,
           child: SizedBox(width: c.maxWidth, child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.mosque_outlined, color: calendarGold, size: size * 1.05),
+            Icon(Icons.mosque_outlined, color: dashboardAccentGold, size: size * 1.05),
             const SizedBox(height: 8),
-            Text('NURANÎ TAKVİM', style: TextStyle(color: _muted,
+            Text('NURANÎ TAKVİM', style: TextStyle(color: muted,
                 fontSize: size * .43, letterSpacing: 2.0, fontWeight: FontWeight.w700)),
             SizedBox(height: size * .45),
             Text(location?.ilce.ilceAdi ?? 'Şehir seçin', textAlign: TextAlign.center,
-                style: TextStyle(color: calendarInk, fontSize: size,
+                style: TextStyle(color: ink, fontSize: size,
                     height: 1.1, fontWeight: FontWeight.w800)),
             SizedBox(height: size * .4),
             Text('${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
-                textAlign: TextAlign.center, style: TextStyle(color: calendarInk,
+                textAlign: TextAlign.center, style: TextStyle(color: ink,
                     fontSize: size * .65, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
             Text(gunAdlari[now.weekday - 1], style: TextStyle(
-                color: _muted, fontSize: size * .57)),
+                color: muted, fontSize: size * .57)),
             SizedBox(height: size * .35),
-            Container(width: 44, height: 2, color: calendarGold),
+            Container(width: 44, height: 2, color: dashboardAccentGold),
             SizedBox(height: size * .35),
             Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
                 : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
-                style: TextStyle(color: calendarInk, fontSize: size * .57,
+                style: TextStyle(color: ink, fontSize: size * .57,
                     fontWeight: FontWeight.w500)),
             if (location == null) TextButton(onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const CountryPage())),
@@ -148,9 +149,12 @@ class _CountdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final ink = dashboardInk(brightness);
+    final muted = dashboardMuted(brightness);
     return _Surface(
       key: const ValueKey('home-countdown'),
-      color: Colors.white,
+      color: dashboardSurfaceWhite(brightness),
       child: LayoutBuilder(builder: (context, bounds) {
         final c = BoxConstraints.tightFor(
           width: math.min(bounds.maxWidth, bounds.maxHeight * 1.15),
@@ -164,26 +168,26 @@ class _CountdownCard extends StatelessWidget {
           child: SizedBox(width: c.maxWidth, height: c.maxHeight,
             child: Column(children: [
           const Spacer(flex: 2),
-          Icon(Icons.schedule_rounded, color: calendarGold,
+          Icon(Icons.schedule_rounded, color: dashboardAccentGold,
               size: (c.maxHeight * .11).clamp(26.0, 58.0)),
           const Spacer(),
           Text(next == null ? unavailable : next!.name == 'Güneş'
               ? 'Güneşin Doğmasına' : '${next!.name} Vaktine',
               key: const ValueKey('countdown-target'), textAlign: TextAlign.center,
-              style: TextStyle(color: calendarInk, fontSize: titleSize,
+              style: TextStyle(color: ink, fontSize: titleSize,
                   height: 1.15, fontWeight: FontWeight.w700)),
           SizedBox(height: (c.maxHeight * .035).clamp(6.0, 24.0)),
           StableCountdownDigits(value: value),
           const SizedBox(height: 8),
-          Text('KALAN SÜRE', style: TextStyle(color: _muted,
+          Text('KALAN SÜRE', style: TextStyle(color: muted,
               letterSpacing: 2, fontSize: (c.maxWidth * .044).clamp(10.0, 18.0),
               fontWeight: FontWeight.w600)),
           const Spacer(flex: 2),
-          Container(height: 1, color: const Color(0xFFE7E4DC)),
+          Container(height: 1, color: dashboardBorder(brightness)),
           const Spacer(),
           Text('${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}',
               key: const ValueKey('home-live-clock'),
-              style: TextStyle(color: _muted, fontSize: clockSize,
+              style: TextStyle(color: muted, fontSize: clockSize,
                   fontFeatures: const [FontFeature.tabularFigures()],
                   fontWeight: FontWeight.w500)),
           const Spacer(),
@@ -201,6 +205,7 @@ class StableCountdownDigits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ink = dashboardInk(Theme.of(context).brightness);
     return Semantics(label: value, child: ExcludeSemantics(
       child: LayoutBuilder(builder: (context, c) {
         final fontSize = c.maxWidth / 4.8;
@@ -210,7 +215,7 @@ class StableCountdownDigits extends StatelessWidget {
             flex: value[i] == ':' ? 5 : 10,
             child: Center(child: FittedBox(fit: BoxFit.scaleDown,
               child: Text(value[i], key: ValueKey('countdown-digit-$i'),
-                style: TextStyle(color: calendarInk, fontSize: fontSize,
+                style: TextStyle(color: ink, fontSize: fontSize,
                     fontFamily: 'monospace', fontFeatures: const [FontFeature.tabularFigures()],
                     height: 1.05, fontWeight: FontWeight.w900)),
             )),
@@ -228,6 +233,8 @@ class PrayerTimeStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final ink = dashboardInk(brightness);
     final active = today == null ? null : currentPrayerName(today!, now);
     final entries = today == null
         ? [for (final name in ['İmsak', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']) (name, '--:--')]
@@ -242,20 +249,22 @@ class PrayerTimeStrip extends StatelessWidget {
             child: Container(
               key: ValueKey('prayer-cell-${entries[i].$1}'),
               decoration: BoxDecoration(
-                color: entries[i].$1 == active ? const Color(0xFFF4E6C5) : Colors.white,
+                color: entries[i].$1 == active
+                    ? dashboardActiveCell(brightness)
+                    : dashboardSurfaceWhite(brightness),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: entries[i].$1 == active ? calendarGold
-                    : const Color(0xFFE1E2DF), width: entries[i].$1 == active ? 3 : 1),
+                border: Border.all(color: entries[i].$1 == active ? dashboardAccentGold
+                    : dashboardBorder(brightness), width: entries[i].$1 == active ? 3 : 1),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Flexible(child: FittedBox(fit: BoxFit.scaleDown,
-                  child: Text(entries[i].$1, style: TextStyle(color: calendarInk,
+                  child: Text(entries[i].$1, style: TextStyle(color: ink,
                       fontSize: nameSize, fontWeight: entries[i].$1 == active
                           ? FontWeight.w800 : FontWeight.w500)))),
                 const SizedBox(height: 5),
                 Flexible(child: FittedBox(fit: BoxFit.scaleDown,
-                  child: Text(entries[i].$2, style: TextStyle(color: calendarInk,
+                  child: Text(entries[i].$2, style: TextStyle(color: ink,
                       fontFeatures: const [FontFeature.tabularFigures()],
                       fontSize: timeSize, height: 1.15, fontWeight: FontWeight.w800)))),
               ]),
@@ -275,7 +284,7 @@ class _Surface extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) => Container(
     padding: EdgeInsets.all((c.maxWidth * .055).clamp(12.0, 26.0)),
     decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: const Color(0xFFE0DDD5)),
+      border: Border.all(color: dashboardBorder(Theme.of(context).brightness)),
       boxShadow: const [BoxShadow(color: Color(0x09000000), blurRadius: 16, offset: Offset(0, 4))]),
     child: child,
   ));
@@ -284,22 +293,24 @@ class _Surface extends StatelessWidget {
 class _HomeMenuButton extends StatelessWidget {
   const _HomeMenuButton();
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 54,
-    child: Row(children: [
-      const CompactPlayControls(),
-      const SizedBox(width: 8),
-      Expanded(child: FilledButton.icon(
-        key: const ValueKey('home-menu-button'),
-        onPressed: () => Scaffold.of(context).openDrawer(),
-        style: FilledButton.styleFrom(backgroundColor: calendarInk, foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
-        icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
-        label: const Text('Menü'),
-      )),
-    ]),
-  );
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 54,
+      child: Row(children: [
+        const CompactPlayControls(),
+        const SizedBox(width: 8),
+        Expanded(child: FilledButton.icon(
+          key: const ValueKey('home-menu-button'),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          style: FilledButton.styleFrom(backgroundColor: dashboardAccentGreen, foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
+          icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
+          label: const Text('Menü'),
+        )),
+      ]),
+    );
+  }
 }
 
 List<(String, String)> prayerTimeEntries(Vakit vakit) => [

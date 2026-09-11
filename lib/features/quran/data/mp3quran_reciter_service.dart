@@ -59,9 +59,12 @@ class QuranReciter {
 /// önbellek döner; hiç önbellek yoksa hata yukarı fırlatılır (UI yeniden
 /// deneme göstermeli).
 class Mp3QuranReciterService {
-  static const _apiUrl = 'https://www.mp3quran.net/api/v3/reciters?language=ar';
-  static const _cacheKey = 'quran_reciters_cache_v1';
-  static const _cacheTimeKey = 'quran_reciters_cache_time_v1';
+  // mp3quran.net Türkçe desteklemiyor (yalnızca "ar"/"eng" kabul ediyor);
+  // Arapça yazıyla okunamayacağı için Latin harfli İngilizce çeviri adları
+  // kullanılıyor (ör. "Yasser Salamah").
+  static const _apiUrl = 'https://www.mp3quran.net/api/v3/reciters?language=eng';
+  static const _cacheKey = 'quran_reciters_cache_v2';
+  static const _cacheTimeKey = 'quran_reciters_cache_time_v2';
   static const _ttl = Duration(days: 7);
 
   List<QuranReciter> _parse(String raw) {
