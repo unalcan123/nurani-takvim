@@ -22,19 +22,31 @@ Vakit? findVakitForDate(List<Vakit> list, DateTime date) {
 }
 
 /// Namaz vakitleriyle karşılaştırılacak telefon yerel saatini döner.
-DateTime phoneLocalNow({DateTime? systemNow}) => (systemNow ?? DateTime.now()).toLocal();
+DateTime phoneLocalNow({DateTime? systemNow}) =>
+    (systemNow ?? DateTime.now()).toLocal();
 
 /// Verilen [today] vaktine göre bir sonraki namazı ve saatini döner.
 /// Yatsı da geçmişse, [tomorrow] varsa onun imsak saatine, yoksa bugünün
 /// imsak saatine (yaklaşık) düşer.
-({String name, DateTime time}) nextPrayerInfo(Vakit today, DateTime now, {Vakit? tomorrow}) {
+({String name, DateTime time}) nextPrayerInfo(
+  Vakit today,
+  DateTime now, {
+  Vakit? tomorrow,
+}) {
   DateTime parse(String timeStr, DateTime date) {
     final parts = timeStr.split(':');
-    return DateTime(date.year, date.month, date.day, int.parse(parts[0]), int.parse(parts[1]));
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
   }
 
   final prayers = [
     (name: 'İmsak', time: parse(today.imsak, now)),
+    (name: 'Güneş', time: parse(today.gunes, now)),
     (name: 'Öğle', time: parse(today.ogle, now)),
     (name: 'İkindi', time: parse(today.ikindi, now)),
     (name: 'Akşam', time: parse(today.aksam, now)),
@@ -45,7 +57,7 @@ DateTime phoneLocalNow({DateTime? systemNow}) => (systemNow ?? DateTime.now()).t
     if (p.time.isAfter(now)) return p;
   }
 
-  final nextDay = now.add(const Duration(days: 1));
+  final nextDay = DateTime(now.year, now.month, now.day + 1);
   final imsakStr = tomorrow?.imsak ?? today.imsak;
   return (name: 'İmsak', time: parse(imsakStr, nextDay));
 }
@@ -55,7 +67,13 @@ DateTime phoneLocalNow({DateTime? systemNow}) => (systemNow ?? DateTime.now()).t
 String currentPrayerName(Vakit today, DateTime now) {
   DateTime parse(String timeStr) {
     final parts = timeStr.split(':');
-    return DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
   }
 
   final prayers = [
@@ -67,6 +85,34 @@ String currentPrayerName(Vakit today, DateTime now) {
     (name: 'Yatsı', time: parse(today.yatsi)),
   ];
 
-  final passed = prayers.where((p) => p.time.isBefore(now));
+  final passed = prayers.where((p) => !p.time.isAfter(now));
   return passed.isNotEmpty ? passed.last.name : 'Yatsı';
+}
+
+/// Alarm timing is separate from the displayed prayer/countdown boundaries.
+DateTime? adhanTime(Vakit day, DateTime date, String prayer, int delay) {
+  final value = switch (prayer) {
+    'İmsak' => day.imsak,
+    'Öğle' => day.ogle,
+    'İkindi' => day.ikindi,
+    'Akşam' => day.aksam,
+    'Yatsı' => day.yatsi,
+    _ => null,
+  };
+  if (value == null) return null;
+  DateTime parse(String text) {
+    final parts = text.split(':');
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
+  }
+
+  final base = parse(value);
+  if (prayer != 'İmsak') return base;
+  final result = base.add(Duration(minutes: delay));
+  return delay >= 0 && result.isBefore(parse(day.gunes)) ? result : null;
 }

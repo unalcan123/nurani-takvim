@@ -49,6 +49,7 @@ class SlideItem {
 
 class SlaytWidget extends ConsumerStatefulWidget {
   final double height;
+  final Color backgroundColor;
   final int currentIndex;
   final Function(int)? onPageChanged;
   final List<String>? userImages;
@@ -62,6 +63,7 @@ class SlaytWidget extends ConsumerStatefulWidget {
     super.key,
     this.userImages,
     required this.height,
+    this.backgroundColor = tvBgDark,
     this.currentIndex = 0,
     this.onPageChanged,
     this.hideOnPortrait = false,
@@ -364,6 +366,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
         height: height,
         child: _SmartFittedImage(
           provider: _getImageProvider(imagePath),
+          backgroundColor: widget.backgroundColor,
         ),
       ),
     );
@@ -463,7 +466,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
         }
 
         return Container(
-          color: tvBgDark,
+          color: widget.backgroundColor,
           width: double.infinity,
           height: actualHeight,
           child: Stack(
@@ -509,222 +512,61 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
   }
 }
 
-class _SmartFittedImage extends StatefulWidget {
-  const _SmartFittedImage({required this.provider});
+/// Always preserve the whole image, including any text embedded at its edges.
+class _SmartFittedImage extends StatelessWidget {
+  const _SmartFittedImage({required this.provider, required this.backgroundColor});
   final ImageProvider provider;
+  final Color backgroundColor;
 
   @override
-  State<_SmartFittedImage> createState() => _SmartFittedImageState();
+  Widget build(BuildContext context) => ColoredBox(
+    color: backgroundColor,
+    child: Image(
+      image: provider,
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.contain,
+      alignment: Alignment.center,
+      filterQuality: FilterQuality.high,
+      errorBuilder: (_, __, ___) => const Center(
+        child: Icon(Icons.image_not_supported_outlined, color: Colors.grey)),
+    ),
+  );
 }
-
-class _SmartFittedImageState extends State<_SmartFittedImage> {
-  double? _imageRatio;
-  ImageStream? _activeStream;
-  ImageStreamListener? _activeListener;
-
-  @override
-  void initState() {
-    super.initState();
-    _resolveRatio();
-  }
-
-  @override
-  void dispose() {
-    if (_activeStream != null && _activeListener != null) {
-      _activeStream!.removeListener(_activeListener!);
-    }
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant _SmartFittedImage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.provider != widget.provider) {
-      _imageRatio = null;
-      _resolveRatio();
-    }
-  }
-
-  void _resolveRatio() {
-    // ✅ Eski listener'ı temizle (hızlı rebuild'lerde stale callback'i önler)
-    if (_activeStream != null && _activeListener != null) {
-      _activeStream!.removeListener(_activeListener!);
-    }
-
-    final stream = widget.provider.resolve(const ImageConfiguration());
-    late final ImageStreamListener listener;
-
-    listener = ImageStreamListener((info, _) {
-      final w = info.image.width.toDouble();
-      final h = info.image.height.toDouble();
-      if (mounted) setState(() => _imageRatio = (h == 0) ? null : (w / h));
-      stream.removeListener(listener);
-      _activeStream = null;
-      _activeListener = null;
-    }, onError: (_, __) {
-      stream.removeListener(listener);
-      _activeStream = null;
-      _activeListener = null;
-    });
-
-    _activeStream = stream;
-    _activeListener = listener;
-    stream.addListener(listener);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (_, c) {
-        final screenRatio = c.maxWidth / c.maxHeight;
-        final imgRatio = _imageRatio;
-
-        final fit = (imgRatio != null && (imgRatio - screenRatio).abs() < 0.35)
-            ? BoxFit.cover
-            : BoxFit.contain;
-
-        return ColoredBox(
-          color: tvBgDark,
-          child: Center(
-            child: Image(
-              image: widget.provider,
-              fit: fit,
-              alignment: Alignment.center,
-              filterQuality: FilterQuality.high,
-              isAntiAlias: true,
-              errorBuilder: (_, __, ___) =>
-              const Center(child: Icon(Icons.error, color: Colors.white24)),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 
 // ─────────────────────────────────────────────────────────
 // ✅ HAKİKAT DAMLALARI SLIDE KARTI
 // ─────────────────────────────────────────────────────────
 class _HakikatSlideCard extends StatelessWidget {
+  const _HakikatSlideCard({required this.item});
   final SlideItem item;
 
-  const _HakikatSlideCard({required this.item});
-
-  double _calculateFontSize(String text, BoxConstraints constraints) {
-    final length = text.length;
-    // Ekran yüksekliğine göre ölçekle
-    final hFactor = (constraints.maxHeight / 700).clamp(0.6, 1.4);
-
-    double base;
-    if (length <= 60) {
-      base = 34;
-    } else if (length <= 110) {
-      base = 30;
-    } else if (length <= 180) {
-      base = 27;
-    } else if (length <= 260) {
-      base = 24;
-    } else {
-      base = 21;
-    }
-    return base * hFactor;
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final textFontSize = _calculateFontSize(item.text, constraints);
-        final isSmall = constraints.maxHeight < 400;
-
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            // Arka plan resmi
-            Image.asset(
-              'assets/images/all/img_${item.image}.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey.shade900,
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Resim bulunamadı:\nimg_${item.image}.jpg',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                );
-              },
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
+    final padding = (c.maxWidth * .045).clamp(18.0, 56.0);
+    return Stack(fit: StackFit.expand, children: [
+      Image.asset('assets/images/all/img_${item.image}.jpg', fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF24312D))),
+      const ColoredBox(color: Color(0x88000000)),
+      Padding(padding: EdgeInsets.all(padding), child: Center(
+        child: Container(
+          padding: EdgeInsets.all(padding * .65),
+          decoration: BoxDecoration(color: const Color(0x99000000),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white24)),
+          child: LayoutBuilder(builder: (context, inner) => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: SizedBox(width: inner.maxWidth, child: Text(item.text,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: (c.maxHeight * .05).clamp(22.0, 48.0),
+                height: 1.45, fontWeight: FontWeight.w500, color: Colors.white)),
             ),
-
-            // Gradient overlay (readability)
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x99000000),
-                    Color(0x44000000),
-                    Color(0xCC000000),
-                  ],
-                ),
-              ),
-            ),
-
-            // İçerik
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isSmall ? 24 : 48,
-                  isSmall ? 16 : 34,
-                  isSmall ? 24 : 48,
-                  isSmall ? 16 : 34,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Spacer(),
-                    // Ana metin kutusu
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isSmall ? 16 : 28,
-                        vertical: isSmall ? 14 : 26,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.38),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Text(
-                        item.text,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: textFontSize,
-                          height: 1.45,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                        maxLines: isSmall ? 5 : 8,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(height: isSmall ? 8 : 18),
-                    // Alt bilgi
-
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+          )),
+        ),
+      )),
+    ]);
+  });
 }
-
 
 // ─────────────────────────────────────────────────────────
 // ✅ TAM EKRAN SLAYT SAYFASI

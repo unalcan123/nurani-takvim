@@ -1,3 +1,5 @@
+import 'live_clock.dart';
+import '../features/settings/data/alert_settings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +35,7 @@ class PrayerAlarmCoordinator {
     // Old notifications without a date must not replay an already handled day.
     await triggerPrayerTime(
       prayerName: parts.first,
-      scheduledDate: date ?? DateTime.now(),
+      scheduledDate: date ?? _ref.read(clockSourceProvider)(),
       showNotification: false,
     );
   }
@@ -50,15 +52,15 @@ class PrayerAlarmCoordinator {
     DateTime? scheduledDate,
     bool isTest = false,
   }) async {
-    if (_isShowingAlarm) return;
+    if (_isShowingAlarm || !prayerNames.contains(prayerName)) return;
     if (!isTest &&
         !_ref.read(alertSettingsProvider).isPrayerEnabled(prayerName)) {
       return;
     }
     final navigator = rootNavigatorKey.currentState;
     if (navigator == null) return;
-    final date = scheduledDate ?? DateTime.now();
-    final now = DateTime.now();
+    final date = scheduledDate ?? _ref.read(clockSourceProvider)();
+    final now = _ref.read(clockSourceProvider)();
     if (!isTest &&
         (date.year != now.year ||
             date.month != now.month ||

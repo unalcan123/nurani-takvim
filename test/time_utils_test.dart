@@ -3,8 +3,41 @@ import 'package:tvaap_clean/features/locations/data/models.dart';
 import 'package:tvaap_clean/features/times/presentation/time_utils.dart';
 
 void main() {
+  test('exact imsak, delayed adhan and sunrise boundaries are independent', () {
+    final day = _vakit(imsak: '04:58', gunes: '06:55', ogle: '13:46');
+    for (final entry in [
+      (4, 57, 'İmsak'),
+      (4, 58, 'Güneş'),
+      (5, 28, 'Güneş'),
+      (6, 54, 'Güneş'),
+      (6, 55, 'Öğle'),
+      (13, 46, 'İkindi'),
+      (17, 0, 'Akşam'),
+      (20, 20, 'Yatsı'),
+      (21, 50, 'İmsak'),
+    ]) {
+      expect(
+        nextPrayerInfo(day, DateTime(2026, 9, 2, entry.$1, entry.$2)).name,
+        entry.$3,
+      );
+    }
+    expect(
+      adhanTime(day, DateTime(2026, 9, 2), 'İmsak', 30),
+      DateTime(2026, 9, 2, 5, 28),
+    );
+    expect(
+      adhanTime(day, DateTime(2026, 9, 2), 'İmsak', 0),
+      DateTime(2026, 9, 2, 4, 58),
+    );
+    for (final delay in [-1, 117, 118]) {
+      expect(adhanTime(day, DateTime(2026, 9, 2), 'İmsak', delay), isNull);
+    }
+    expect(adhanTime(day, DateTime(2026, 9, 2), 'Güneş', 0), isNull);
+    expect(currentPrayerName(day, DateTime(2026, 9, 2, 6, 55)), 'Güneş');
+  });
+
   group('nextPrayerInfo', () {
-    test('skips sunrise and counts down to the next prayer', () {
+    test('counts down to sunrise after imsak', () {
       final vakit = _vakit(
         imsak: '05:00',
         gunes: '06:30',
@@ -17,8 +50,8 @@ void main() {
 
       final next = nextPrayerInfo(vakit, now);
 
-      expect(next.name, 'Öğle');
-      expect(next.time, DateTime(2026, 9, 2, 13, 10));
+      expect(next.name, 'Güneş');
+      expect(next.time, DateTime(2026, 9, 2, 6, 30));
     });
 
     test('uses tomorrow imsak after yatsi has passed', () {
@@ -48,13 +81,16 @@ void main() {
     });
   });
 
-  test('phoneLocalNow keeps the local clock used by displayed prayer times', () {
-    final deviceNow = DateTime(2026, 9, 2, 19, 5);
+  test(
+    'phoneLocalNow keeps the local clock used by displayed prayer times',
+    () {
+      final deviceNow = DateTime(2026, 9, 2, 19, 5);
 
-    final now = phoneLocalNow(systemNow: deviceNow);
+      final now = phoneLocalNow(systemNow: deviceNow);
 
-    expect(now, deviceNow);
-  });
+      expect(now, deviceNow);
+    },
+  );
 
   test('does not skip aksam when local time is before aksam', () {
     final vakit = _vakit(

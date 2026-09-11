@@ -1,3 +1,4 @@
+import 'package:tvaap_clean/core/live_clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,8 +25,9 @@ class LayoutNotifications extends TestNotifications {
 }
 
 Future<({ProviderContainer container, TestPlayer player})> layoutEnvironment(
-  WidgetTester tester,
-) async {
+  WidgetTester tester, {
+  DateTime Function()? nowSource,
+}) async {
   SharedPreferences.setMockInitialValues({'slide_category': 'kabe'});
   final prefs = await SharedPreferences.getInstance();
   await PrefsRepository(prefs).addRecentLocation(
@@ -41,7 +43,7 @@ Future<({ProviderContainer container, TestPlayer player})> layoutEnvironment(
   );
   final source = LocalJsonDailyContentSource();
   await tester.runAsync(source.ensureLoaded);
-  final now = DateTime.now();
+  final now = nowSource?.call() ?? DateTime.now();
   final times = [
     for (final d in [now, now.add(const Duration(days: 1))])
       Vakit(
@@ -50,7 +52,7 @@ Future<({ProviderContainer container, TestPlayer player})> layoutEnvironment(
         miladiTarihUzun: 'Rotterdam',
         miladiTarihUzunIso8601: '',
         hicriTarihKisa: '',
-        hicriTarihUzun: '',
+        hicriTarihUzun: '29 Rebiülevvel 1448',
         ayinSekliURL: 'https://example.invalid/moon.png',
         greenwichOrtalamaZamani: 0,
         imsak: '05:00',
@@ -66,6 +68,7 @@ Future<({ProviderContainer container, TestPlayer player})> layoutEnvironment(
   final notifications = LayoutNotifications();
   final container = ProviderContainer(
     overrides: [
+      if (nowSource != null) clockSourceProvider.overrideWithValue(nowSource),
       sharedPrefsProvider.overrideWithValue(prefs),
       dailyContentSourceProvider.overrideWith((ref) async => source),
       timesProvider('3').overrideWith((ref) async => times),
@@ -107,6 +110,7 @@ Future<void> showLayout(
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
+          theme: ThemeData(fontFamily: 'Roboto'),
           navigatorObservers: [previewRouteObserver],
           builder:
               (context, child) => MediaQuery(
@@ -126,52 +130,42 @@ Future<void> showLayout(
 
 void main() {
   for (final size in [
-    const Size(320, 640),
-    const Size(390, 844),
-    const Size(600, 960),
-    const Size(800, 1280),
-    const Size(1280, 800),
-    const Size(844, 390),
+    const Size(320, 640), const Size(390, 844), const Size(600, 960),
+    const Size(800, 1280), const Size(1024, 768), const Size(1280, 800),
+    const Size(1920, 1080), const Size(844, 390),
   ]) {
-    testWidgets(
-      'home adapts to $size and keeps portrait countdown before daily content',
-      (tester) async {
-        resize(tester, size);
-        final env = await layoutEnvironment(tester);
-        await showLayout(tester, env.container, const AppShell());
+    testWidgets('home uses drawer and horizontal prayer strip at $size', (tester) async {
+      resize(tester, size);
+      final env = await layoutEnvironment(tester);
+      await showLayout(tester, env.container, const AppShell());
+      expect(tester.takeException(), isNull);
+      expect(find.byType(NavigationRail), findsNothing);
+      expect(find.byType(NavigationBar), findsNothing);
+      final home = find.byType(DashboardHomePage);
+      expect(find.descendant(of: home, matching: find.byType(SlaytWidget)), findsOneWidget);
+      expect(find.byKey(const ValueKey('home-prayer-strip')), findsOneWidget);
+      if (size.width > size.height) {
+        final slide = tester.getRect(find.byKey(const ValueKey('home-slideshow')));
+        final strip = tester.getRect(find.byKey(const ValueKey('home-prayer-strip')));
+        final panel = tester.getRect(find.byKey(const ValueKey('home-city-card')));
+        final countdown = tester.getRect(find.byKey(const ValueKey('home-countdown')));
+        final menu = tester.getRect(find.byKey(const ValueKey('home-menu-button')));
+        expect(slide.width / panel.width, closeTo(3, .01));
+        expect(strip.top, greaterThan(slide.bottom));
+        expect(strip.bottom, lessThanOrEqualTo(size.height));
+        expect(countdown.top, greaterThan(panel.bottom));
+        expect(menu.bottom, lessThanOrEqualTo(size.height));
+        expect(find.descendant(of: home, matching: find.byType(ListView)), findsNothing);
+        await tester.tap(find.byKey(const ValueKey('home-menu-button')));
+        await tester.pumpAndSettle();
+        expect(find.text('Namaz Vakitleri'), findsOneWidget);
+        await tester.tap(find.text('Namaz Vakitleri'));
+        await tester.pumpAndSettle();
+        expect(env.container.read(dashboardSelectedTabProvider), 2);
         expect(tester.takeException(), isNull);
-        expect(
-          find.byType(NavigationRail),
-          size.shortestSide >= 600 ? findsOneWidget : findsNothing,
-        );
-        if (size.height > size.width) {
-          final home = find.byType(DashboardHomePage);
-          final slide = find.descendant(
-            of: home,
-            matching: find.byType(SlaytWidget),
-          );
-          final countdown = find.byKey(const ValueKey('home-countdown'));
-          final ayet = find.descendant(
-            of: home,
-            matching: find.text('Günün Âyeti'),
-          );
-          expect(countdown, findsOneWidget);
-          expect(
-            tester.getTopLeft(countdown).dy,
-            greaterThanOrEqualTo(tester.getBottomLeft(slide).dy),
-          );
-          expect(
-            tester.getBottomLeft(countdown).dy,
-            lessThan(size.height - 60),
-          );
-          expect(
-            tester.getTopLeft(ayet).dy,
-            greaterThan(tester.getBottomLeft(countdown).dy),
-          );
-        }
-        await tester.pumpWidget(const SizedBox());
-      },
-    );
+      }
+      await tester.pumpWidget(const SizedBox());
+    });
   }
 
   for (final size in [const Size(320, 640), const Size(800, 1280)]) {
@@ -208,13 +202,5 @@ void main() {
       },
     );
 
-    testWidgets('world adhan list fits $size', (tester) async {
-      resize(tester, size);
-      final env = await layoutEnvironment(tester);
-      await showLayout(tester, env.container, const WorldAdhanPickerPage());
-      expect(find.text('Dinle'), findsWidgets);
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox());
-    });
   }
 }

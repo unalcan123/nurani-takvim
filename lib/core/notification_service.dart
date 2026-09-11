@@ -1,3 +1,4 @@
+import '../features/times/presentation/time_utils.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -212,6 +213,7 @@ class NotificationService {
       );
       // Hatırlatıcı Kanalları
       for (final minute in preNotificationMinutes) {
+        if (adhanActive) return;
         final soundFileName = _getPreNotificationSoundFileName(minute);
         await androidPlugin.createNotificationChannel(
           AndroidNotificationChannel(
@@ -283,6 +285,7 @@ class NotificationService {
     int minute,
     String? assetPath,
   ) async {
+    if (adhanActive) return;
     // Uygulama içindeyken ses çal
     if (assetPath != null && !adhanActive) {
       try {
@@ -293,6 +296,7 @@ class NotificationService {
       }
     }
 
+    if (adhanActive) return;
     final soundFileName = _getPreNotificationSoundFileName(minute);
     final androidDetails = AndroidNotificationDetails(
       _preNotificationChannelId(minute),
@@ -314,9 +318,13 @@ class NotificationService {
     );
   }
 
+  List<Vakit>? _lastTimes;
+  AlertSettings? _lastSettings;
   Future<void> _scheduleQueue = Future.value();
 
   Future<void> scheduleAlarms(List<Vakit> vakitler, AlertSettings settings) {
+    _lastTimes = vakitler;
+    _lastSettings = settings;
     if (kIsWeb) return Future.value();
     final next = _scheduleQueue.then(
       (_) => _scheduleAlarms(vakitler, settings),
@@ -358,11 +366,13 @@ class NotificationService {
 
       for (var i = 0; i < prayers.length; i++) {
         final prayer = prayers[i];
-        final prayerTime = _parseDateTime(
-          vakit.miladiTarihKisaIso8601,
-          prayer.value,
+        final prayerTime = adhanTime(
+          vakit,
+          prayerDate,
+          prayer.key,
+          settings.fajrDelayMinutes,
         );
-        if (prayerTime.isBefore(now)) continue;
+        if (prayerTime == null || prayerTime.isBefore(now)) continue;
 
         if (settings.isPrayerEnabled(prayer.key)) {
           final androidDetails = AndroidNotificationDetails(
@@ -398,7 +408,7 @@ class NotificationService {
           }
         }
 
-        if (prayer.key == 'İmsak') continue;
+        if (prayer.key == 'İmsak' || adhanActive) continue;
 
         for (var m = 0; m < preNotificationMinutes.length; m++) {
           final minute = preNotificationMinutes[m];
@@ -474,24 +484,27 @@ class NotificationService {
 
   String _preNotificationChannelId(int minute) => 'pre_prayer_${minute}_v6';
 
-  DateTime _parseDateTime(String dateStr, String timeStr) {
-    final d = dateStr.split('.');
-    final t = timeStr.split(':');
-    return DateTime(
-      int.parse(d[2]),
-      int.parse(d[1]),
-      int.parse(d[0]),
-      int.parse(t[0]),
-      int.parse(t[1]),
-    );
-  }
-
   DateTime _parseVakitDate(String dateStr) {
     final d = dateStr.split('.');
     return DateTime(int.parse(d[2]), int.parse(d[1]), int.parse(d[0]));
   }
 
   Future<void> setAdhanPlaybackActive(bool active) async {
+    adhanActive = active;
+    if (!kIsWeb) {
+      if (active) {
+        await _scheduleQueue;
+        final pending =
+            await _notificationsPlugin.pendingNotificationRequests();
+        for (final request in pending) {
+          if (request.id >= 1000000) {
+            await _notificationsPlugin.cancel(request.id);
+          }
+        }
+      } else if (_lastTimes != null && _lastSettings != null) {
+        await scheduleAlarms(_lastTimes!, _lastSettings!);
+      }
+    }
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     try {
       await _androidNotificationChannel.invokeMethod<void>(
@@ -538,12 +551,22 @@ class NotificationService {
 /// planlamalarda çakışma olmaz hem de tek bir bildirim iptal edilebilir
 /// (bkz. [NotificationService.cancelPrayerNotification]).
 int prayerNotificationId(DateTime date, int prayerIndex) {
-  final daysSinceEpoch = date.difference(DateTime(2020, 1, 1)).inDays;
+  final daysSinceEpoch =
+      DateTime.utc(
+        date.year,
+        date.month,
+        date.day,
+      ).difference(DateTime.utc(2020, 1, 1)).inDays;
   return daysSinceEpoch * 10 + prayerIndex; // prayerIndex: 0..4
 }
 
 int preNotificationId(DateTime date, int prayerIndex, int minuteIndex) {
-  final daysSinceEpoch = date.difference(DateTime(2020, 1, 1)).inDays;
+  final daysSinceEpoch =
+      DateTime.utc(
+        date.year,
+        date.month,
+        date.day,
+      ).difference(DateTime.utc(2020, 1, 1)).inDays;
   return 1000000 + daysSinceEpoch * 100 + prayerIndex * 10 + minuteIndex;
 }
 

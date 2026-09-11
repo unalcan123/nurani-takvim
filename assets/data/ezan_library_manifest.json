@@ -1,0 +1,1662 @@
+{
+  "version": 1,
+  "releaseTag": "ezan-kutuphanesi-v1",
+  "baseUrl": "https://github.com/unalcan123/nurani-takvim/releases/download/ezan-kutuphanesi-v1/",
+  "entries": [
+    {
+      "id": "a_adhan_fajr_algeria",
+      "fileName": "Adhan_Fajr_Algeria_(أذان_الفجر_الجزائر).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Fajr_Algeria_(أذان_الفجر_الجزائر).mp3",
+      "title": "Adhan Fajr Algeria",
+      "category": "fajr",
+      "source": "asset"
+    },
+    {
+      "id": "a_fecr_medine",
+      "assetPath": "assets/audio/adhan/madinah/fecr_medine.mp3",
+      "title": "Medine - Sabah Ezanı",
+      "category": "fajr",
+      "source": "asset"
+    },
+    {
+      "id": "a_fecr_mekke",
+      "assetPath": "assets/audio/adhan/makkah/fecr_mekke.mp3",
+      "title": "Mekke - Sabah Ezanı",
+      "category": "fajr",
+      "source": "asset"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_21",
+      "fileName": "Abdulbasit.Abdusamad.6.-.Fajr.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 6 - Fajr Egypt",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_22",
+      "fileName": "Abdulbasit.Abdusamad.7.-.Fajr.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 7 - Fajr Egypt",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gRmFqciBDYWlybyBF_34",
+      "fileName": "Adhan.Fajr.Cairo.Egypt.mp3",
+      "title": "Adhan Fajr Cairo Egypt",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gRmFqciBLdXdhaXQg_35",
+      "fileName": "Adhan.Fajr.Kuwait.1.mp3",
+      "title": "Adhan Fajr Kuwait 1",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gRmFqciBLdXdhaXQg_36",
+      "fileName": "Adhan.Fajr.Kuwait.2.mp3",
+      "title": "Adhan Fajr Kuwait 2",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gRmFqciBVbW0gQWwg_37",
+      "fileName": "Adhan.Fajr.Umm.Al.Quwain.mp3",
+      "title": "Adhan Fajr Umm Al Quwain",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgTmF3YWYgQWwgTWVq_62",
+      "fileName": "Ahmad.Nawaf.Al.Mejlad.2.-.Fajr.mp3",
+      "title": "Ahmad Nawaf Al Mejlad 2 - Fajr",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IC0g_63",
+      "fileName": "Ahmd.At-Trablsy.-.Fajr.Kuwait.mp3",
+      "title": "Ahmd At-Trablsy - Fajr Kuwait",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_RmFqciBBZGhhbiBieSBOYXNy_99",
+      "fileName": "Fajr.Adhan.by.Nasreddine.Toubar.mp3",
+      "title": "Fajr Adhan By Nasreddine Toubar",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWJyYWhlZW0gSmFiciBBYnUg_124",
+      "fileName": "Ibraheem.Jabr.Abu.Raheq.-.Fajr.mp3",
+      "title": "Ibraheem Jabr Abu Raheq - Fajr",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWlzaGFyeSBSYXNoaWQgQWxh_147",
+      "fileName": "Mishary.Rashid.Alafasy.3.-.Fajr.Kuwait.mp3",
+      "title": "Mishary Rashid Alafasy 3 - Fajr Kuwait",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWlzaGFyeSBSYXNoaWQgQWxh_148",
+      "fileName": "Mishary.Rashid.Alafasy.4.-.Fajr.Kuwait.mp3",
+      "title": "Mishary Rashid Alafasy 4 - Fajr Kuwait",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "r_WWFzZWVuIEFsIEFhc3NhZiAy_215",
+      "fileName": "Yaseen.Al.Aassaf.2.-.Fajr.Iraq.mp3",
+      "title": "Yaseen Al Aassaf 2 - Fajr Iraq",
+      "category": "fajr",
+      "source": "remote"
+    },
+    {
+      "id": "a_adhan_al_aqsa_jerusalem",
+      "fileName": "Adhan_Al_Aqsa_-_Jerusalem_(أذان_المسجد_الأقصى_-_القدس).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Al_Aqsa_-_Jerusalem_(أذان_المسجد_الأقصى_-_القدس).mp3",
+      "title": "Adhan Al Aqsa - Jerusalem",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_indonesia",
+      "fileName": "Adhan_Indonesia_(أذان_إندونيسيا).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Indonesia_(أذان_إندونيسيا).mp3",
+      "title": "Adhan Indonesia",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_kuwait",
+      "fileName": "Adhan_Kuwait_(أذان_الكويت).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Kuwait_(أذان_الكويت).mp3",
+      "title": "Adhan Kuwait",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_malaysia_1",
+      "fileName": "Adhan_Malaysia_1_(أذان_ماليزيا).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Malaysia_1_(أذان_ماليزيا).mp3",
+      "title": "Adhan Malaysia 1",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_masjid_al_rajehe_saudi_arabia_2",
+      "fileName": "Adhan_Masjid_Al_Rajehe_Saudi_Arabia_2_(أذان_مسجد_الراجحي_السعودية).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Masjid_Al_Rajehe_Saudi_Arabia_2_(أذان_مسجد_الراجحي_السعودية).mp3",
+      "title": "Adhan Masjid Al Rajehe Saudi Arabia 2",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_pakistan",
+      "fileName": "Adhan_Pakistan_(أذان_باكستان).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Pakistan_(أذان_باكستان).mp3",
+      "title": "Adhan Pakistan",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_adhan_turkey_1",
+      "fileName": "Adhan_Turkey_1_(أذان_تركيا).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Adhan_Turkey_1_(أذان_تركيا).mp3",
+      "title": "Adhan Turkey 1",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_ali_ibn_ahmad_mala_4_al_haram_al_maki",
+      "fileName": "Ali_Ibn_Ahmad_Mala_4_-_Al_Haram_Al_Maki_(علي_بن_أحمد_ملا_-_الحرم_المكي).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Ali_Ibn_Ahmad_Mala_4_-_Al_Haram_Al_Maki_(علي_بن_أحمد_ملا_-_الحرم_المكي).mp3",
+      "title": "Ali Ibn Ahmad Mala 4 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_mahmoud_khalil_al_hussary_cairo",
+      "fileName": "Mahmoud_Khalil_Al_Hussary_-_Cairo_(محمود_خليل_الحصري_-_القاهرة).mp3",
+      "assetPath": "assets/audio/adhan/dunya_ezan/Mahmoud_Khalil_Al_Hussary_-_Cairo_(محمود_خليل_الحصري_-_القاهرة).mp3",
+      "title": "Mahmoud Khalil Al Hussary - Cairo",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_ezan_medine",
+      "assetPath": "assets/audio/adhan/madinah/ezan_medine.mp3",
+      "title": "Medine - Mescid-i Nebevi",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "a_ezan_mekke",
+      "assetPath": "assets/audio/adhan/makkah/ezan_mekke.mp3",
+      "title": "Mekke - Mescid-i Haram",
+      "category": "normal",
+      "source": "asset"
+    },
+    {
+      "id": "r_QWJkIEFscmF6YXEgU2FsZWgg_0",
+      "fileName": "Abd.Alrazaq.Saleh.-.Lebanon.mp3",
+      "title": "Abd Alrazaq Saleh - Lebanon",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkZWwgTW9uZWltIEFiZGVs_1",
+      "fileName": "Abdel.Moneim.Abdel.Mobdi.mp3",
+      "title": "Abdel Moneim Abdel Mobdi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdSBBbCBLYXJlbSBKYWJh_2",
+      "fileName": "Abdu.Al.Karem.Jabare.mp3",
+      "title": "Abdu Al Karem Jabare",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgTWFqaWQgQWwgU3Vy_3",
+      "fileName": "Abdul.Majid.Al.Surehi.1.mp3",
+      "title": "Abdul Majid Al Surehi 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgTWFqaWQgQWwgU3Vy_4",
+      "fileName": "Abdul.Majid.Al.Surehi.2.mp3",
+      "title": "Abdul Majid Al Surehi 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgTWFqaWQgQWwgU3Vy_5",
+      "fileName": "Abdul.Majid.Al.Surehi.3.mp3",
+      "title": "Abdul Majid Al Surehi 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIEFsIEFy_6",
+      "fileName": "Abdul.Rahman.Al.Arake.1.mp3",
+      "title": "Abdul Rahman Al Arake 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIEFsIEFy_7",
+      "fileName": "Abdul.Rahman.Al.Arake.2.mp3",
+      "title": "Abdul Rahman Al Arake 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIEFsIEFy_8",
+      "fileName": "Abdul.Rahman.Al.Arake.3.mp3",
+      "title": "Abdul Rahman Al Arake 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIEthc3Nh_9",
+      "fileName": "Abdul.Rahman.Kassab.1.mp3",
+      "title": "Abdul Rahman Kassab 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIEthc3Nh_10",
+      "fileName": "Abdul.Rahman.Kassab.2.mp3",
+      "title": "Abdul Rahman Kassab 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgUmFobWFuIE1hamRl_11",
+      "fileName": "Abdul.Rahman.Majde.mp3",
+      "title": "Abdul Rahman Majde",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWwgV2FsaSBBbCBBcmth_12",
+      "fileName": "Abdul.Wali.Al.Arkani.mp3",
+      "title": "Abdul Wali Al Arkani",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxhaCBBbCBEYWhiZSAt_13",
+      "fileName": "Abdulah.Al.Dahbe.-.Egypt.mp3",
+      "title": "Abdulah Al Dahbe - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxhaCBBbCBNYWtuYXdl_14",
+      "fileName": "Abdulah.Al.Maknawe.mp3",
+      "title": "Abdulah Al Maknawe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxhaCBBbCBTYWJhYXdl_15",
+      "fileName": "Abdulah.Al.Sabaawe.mp3",
+      "title": "Abdulah Al Sabaawe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_16",
+      "fileName": "Abdulbasit.Abdusamad.1.-.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 1 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_17",
+      "fileName": "Abdulbasit.Abdusamad.2.-.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 2 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_18",
+      "fileName": "Abdulbasit.Abdusamad.3.-.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 3 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_19",
+      "fileName": "Abdulbasit.Abdusamad.4.-.Egypt.mp3",
+      "title": "Abdulbasit Abdusamad 4 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJkdWxiYXNpdCBBYmR1c2Ft_20",
+      "fileName": "Abdulbasit.Abdusamad.5.-.Cairo.mp3",
+      "title": "Abdulbasit Abdusamad 5 - Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJ1bCBBaW5haW4gU2h1YWlz_23",
+      "fileName": "Abul.Ainain.Shuaisha.-.Cairo.mp3",
+      "title": "Abul Ainain Shuaisha - Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWJ5IFlhc3NlciBBbCBKYXph_24",
+      "fileName": "Aby.Yasser.Al.Jazaire.mp3",
+      "title": "Aby Yasser Al Jazaire",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRhbCBNYWxlayBBYmR1bGFo_25",
+      "fileName": "Adal.Malek.Abdulah.Al.Massre.mp3",
+      "title": "Adal Malek Abdulah Al Massre",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRhbSBBYnUgU2FraHJhLm1w_26",
+      "fileName": "Adam.Abu.Sakhra.mp3",
+      "title": "Adam Abu Sakhra",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW0gQWwgU2hhcnFhd2Uu_27",
+      "fileName": "Adham.Al.Sharqawe.mp3",
+      "title": "Adham Al Sharqawe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gQWptYW4gVUFFLm1w_28",
+      "fileName": "Adhan.Ajman.UAE.mp3",
+      "title": "Adhan Ajman Uae",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gQWwgSGFyYW0gQWwg_29",
+      "fileName": "Adhan.Al.Haram.Al.Madani.-.Al.Madinah.2.mp3",
+      "title": "Adhan Al Haram Al Madani - Al Madinah 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gQnJ1bmVpIDEubXAz_30",
+      "fileName": "Adhan.Brunei.1.mp3",
+      "title": "Adhan Brunei 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gQnJ1bmVpIDIubXAz_31",
+      "fileName": "Adhan.Brunei.2.mp3",
+      "title": "Adhan Brunei 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gQnJ1bmVpIDMubXAz_32",
+      "fileName": "Adhan.Brunei.3.mp3",
+      "title": "Adhan Brunei 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gRHViYWkgVUFFLm1w_33",
+      "fileName": "Adhan.Dubai.UAE.mp3",
+      "title": "Adhan Dubai Uae",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gR2VvcmdpYS5tcDM_38",
+      "fileName": "Adhan.Georgia.mp3",
+      "title": "Adhan Georgia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gSW5kaWEubXAz_39",
+      "fileName": "Adhan.India.mp3",
+      "title": "Adhan India",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gS2VueWEubXAz_40",
+      "fileName": "Adhan.Kenya.mp3",
+      "title": "Adhan Kenya",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gTWFsYXlzaWEgMi5t_41",
+      "fileName": "Adhan.Malaysia.2.mp3",
+      "title": "Adhan Malaysia 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gTWFsZGl2ZXMubXAz_42",
+      "fileName": "Adhan.Maldives.mp3",
+      "title": "Adhan Maldives",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gTWFzamlkIEFsIFJh_43",
+      "fileName": "Adhan.Masjid.Al.Rajehe.Saudi.Arabia.1.mp3",
+      "title": "Adhan Masjid Al Rajehe Saudi Arabia 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gTWFzamlkIEFsIFJh_44",
+      "fileName": "Adhan.Masjid.Al.Rajehe.Saudi.Arabia.3.mp3",
+      "title": "Adhan Masjid Al Rajehe Saudi Arabia 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gTXVzY2F0IE9tYW4u_45",
+      "fileName": "Adhan.Muscat.Oman.mp3",
+      "title": "Adhan Muscat Oman",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gUml5YWRoIFNhdWRp_46",
+      "fileName": "Adhan.Riyadh.Saudi.Arabia.mp3",
+      "title": "Adhan Riyadh Saudi Arabia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gU3lyaWEubXAz_47",
+      "fileName": "Adhan.Syria.mp3",
+      "title": "Adhan Syria",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gVHVuaXNpYS5tcDM_48",
+      "fileName": "Adhan.Tunisia.mp3",
+      "title": "Adhan Tunisia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWRoYW4gVHVya2V5IDIubXAz_49",
+      "fileName": "Adhan.Turkey.2.mp3",
+      "title": "Adhan Turkey 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWFtZXIgTXVoYW1t_50",
+      "fileName": "Ahmad.Aamer.Muhammad.mp3",
+      "title": "Ahmad Aamer Muhammad",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgQWFuZS5tcDM_51",
+      "fileName": "Ahmad.Al.Aane.mp3",
+      "title": "Ahmad Al Aane",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgQW1hZGUgMSAt_52",
+      "fileName": "Ahmad.Al.Amade.1.-.Qatar.mp3",
+      "title": "Ahmad Al Amade 1 - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgQW1hZGUgMiAt_53",
+      "fileName": "Ahmad.Al.Amade.2.-.Qatar.mp3",
+      "title": "Ahmad Al Amade 2 - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgQmF0YWwubXAz_54",
+      "fileName": "Ahmad.Al.Batal.mp3",
+      "title": "Ahmad Al Batal",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgSGFyYXNzZXMu_55",
+      "fileName": "Ahmad.Al.Harasses.mp3",
+      "title": "Ahmad Al Harasses",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWwgTmFmZWVzLm1w_56",
+      "fileName": "Ahmad.Al.Nafees.mp3",
+      "title": "Ahmad Al Nafees",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWxpIDEubXAz_57",
+      "fileName": "Ahmad.Ali.1.mp3",
+      "title": "Ahmad Ali 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWxpIDIgLSBFZ3lw_58",
+      "fileName": "Ahmad.Ali.2.-.Egypt.mp3",
+      "title": "Ahmad Ali 2 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgQWxpIE11cnRhZGEu_59",
+      "fileName": "Ahmad.Ali.Murtada.mp3",
+      "title": "Ahmad Ali Murtada",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgRmFraHJ1IC0gUWF0_60",
+      "fileName": "Ahmad.Fakhru.-.Qatar.mp3",
+      "title": "Ahmad Fakhru - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtYWQgTmF3YWYgQWwgTWVq_61",
+      "fileName": "Ahmad.Nawaf.Al.Mejlad.1.mp3",
+      "title": "Ahmad Nawaf Al Mejlad 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IDEu_64",
+      "fileName": "Ahmd.At-Trablsy.1.mp3",
+      "title": "Ahmd At-Trablsy 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IDIu_65",
+      "fileName": "Ahmd.At-Trablsy.2.mp3",
+      "title": "Ahmd At-Trablsy 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IDMu_66",
+      "fileName": "Ahmd.At-Trablsy.3.mp3",
+      "title": "Ahmd At-Trablsy 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IDQu_67",
+      "fileName": "Ahmd.At-Trablsy.4.mp3",
+      "title": "Ahmd At-Trablsy 4",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZCBBdC1UcmFibHN5IDUu_68",
+      "fileName": "Ahmd.At-Trablsy.5.mp3",
+      "title": "Ahmd At-Trablsy 5",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZWQgQWwtSGFkZGFkLm1w_69",
+      "fileName": "Ahmed.Al-Haddad.mp3",
+      "title": "Ahmed Al-Haddad",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZWQgRWwgS291cmRpLm1w_70",
+      "fileName": "Ahmed.El.Kourdi.mp3",
+      "title": "Ahmed El Kourdi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZWQgTnVpbmFhIDEgLSBF_71",
+      "fileName": "Ahmed.Nuinaa.1.-.Egypt.mp3",
+      "title": "Ahmed Nuinaa 1 - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWhtZWQgTnVpbmFhIDIgLSBD_72",
+      "fileName": "Ahmed.Nuinaa.2.-.Cairo.mp3",
+      "title": "Ahmed Nuinaa 2 - Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWtoZGFtIEJudSBBbCBNYWRh_73",
+      "fileName": "Akhdam.Bnu.Al.Madane.mp3",
+      "title": "Akhdam Bnu Al Madane",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgQW1lZW4gTXVoYW1tYWQg_74",
+      "fileName": "Al.Ameen.Muhammad.Qanyouh.mp3",
+      "title": "Al Ameen Muhammad Qanyouh",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgQmFobHVsIEFidSBBcnF1_75",
+      "fileName": "Al.Bahlul.Abu.Arqub.1.mp3",
+      "title": "Al Bahlul Abu Arqub 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgQmFobHVsIEFidSBBcnF1_76",
+      "fileName": "Al.Bahlul.Abu.Arqub.2.mp3",
+      "title": "Al Bahlul Abu Arqub 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgRHVxYWxlIE11aGFtbWFk_77",
+      "fileName": "Al.Duqale.Muhammad.Al.Alam.mp3",
+      "title": "Al Duqale Muhammad Al Alam",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgU2FlZCBNZXR3YWxlIEFM_78",
+      "fileName": "Al.Saed.Metwale.AL.Aal.mp3",
+      "title": "Al Saed Metwale Al Aal",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWwgU2F5ZWQgTXVzbGltLm1w_79",
+      "fileName": "Al.Sayed.Muslim.mp3",
+      "title": "Al Sayed Muslim",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIEhhc3NhbiBBYmQgQWwg_80",
+      "fileName": "Ali.Hassan.Abd.Al.Khaliq.-.Qatar.mp3",
+      "title": "Ali Hassan Abd Al Khaliq - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_81",
+      "fileName": "Ali.Ibn.Ahmad.Mala.1.-.Al.Haram.Al.Maki.mp3",
+      "title": "Ali Ibn Ahmad Mala 1 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_82",
+      "fileName": "Ali.Ibn.Ahmad.Mala.2.-.Al.Haram.Al.Maki.mp3",
+      "title": "Ali Ibn Ahmad Mala 2 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_83",
+      "fileName": "Ali.Ibn.Ahmad.Mala.3.-.Al.Haram.Al.Maki.mp3",
+      "title": "Ali Ibn Ahmad Mala 3 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_84",
+      "fileName": "Ali.Ibn.Ahmad.Mala.5.-.Al.Haram.Al.Maki.mp3",
+      "title": "Ali Ibn Ahmad Mala 5 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_85",
+      "fileName": "Ali.Ibn.Ahmad.Mala.6.-.Al.Haram.Al.Maki.mp3",
+      "title": "Ali Ibn Ahmad Mala 6 - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QWxpIElibiBBaG1hZCBNYWxh_86",
+      "fileName": "Ali.Ibn.Ahmad.Mala.HQ.mp3",
+      "title": "Ali Ibn Ahmad Mala Hq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QW51YXIgRHVtYW4gLSBUdXJr_87",
+      "fileName": "Anuar.Duman.-.Turkey.mp3",
+      "title": "Anuar Duman - Turkey",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QXNzZW0gQnVraHJhcmUgLSBB_88",
+      "fileName": "Assem.Bukhrare.-.Al.Haram.Al.Maki.mp3",
+      "title": "Assem Bukhrare - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QXphbiBuYWtzaGFiYW5kaS5t_89",
+      "fileName": "Azan.nakshabandi.mp3",
+      "title": "Azan Nakshabandi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QmFkZWUgSmFkdSAxLm1wMw_90",
+      "fileName": "Badee.Jadu.1.mp3",
+      "title": "Badee Jadu 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QmFkZWUgSmFkdSAyLm1wMw_91",
+      "fileName": "Badee.Jadu.2.mp3",
+      "title": "Badee Jadu 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QmFkZWUgSmFkdSAzLm1wMw_92",
+      "fileName": "Badee.Jadu.3.mp3",
+      "title": "Badee Jadu 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_QmFsQmFTaGVyIEFiZGVsIFFh_93",
+      "fileName": "BalBaSher.Abdel.Qadir.mp3",
+      "title": "Balbasher Abdel Qadir",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_Qm51IFNhd2FuYSAxLm1wMw_94",
+      "fileName": "Bnu.Sawana.1.mp3",
+      "title": "Bnu Sawana 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_Qm51IFNhd2FuYSAyLm1wMw_95",
+      "fileName": "Bnu.Sawana.2.mp3",
+      "title": "Bnu Sawana 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_ZXphbiBtZWRpbmUubXAz_96",
+      "fileName": "ezan.medine.mp3",
+      "title": "Ezan Medine",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_ZXphbiBtZWtrZS5tcDM_97",
+      "fileName": "ezan.mekke.mp3",
+      "title": "Ezan Mekke",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_RXp6ZWRpbmUgQW1hcm5hLm1w_98",
+      "fileName": "Ezzedine.Amarna.mp3",
+      "title": "Ezzedine Amarna",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_RmFyZXMgQWJkdWwgR2hhbmUu_100",
+      "fileName": "Fares.Abdul.Ghane.mp3",
+      "title": "Fares Abdul Ghane",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_RmFydXEgQWJkdWwgUmFobWFu_101",
+      "fileName": "Faruq.Abdul.Rahman.Hadrawe.-.Al.Haram.Al.Maki.mp3",
+      "title": "Faruq Abdul Rahman Hadrawe - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_RmF3YXogRmFyaGFuIEFsIER1_102",
+      "fileName": "Fawaz.Farhan.Al.Dumane.mp3",
+      "title": "Fawaz Farhan Al Dumane",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_RmF5eiBBYmQgQWwgU2FsYW0u_103",
+      "fileName": "Fayz.Abd.Al.Salam.mp3",
+      "title": "Fayz Abd Al Salam",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_ZmVjciBtZWRpbmUubXAz_104",
+      "fileName": "fecr.medine.mp3",
+      "title": "Fecr Medine",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_ZmVjciBtZWtrZS5tcDM_105",
+      "fileName": "fecr.mekke.mp3",
+      "title": "Fecr Mekke",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_R2hhcm0gQWwgQmlzaGkubXAz_106",
+      "fileName": "Gharm.Al.Bishi.mp3",
+      "title": "Gharm Al Bishi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_R2hhemkgQWwgU2FhZG91bi5t_107",
+      "fileName": "Ghazi.Al.Saadoun.mp3",
+      "title": "Ghazi Al Saadoun",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFmZWQgSGVzc2VuIEVycS5t_108",
+      "fileName": "Hafed.Hessen.Erq.mp3",
+      "title": "Hafed Hessen Erq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFqIFN1bGFpbWFuIE11a2h0_109",
+      "fileName": "Haj.Sulaiman.Mukhtar.-.Algeria.mp3",
+      "title": "Haj Sulaiman Mukhtar - Algeria",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFtYWQgQWwgRGFnaHJpcmku_111",
+      "fileName": "Hamad.Al.Daghriri.mp3",
+      "title": "Hamad Al Daghriri",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFtYWQgQWwgRGFnaHJpcmkg_110",
+      "fileName": "Hamad.Al.Daghriri.-.HQ.mp3",
+      "title": "Hamad Al Daghriri - Hq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFtZGFuIEFsIE1hbGVrZSAt_112",
+      "fileName": "Hamdan.Al.Maleke.-.Najran.Saudi.Arabia.mp3",
+      "title": "Hamdan Al Maleke - Najran Saudi Arabia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFtemEgQWwgSGFsYWJlYS5t_113",
+      "fileName": "Hamza.Al.Halabea.mp3",
+      "title": "Hamza Al Halabea",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFtemEgQWwgTWFqYWxlLm1w_114",
+      "fileName": "Hamza.Al.Majale.mp3",
+      "title": "Hamza Al Majale",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFzc2FuIEtoYWxmYW4gLSBR_115",
+      "fileName": "Hassan.Khalfan.-.Qatar.mp3",
+      "title": "Hassan Khalfan - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFzc2FuIE1haG11ZCBCYXJl_116",
+      "fileName": "Hassan.Mahmud.Bare.mp3",
+      "title": "Hassan Mahmud Bare",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGFzc2FuIFNhbGFoIEJhYWx1_117",
+      "fileName": "Hassan.Salah.Baalul.mp3",
+      "title": "Hassan Salah Baalul",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SGVjaGFtIEtoYWxlbC5tcDM_118",
+      "fileName": "Hecham.Khalel.mp3",
+      "title": "Hecham Khalel",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SHVzc2FpbiBBZmlmaS5tcDM_119",
+      "fileName": "Hussain.Afifi.mp3",
+      "title": "Hussain Afifi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SHVzc2FtIEFsIERlZW4gT2Jh_120",
+      "fileName": "Hussam.Al.Deen.Obade.mp3",
+      "title": "Hussam Al Deen Obade",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWJyYWhlZW0gQWwgSnVtYXls_121",
+      "fileName": "Ibraheem.Al.Jumayle.mp3",
+      "title": "Ibraheem Al Jumayle",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWJyYWhlZW0gSmFiYXIgMS5t_122",
+      "fileName": "Ibraheem.Jabar.1.mp3",
+      "title": "Ibraheem Jabar 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWJyYWhlZW0gSmFiYXIgMi5t_123",
+      "fileName": "Ibraheem.Jabar.2.mp3",
+      "title": "Ibraheem Jabar 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWJyYWhlZW0gSmFiciBBYnUg_125",
+      "fileName": "Ibraheem.Jabr.Abu.Raheq.mp3",
+      "title": "Ibraheem Jabr Abu Raheq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SWhzc2FuIEhhbWVkIEFsIER1_126",
+      "fileName": "Ihssan.Hamed.Al.Dulayme.mp3",
+      "title": "Ihssan Hamed Al Dulayme",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SXNsYW0gWWFzc2VuLm1wMw_127",
+      "fileName": "Islam.Yassen.mp3",
+      "title": "Islam Yassen",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SXNtYWlsIEFsIFNoZWlraC5t_128",
+      "fileName": "Ismail.Al.Sheikh.mp3",
+      "title": "Ismail Al Sheikh",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SXNzYSBBbCBIYWpsYXdlLm1w_129",
+      "fileName": "Issa.Al.Hajlawe.mp3",
+      "title": "Issa Al Hajlawe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_SmFtYWwgQWJ1IEFsIEhhbWVk_130",
+      "fileName": "Jamal.Abu.Al.Hamed.Al.Jaafare.mp3",
+      "title": "Jamal Abu Al Hamed Al Jaafare",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_S2FtYWwgTXVoYW1tYWQgQWwg_131",
+      "fileName": "Kamal.Muhammad.Al.Marush.1.mp3",
+      "title": "Kamal Muhammad Al Marush 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_S2FtYWwgTXVoYW1tYWQgQWwg_132",
+      "fileName": "Kamal.Muhammad.Al.Marush.2.-.Morocco.mp3",
+      "title": "Kamal Muhammad Al Marush 2 - Morocco",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TGFmaSBBbCBBd25pLm1wMw_133",
+      "fileName": "Lafi.Al.Awni.mp3",
+      "title": "Lafi Al Awni",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFoZGUgQWwgQmVjaGVlLm1w_134",
+      "fileName": "Mahde.Al.Bechee.mp3",
+      "title": "Mahde Al Bechee",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobW91ZCBBbCBGYXdhemku_135",
+      "fileName": "Mahmoud.Al.Fawazi.mp3",
+      "title": "Mahmoud Al Fawazi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobW91ZCBBbGkgQWwgQmFu_136",
+      "fileName": "Mahmoud.Ali.Al.Banna.-.Cairo.mp3",
+      "title": "Mahmoud Ali Al Banna - Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobW91ZCBIaWphemkubXAz_137",
+      "fileName": "Mahmoud.Hijazi.mp3",
+      "title": "Mahmoud Hijazi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobXVkIEFsIFRhd2FraCAx_138",
+      "fileName": "Mahmud.Al.Tawakh.1.mp3",
+      "title": "Mahmud Al Tawakh 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobXVkIEFsIFRhd2FraCAy_139",
+      "fileName": "Mahmud.Al.Tawakh.2.-.Masjid.Al.Rifai.Cairo.mp3",
+      "title": "Mahmud Al Tawakh 2 - Masjid Al Rifai Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFobXVkIE11c3RhZmEgQWwg_140",
+      "fileName": "Mahmud.Mustafa.Al.Najar.mp3",
+      "title": "Mahmud Mustafa Al Najar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFqaWQgQWwgWmFtZWwubXAz_141",
+      "fileName": "Majid.Al.Zamel.mp3",
+      "title": "Majid Al Zamel",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFuc3VyIEFsIFphaHJhbmUu_143",
+      "fileName": "Mansur.Al.Zahrane.mp3",
+      "title": "Mansur Al Zahrane",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWFuc3VyIEFsIFphaHJhbmUg_142",
+      "fileName": "Mansur.Al.Zahrane.-.HQ.mp3",
+      "title": "Mansur Al Zahrane - Hq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWlzaGFyeSBBbCBBZmFzeSAt_144",
+      "fileName": "Mishary.Al.Afasy.-.HQ.mp3",
+      "title": "Mishary Al Afasy - Hq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWlzaGFyeSBSYXNoaWQgQWxh_145",
+      "fileName": "Mishary.Rashid.Alafasy.1.-.Kuwait.mp3",
+      "title": "Mishary Rashid Alafasy 1 - Kuwait",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TWlzaGFyeSBSYXNoaWQgQWxh_146",
+      "fileName": "Mishary.Rashid.Alafasy.2.-.Kuwait.mp3",
+      "title": "Mishary Rashid Alafasy 2 - Kuwait",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1lZCBTaWRkaXEgRWwt_149",
+      "fileName": "Mohamed.Siddiq.El-Minshawi.-.Afghanistan.mp3",
+      "title": "Mohamed Siddiq El-Minshawi - Afghanistan",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1lZCBTaWRkaXEgRWwt_150",
+      "fileName": "Mohamed.Siddiq.El-Minshawi.-.Egypt.1.mp3",
+      "title": "Mohamed Siddiq El-Minshawi - Egypt 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1lZCBTaWRkaXEgRWwt_151",
+      "fileName": "Mohamed.Siddiq.El-Minshawi.-.Egypt.2.mp3",
+      "title": "Mohamed Siddiq El-Minshawi - Egypt 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1lZCBUYXJlayBSZWNp_152",
+      "fileName": "Mohamed.Tarek.Reciting.Azan.mp3",
+      "title": "Mohamed Tarek Reciting Azan",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1tZWQgU2FsYWh1ZGRp_153",
+      "fileName": "Mohammed.Salahuddin.Kabbara.1.mp3",
+      "title": "Mohammed Salahuddin Kabbara 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TW9oYW1tZWQgU2FsYWh1ZGRp_154",
+      "fileName": "Mohammed.Salahuddin.Kabbara.2.mp3",
+      "title": "Mohammed Salahuddin Kabbara 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVhZCBBbCBRYXNlbWUgLSBR_155",
+      "fileName": "Muad.Al.Qaseme.-.Qatar.mp3",
+      "title": "Muad Al Qaseme - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWJkIEFsIEhh_156",
+      "fileName": "Muhammad.Abd.Al.Hakem.mp3",
+      "title": "Muhammad Abd Al Hakem",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWJ1IEFsIE1h_157",
+      "fileName": "Muhammad.Abu.Al.Maqarem.mp3",
+      "title": "Muhammad Abu Al Maqarem",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWRlbC5tcDM_158",
+      "fileName": "Muhammad.Adel.mp3",
+      "title": "Muhammad Adel",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWwgRGFtcmFk_159",
+      "fileName": "Muhammad.Al.Damradash.mp3",
+      "title": "Muhammad Al Damradash",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWwgS3VyYXlu_160",
+      "fileName": "Muhammad.Al.Kurayne.Al.Maluke.1.mp3",
+      "title": "Muhammad Al Kurayne Al Maluke 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWwgS3VyYXlu_161",
+      "fileName": "Muhammad.Al.Kurayne.Al.Maluke.2.mp3",
+      "title": "Muhammad Al Kurayne Al Maluke 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWwgU2FlZCBN_162",
+      "fileName": "Muhammad.Al.Saed.Maher.mp3",
+      "title": "Muhammad Al Saed Maher",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQWwgWmFoaWQu_163",
+      "fileName": "Muhammad.Al.Zahid.mp3",
+      "title": "Muhammad Al Zahid",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQXNocmFmIEFh_164",
+      "fileName": "Muhammad.Ashraf.Aawad.mp3",
+      "title": "Muhammad Ashraf Aawad",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgQmVuIE11c3Nh_165",
+      "fileName": "Muhammad.Ben.Mussa.mp3",
+      "title": "Muhammad Ben Mussa",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgRmF0aGUgSGFu_166",
+      "fileName": "Muhammad.Fathe.Hantur.mp3",
+      "title": "Muhammad Fathe Hantur",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgSGFtdWQubXAz_168",
+      "fileName": "Muhammad.Hamud.mp3",
+      "title": "Muhammad Hamud",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgSGFtdWQgLSBD_167",
+      "fileName": "Muhammad.Hamud.-.Colombia.mp3",
+      "title": "Muhammad Hamud - Colombia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgSGVzc2VuIEFs_169",
+      "fileName": "Muhammad.Hessen.Al.Shahawe.mp3",
+      "title": "Muhammad Hessen Al Shahawe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgS2hhbGVlbCBS_170",
+      "fileName": "Muhammad.Khaleel.Raml.-.Al.Haram.Al.Maki.mp3",
+      "title": "Muhammad Khaleel Raml - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgTmFqZWUgMS5t_171",
+      "fileName": "Muhammad.Najee.1.mp3",
+      "title": "Muhammad Najee 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgTmFqZWUgMi5t_172",
+      "fileName": "Muhammad.Najee.2.mp3",
+      "title": "Muhammad Najee 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgTmFqZWUgMy5t_173",
+      "fileName": "Muhammad.Najee.3.mp3",
+      "title": "Muhammad Najee 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgTmFzc2VyIEFs_174",
+      "fileName": "Muhammad.Nasser.Al.Dine.Al.Albane.-.Jordan.mp3",
+      "title": "Muhammad Nasser Al Dine Al Albane - Jordan",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgUmFtYWRhbiBT_175",
+      "fileName": "Muhammad.Ramadan.Saad.-.Al.Haram.Al.Maki.mp3",
+      "title": "Muhammad Ramadan Saad - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tYWQgUmVmYWF0IC0g_176",
+      "fileName": "Muhammad.Refaat.-.Cairo.mp3",
+      "title": "Muhammad Refaat - Cairo",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVoYW1tZWQgSWJyYWhlbSBJ_177",
+      "fileName": "Muhammed.Ibrahem.Ismael.Abd.Allah.mp3",
+      "title": "Muhammed Ibrahem Ismael Abd Allah",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVraHRhciBBYmVsaGFtZWQg_178",
+      "fileName": "Mukhtar.Abelhamed.Hafed.mp3",
+      "title": "Mukhtar Abelhamed Hafed",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVzdGFmYSBJc21haWwgLSBF_179",
+      "fileName": "Mustafa.Ismail.-.Egypt.mp3",
+      "title": "Mustafa Ismail - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TXVzdGFmYSBXYWxlZC5tcDM_180",
+      "fileName": "Mustafa.Waled.mp3",
+      "title": "Mustafa Waled",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFqZWUgUWF6YXogLSBBbCBB_181",
+      "fileName": "Najee.Qazaz.-.Al.Aqsa.Jerusalem.mp3",
+      "title": "Najee Qazaz - Al Aqsa Jerusalem",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzcmVkZGluZSBUb3ViYXIu_182",
+      "fileName": "Nasreddine.Toubar.mp3",
+      "title": "Nasreddine Toubar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIEFiZCBBbCBK_183",
+      "fileName": "Nasser.Al.Abd.Al.Jabar.-.Qatar.mp3",
+      "title": "Nasser Al Abd Al Jabar - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIE9iYWlkIDEu_184",
+      "fileName": "Nasser.Al.Obaid.1.mp3",
+      "title": "Nasser Al Obaid 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIE9iYWlkIDIu_185",
+      "fileName": "Nasser.Al.Obaid.2.mp3",
+      "title": "Nasser Al Obaid 2",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIE9iYWlkIDMu_186",
+      "fileName": "Nasser.Al.Obaid.3.mp3",
+      "title": "Nasser Al Obaid 3",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIFFhdGFtaSAt_187",
+      "fileName": "Nasser.Al.Qatami.-.HQ.mp3",
+      "title": "Nasser Al Qatami - Hq",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIFFhdGFtaSAx_188",
+      "fileName": "Nasser.Al.Qatami.1.-.Saudi.Arabia.mp3",
+      "title": "Nasser Al Qatami 1 - Saudi Arabia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmFzc2VyIEFsIFFhdGFtaSAy_189",
+      "fileName": "Nasser.Al.Qatami.2.-.Riyadh.mp3",
+      "title": "Nasser Al Qatami 2 - Riyadh",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TmF5ZiBGZWRhaCAtIEFsIEhh_190",
+      "fileName": "Nayf.Fedah.-.Al.Haram.Al.Maki.mp3",
+      "title": "Nayf Fedah - Al Haram Al Maki",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_TnVyRGluIEhhbXphIEFsIE1h_191",
+      "fileName": "NurDin.Hamza.Al.Maghriby.-.Al.Aqsa.Jerusalem.mp3",
+      "title": "Nurdin Hamza Al Maghriby - Al Aqsa Jerusalem",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_T21hciBBbCBLYXphYnJpLm1w_192",
+      "fileName": "Omar.Al.Kazabri.mp3",
+      "title": "Omar Al Kazabri",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_T21hciBBbCBPbWF5ci5tcDM_193",
+      "fileName": "Omar.Al.Omayr.mp3",
+      "title": "Omar Al Omayr",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_T21yYW4gTWFuc3VyIC0gRWd5_194",
+      "fileName": "Omran.Mansur.-.Egypt.mp3",
+      "title": "Omran Mansur - Egypt",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_T21ydSBTb2JoZS5tcDM_195",
+      "fileName": "Omru.Sobhe.mp3",
+      "title": "Omru Sobhe",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_T3RobWFuIEFsIE1hc3NlbWUu_196",
+      "fileName": "Othman.Al.Masseme.mp3",
+      "title": "Othman Al Masseme",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_UmFiZWUgQWJkdWwgUmFoZWVt_197",
+      "fileName": "Rabee.Abdul.Raheem.Essa.mp3",
+      "title": "Rabee Abdul Raheem Essa",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_UmFiZWggSWJuIERhcmFoIEFs_198",
+      "fileName": "Rabeh.Ibn.Darah.Al.Jazairi.mp3",
+      "title": "Rabeh Ibn Darah Al Jazairi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_UmlhZCBBbCBEamF6YWlyaSAt_199",
+      "fileName": "Riad.Al.Djazairi.-.Algeria.mp3",
+      "title": "Riad Al Djazairi - Algeria",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2FoZWIgSGFuZSBLaGF0YWIg_200",
+      "fileName": "Saheb.Hane.Khatab.-.Palestine.mp3",
+      "title": "Saheb Hane Khatab - Palestine",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2FsZWggQWwgTmFiZXQgLSBR_201",
+      "fileName": "Saleh.Al.Nabet.-.Qatar.mp3",
+      "title": "Saleh Al Nabet - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2FsZW0gSGFtZGUubXAz_202",
+      "fileName": "Salem.Hamde.mp3",
+      "title": "Salem Hamde",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2FtZXIgQWwgU2FnaGVyLm1w_203",
+      "fileName": "Samer.Al.Sagher.mp3",
+      "title": "Samer Al Sagher",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2hlaWtoIEFsIE5hcXNoYmFu_204",
+      "fileName": "Sheikh.Al.Naqshbandi.mp3",
+      "title": "Sheikh Al Naqshbandi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_U2hlaWtoIFRhcmlxIE11aGFt_205",
+      "fileName": "Sheikh.Tariq.Muhammad.mp3",
+      "title": "Sheikh Tariq Muhammad",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_VGFoYSBBbCBKdW5heWQubXAz_206",
+      "fileName": "Taha.Al.Junayd.mp3",
+      "title": "Taha Al Junayd",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_VGFsZWIgQWwgUWFudWJlLm1w_207",
+      "fileName": "Taleb.Al.Qanube.mp3",
+      "title": "Taleb Al Qanube",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_VGFtZXIgSXNsYW0ubXAz_208",
+      "fileName": "Tamer.Islam.mp3",
+      "title": "Tamer Islam",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_VGFyZXEgRmF0aGUgQWhtYWQu_209",
+      "fileName": "Tareq.Fathe.Ahmad.mp3",
+      "title": "Tareq Fathe Ahmad",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_V2FkaSBBbCBZYW1hbmkubXAz_210",
+      "fileName": "Wadi.Al.Yamani.mp3",
+      "title": "Wadi Al Yamani",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_V2FkaSBIYW1hZCBBbC1ZYW1h_211",
+      "fileName": "Wadi.Hamad.Al-Yamani.mp3",
+      "title": "Wadi Hamad Al-Yamani",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_V2FsZWQgTWFoc2FzIDEubXAz_212",
+      "fileName": "Waled.Mahsas.1.mp3",
+      "title": "Waled Mahsas 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_V2FsZWQgTWFoc2FzIDIgLSBB_213",
+      "fileName": "Waled.Mahsas.2.-.Algeria.mp3",
+      "title": "Waled Mahsas 2 - Algeria",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WWFzZWVuIEFsIEFhc3NhZiAx_214",
+      "fileName": "Yaseen.Al.Aassaf.1.mp3",
+      "title": "Yaseen Al Aassaf 1",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WWFzc2VyIEFiZHUgQWxsYWgg_216",
+      "fileName": "Yasser.Abdu.Allah.Al.Hawre.-.Qatar.mp3",
+      "title": "Yasser Abdu Allah Al Hawre - Qatar",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WWFzc2VyIEFsIEZpbGthd2ku_217",
+      "fileName": "Yasser.Al.Filkawi.mp3",
+      "title": "Yasser Al Filkawi",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WWFzc2VyIEFsLURvc2FyaSAt_218",
+      "fileName": "Yasser.Al-Dosari.-.Saudi.Arabia.mp3",
+      "title": "Yasser Al-Dosari - Saudi Arabia",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WmFoZXIgTXVoYW1tYWQgVGFy_219",
+      "fileName": "Zaher.Muhammad.Taresh.mp3",
+      "title": "Zaher Muhammad Taresh",
+      "category": "normal",
+      "source": "remote"
+    },
+    {
+      "id": "r_WmF5ZCBBbCBBYXR5YS5tcDM_220",
+      "fileName": "Zayd.Al.Aatya.mp3",
+      "title": "Zayd Al Aatya",
+      "category": "normal",
+      "source": "remote"
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+import '../../locations/data/models.dart';
+import '../../times/presentation/time_utils.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -7,20 +9,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/alert_settings.dart';
 import '../data/adhan_settings.dart';
 import '../data/custom_audio_store.dart';
+import '../data/ezan_library.dart';
 import '../data/prefs_repository.dart';
 import '../data/prayer_sound_settings.dart';
 
-final customAudioStoreProvider = Provider<CustomAudioStore>((ref) => CustomAudioStore());
+final customAudioStoreProvider = Provider<CustomAudioStore>(
+  (ref) => CustomAudioStore(),
+);
 
-final alertSettingsProvider = StateNotifierProvider<AlertSettingsNotifier, AlertSettings>((ref) {
-  return AlertSettingsNotifier(ref.watch(customAudioStoreProvider), ref.watch(sharedPrefsProvider));
-});
+final alertSettingsProvider =
+    StateNotifierProvider<AlertSettingsNotifier, AlertSettings>((ref) {
+      return AlertSettingsNotifier(
+        ref.watch(customAudioStoreProvider),
+        ref.watch(sharedPrefsProvider),
+      );
+    });
 
 class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   final CustomAudioStore _customAudioStore;
   final SharedPreferences _prefs;
 
-  AlertSettingsNotifier(this._customAudioStore, this._prefs) : super(AlertSettings()) {
+  AlertSettingsNotifier(this._customAudioStore, this._prefs)
+    : super(AlertSettings()) {
     _loadSettings();
   }
 
@@ -28,7 +38,12 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   static const _keyPrayerSounds = 'prayer_sounds_v1';
   static const _keySelectedAdhanType = 'selected_adhan_type';
   static const _keySelectedAdhanAssetPath = 'selected_adhan_asset_path';
-  static const _keySelectedAdhanCustomAudioId = 'selected_adhan_custom_audio_id';
+  static const _keySelectedAdhanCustomAudioId =
+      'selected_adhan_custom_audio_id';
+  static const _keySelectedAdhanLibraryEntryId =
+      'selected_adhan_library_entry_id';
+  static const _keySelectedAdhanLibraryFajrEntryId =
+      'selected_adhan_library_fajr_entry_id';
   static const _keyEzanVolume = 'ezan_volume';
   static const _keyPreNotifications = 'pre_notifications';
   static const _keySlideDuration = 'slide_duration';
@@ -58,7 +73,8 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       userCats = Map<String, String>.from(json.decode(userCatsRaw));
     }
 
-    final musicPaths = _prefs.getStringList(_keyBgMusicPaths) ?? [defaultBgMusicPath];
+    final musicPaths =
+        _prefs.getStringList(_keyBgMusicPaths) ?? [defaultBgMusicPath];
 
     final soundsRaw = _prefs.getString(_keyPrayerSounds);
     Map<String, PrayerSoundSetting> prayerSounds = defaultPrayerSounds();
@@ -67,9 +83,12 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
         final decoded = Map<String, dynamic>.from(json.decode(soundsRaw));
         prayerSounds = {
           for (var name in prayerNames)
-            name: decoded.containsKey(name)
-                ? PrayerSoundSetting.fromJson(Map<String, dynamic>.from(decoded[name]))
-                : const PrayerSoundSetting(),
+            name:
+                decoded.containsKey(name)
+                    ? PrayerSoundSetting.fromJson(
+                      Map<String, dynamic>.from(decoded[name]),
+                    )
+                    : const PrayerSoundSetting(),
         };
       } catch (_) {
         // Bozuk kayıt varsa varsayılanlara dön.
@@ -80,12 +99,15 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       type: AdhanType.fromStorage(_prefs.getString(_keySelectedAdhanType)),
       worldAssetPath: _prefs.getString(_keySelectedAdhanAssetPath),
       customAudioId: _prefs.getString(_keySelectedAdhanCustomAudioId),
+      libraryEntryId: _prefs.getString(_keySelectedAdhanLibraryEntryId),
+      libraryFajrEntryId: _prefs.getString(_keySelectedAdhanLibraryFajrEntryId),
     );
 
     state = state.copyWith(
       prayerAlarms: alarmMap,
       prayerSounds: prayerSounds,
       ezanVolume: _prefs.getDouble(_keyEzanVolume) ?? 1.0,
+      fajrDelayMinutes: _prefs.getInt('fajr_delay_minutes') ?? 30,
       adhanSettings: adhanSettings,
       preNotifications: preNotifyMap,
       slideDuration: _prefs.getInt(_keySlideDuration) ?? 15,
@@ -94,6 +116,21 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       bgMusicPaths: musicPaths,
       bgMusicEnabled: _prefs.getBool(_keyBgMusicEnabled) ?? false,
     );
+  }
+
+  Future<void> setFajrDelayMinutes(int minutes, List<Vakit> days) async {
+    if (minutes < 0 ||
+        days.isEmpty ||
+        days.any(
+          (day) => adhanTime(day, DateTime(2000), 'İmsak', minutes) == null,
+        )) {
+      throw ArgumentError(
+        'Sabah ezanı güneş doğmadan önce okunmalıdır. '
+        'Daha kısa bir gecikme seçin (0 dakika seçilebilir).',
+      );
+    }
+    await _prefs.setInt('fajr_delay_minutes', minutes);
+    state = state.copyWith(fajrDelayMinutes: minutes);
   }
 
   Future<void> togglePrayerAlarm(String name, bool value) async {
@@ -105,20 +142,31 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     state = state.copyWith(prayerAlarms: newAlarms);
   }
 
-  Future<void> _persistPrayerSounds(Map<String, PrayerSoundSetting> sounds) async {
+  Future<void> _persistPrayerSounds(
+    Map<String, PrayerSoundSetting> sounds,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
-    final encoded = json.encode({for (final e in sounds.entries) e.key: e.value.toJson()});
+    final encoded = json.encode({
+      for (final e in sounds.entries) e.key: e.value.toJson(),
+    });
     await prefs.setString(_keyPrayerSounds, encoded);
   }
 
   /// [prayerName] için ses türünü değiştirir. `custom` seçiliyorsa
   /// [customAudioId] verilmelidir (bkz. [pickAndAssignCustomAudio]).
-  Future<void> setPrayerSoundType(String prayerName, PrayerSoundType type, {String? customAudioId}) async {
+  Future<void> setPrayerSoundType(
+    String prayerName,
+    PrayerSoundType type, {
+    String? customAudioId,
+  }) async {
     final newSounds = Map<String, PrayerSoundSetting>.from(state.prayerSounds);
     final current = newSounds[prayerName] ?? const PrayerSoundSetting();
     newSounds[prayerName] = current.copyWith(
       type: type,
-      customAudioId: type == PrayerSoundType.custom ? (customAudioId ?? current.customAudioId) : null,
+      customAudioId:
+          type == PrayerSoundType.custom
+              ? (customAudioId ?? current.customAudioId)
+              : null,
       clearCustomAudioId: type != PrayerSoundType.custom,
     );
     await _persistPrayerSounds(newSounds);
@@ -128,12 +176,23 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   /// [prayerName] için doğrudan bir kayıtlı özel ses dosyasını atar (dosya
   /// zaten [CustomAudioStore] içindeyse — örn. bir vaktin sesi bir başka
   /// vaktin daha önce yüklediği dosyayla değiştiriliyorsa).
-  Future<void> assignCustomAudio(String prayerName, String customAudioId) async {
-    await setPrayerSoundType(prayerName, PrayerSoundType.custom, customAudioId: customAudioId);
+  Future<void> assignCustomAudio(
+    String prayerName,
+    String customAudioId,
+  ) async {
+    await setPrayerSoundType(
+      prayerName,
+      PrayerSoundType.custom,
+      customAudioId: customAudioId,
+    );
   }
 
   /// Bayt dizisinden yeni bir özel ses dosyası oluşturup [prayerName]'e atar.
-  Future<CustomAudioFile> addAndAssignCustomAudio(String prayerName, String fileName, Uint8List bytes) async {
+  Future<CustomAudioFile> addAndAssignCustomAudio(
+    String prayerName,
+    String fileName,
+    Uint8List bytes,
+  ) async {
     final file = await _customAudioStore.add(fileName, bytes);
     await assignCustomAudio(prayerName, file.id);
     return file;
@@ -145,8 +204,11 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   Future<void> deleteCustomAudio(String customAudioId) async {
     final newSounds = Map<String, PrayerSoundSetting>.from(state.prayerSounds);
     for (final entry in newSounds.entries) {
-      if (entry.value.type == PrayerSoundType.custom && entry.value.customAudioId == customAudioId) {
-        newSounds[entry.key] = const PrayerSoundSetting(type: PrayerSoundType.adhan);
+      if (entry.value.type == PrayerSoundType.custom &&
+          entry.value.customAudioId == customAudioId) {
+        newSounds[entry.key] = const PrayerSoundSetting(
+          type: PrayerSoundType.adhan,
+        );
       }
     }
     await _customAudioStore.remove(customAudioId);
@@ -170,13 +232,70 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
   }
 
   Future<void> selectWorldAdhan(String assetPath) async {
-    await _persistAdhanSettings(AdhanSettings(type: AdhanType.world, worldAssetPath: assetPath));
+    await _persistAdhanSettings(
+      AdhanSettings(type: AdhanType.world, worldAssetPath: assetPath),
+    );
   }
 
-  Future<CustomAudioFile> addAndSelectCustomAdhan(String fileName, Uint8List bytes) async {
+  Future<CustomAudioFile> addAndSelectCustomAdhan(
+    String fileName,
+    Uint8List bytes,
+  ) async {
     final file = await _customAudioStore.add(fileName, bytes);
-    await _persistAdhanSettings(AdhanSettings(type: AdhanType.custom, customAudioId: file.id));
+    await _persistAdhanSettings(
+      AdhanSettings(type: AdhanType.custom, customAudioId: file.id),
+    );
     return file;
+  }
+
+  /// Ezan Kütüphanesi'nden normal (fecr dışı dört vakit) için bir kayıt
+  /// seçer. Kayıt uzak (remote) ise önce cihaza indirilir; ağ hatası olursa
+  /// seçim uygulanmaz ve hata yukarı fırlatılır.
+  Future<void> selectLibraryEntry(
+    EzanLibraryEntry entry, {
+    String baseUrl = '',
+    EzanDownloadCache? downloadCache,
+    void Function(double progress)? onProgress,
+  }) async {
+    if (entry.source == EzanLibrarySource.remote) {
+      final cache = downloadCache ?? EzanDownloadCache();
+      await cache.ensureDownloaded(entry, baseUrl: baseUrl, onProgress: onProgress);
+    }
+    final current = state.adhanSettings;
+    await _persistAdhanSettings(
+      AdhanSettings(
+        type: AdhanType.library,
+        libraryEntryId: entry.id,
+        libraryFajrEntryId: current.type == AdhanType.library
+            ? current.libraryFajrEntryId
+            : null,
+      ),
+    );
+  }
+
+  /// Sabah (fecr) vakti için ayrı bir kayıt seçer. [AdhanType.library] türü
+  /// zaten seçili değilse önce normal seçim de bu kayıtla doldurulur ki
+  /// diğer dört vakit için de anında bir seçim olsun.
+  Future<void> selectLibraryFajrEntry(
+    EzanLibraryEntry entry, {
+    String baseUrl = '',
+    EzanDownloadCache? downloadCache,
+    void Function(double progress)? onProgress,
+  }) async {
+    if (entry.source == EzanLibrarySource.remote) {
+      final cache = downloadCache ?? EzanDownloadCache();
+      await cache.ensureDownloaded(entry, baseUrl: baseUrl, onProgress: onProgress);
+    }
+    final current = state.adhanSettings;
+    await _persistAdhanSettings(
+      AdhanSettings(
+        type: AdhanType.library,
+        libraryEntryId: current.type == AdhanType.library
+            ? (current.libraryEntryId ?? entry.id)
+            : entry.id,
+        libraryFajrEntryId: entry.id,
+      ),
+    );
   }
 
   Future<void> _persistAdhanSettings(AdhanSettings settings) async {
@@ -184,12 +303,34 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     if (settings.worldAssetPath == null) {
       await _prefs.remove(_keySelectedAdhanAssetPath);
     } else {
-      await _prefs.setString(_keySelectedAdhanAssetPath, settings.worldAssetPath!);
+      await _prefs.setString(
+        _keySelectedAdhanAssetPath,
+        settings.worldAssetPath!,
+      );
     }
     if (settings.customAudioId == null) {
       await _prefs.remove(_keySelectedAdhanCustomAudioId);
     } else {
-      await _prefs.setString(_keySelectedAdhanCustomAudioId, settings.customAudioId!);
+      await _prefs.setString(
+        _keySelectedAdhanCustomAudioId,
+        settings.customAudioId!,
+      );
+    }
+    if (settings.libraryEntryId == null) {
+      await _prefs.remove(_keySelectedAdhanLibraryEntryId);
+    } else {
+      await _prefs.setString(
+        _keySelectedAdhanLibraryEntryId,
+        settings.libraryEntryId!,
+      );
+    }
+    if (settings.libraryFajrEntryId == null) {
+      await _prefs.remove(_keySelectedAdhanLibraryFajrEntryId);
+    } else {
+      await _prefs.setString(
+        _keySelectedAdhanLibraryFajrEntryId,
+        settings.libraryFajrEntryId!,
+      );
     }
     state = state.copyWith(adhanSettings: settings);
   }

@@ -1,3 +1,7 @@
+import 'package:tvaap_clean/core/prayer_alarm_watcher.dart';
+import 'package:tvaap_clean/features/times/presentation/times_page.dart';
+import 'prayer_lifecycle_test.dart' show TestPrayerDay;
+import 'package:tvaap_clean/core/live_clock.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,11 +30,19 @@ class TestPlayer extends Fake implements AudioPlayer {
   final states = StreamController<ProcessingState>.broadcast(sync: true);
   final List<String> played = [];
   String source = '';
+  bool staleCompletion = false;
   Completer<void>? loading;
   bool isPlaying = false;
   AudioSource? loadedSource;
   @override
-  Stream<ProcessingState> get processingStateStream => states.stream;
+  Stream<ProcessingState> get processingStateStream =>
+      staleCompletion
+          ? (Stream<ProcessingState>.multi((sink) {
+            sink.add(ProcessingState.completed);
+            final subscription = states.stream.listen(sink.add);
+            sink.onCancel = subscription.cancel;
+          }))
+          : states.stream;
   @override
   AudioSource? get audioSource => loadedSource;
   @override
@@ -89,6 +101,12 @@ class TestNotifications extends Fake implements NotificationService {
   bool adhanActive = false;
   bool foreground = false;
   int transientStops = 0;
+  int schedules = 0;
+  @override
+  Future<void> scheduleAlarms(List<Vakit> times, AlertSettings settings) async {
+    schedules++;
+  }
+
   @override
   Stream<String> get prayerNotificationStream => events.stream;
   @override
@@ -115,7 +133,11 @@ Future<
     TestNotifications notifications,
   })
 >
-setup({bool? musicEnabled}) async {
+setup({
+  bool? musicEnabled,
+  DateTime Function()? now,
+  List<Vakit>? times,
+}) async {
   SharedPreferences.setMockInitialValues({
     if (musicEnabled != null) 'bg_music_enabled': musicEnabled,
     'prayer_alarms_Öğle': true,
@@ -126,6 +148,9 @@ setup({bool? musicEnabled}) async {
   final notifications = TestNotifications();
   final container = ProviderContainer(
     overrides: [
+      if (now != null) clockSourceProvider.overrideWithValue(now),
+      if (times != null)
+        timesProvider('test').overrideWith((ref) async => times),
       sharedPrefsProvider.overrideWithValue(prefs),
       notificationServiceProvider.overrideWithValue(notifications),
       bgMusicServiceProvider.overrideWith((ref) {
@@ -170,6 +195,23 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
             if (call.method == 'cancelAll') scheduled.clear();
+            if (call.method == 'pendingNotificationRequests') {
+              return scheduled
+                  .map(
+                    (e) => {
+                      'id': e['id'],
+                      'title': '',
+                      'body': '',
+                      'payload': e['payload'],
+                    },
+                  )
+                  .toList();
+            }
+            if (call.method == 'cancel') {
+              scheduled.removeWhere(
+                (e) => e['id'] == (call.arguments as Map)['id'],
+              );
+            }
             if (call.method == 'zonedSchedule') {
               scheduled.add(call.arguments as Map);
             }
@@ -213,6 +255,32 @@ void main() {
         preNotifications: {10: true},
       );
       await service.scheduleAlarms(times, settings);
+      final fajr = scheduled.firstWhere(
+        (e) => e['id'] == prayerNotificationId(tomorrow, 0),
+      );
+      expect(DateTime.parse(fajr['scheduledDateTime']).minute, 30);
+      expect(
+        DateTime.parse(fajr['scheduledDateTime']),
+        DateTime.parse(
+          tz.TZDateTime.from(
+            DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 5, 30),
+            tz.local,
+          ).toIso8601String().replaceAll('Z', ''),
+        ),
+      );
+      final env = await setup();
+      final controller = env.container.read(alertSettingsProvider.notifier);
+      expect(env.container.read(alertSettingsProvider).fajrDelayMinutes, 30);
+      await controller.setFajrDelayMinutes(0, times);
+      env.container.invalidate(alertSettingsProvider);
+      expect(env.container.read(alertSettingsProvider).fajrDelayMinutes, 0);
+      await expectLater(
+        env.container
+            .read(alertSettingsProvider.notifier)
+            .setFajrDelayMinutes(90, times),
+        throwsArgumentError,
+      );
+      expect(env.container.read(alertSettingsProvider).fajrDelayMinutes, 0);
       expect(scheduled.length, 18);
       final ids = scheduled.map((e) => e['id']).toSet();
       expect(ids.length, 18);
@@ -231,6 +299,20 @@ void main() {
         const Duration(minutes: 10),
       );
       await service.scheduleAlarms(times, settings);
+      expect(scheduled.map((e) => e['id']).toSet(), ids);
+      await service.setAdhanPlaybackActive(true);
+      expect(scheduled.length, 10); // only the five adhans per day remain
+      await service.scheduleAlarms(times, settings);
+      expect(
+        scheduled.length,
+        10,
+      ); // settings refresh cannot reintroduce reminders
+      await service.showPrePrayerNotification(
+        'Öğle',
+        10,
+        'assets/reminder.mp3',
+      );
+      await service.setAdhanPlaybackActive(false);
       expect(scheduled.map((e) => e['id']).toSet(), ids);
     },
   );
@@ -386,6 +468,104 @@ void main() {
     expect(env.player.isPlaying, isFalse);
     expect(audio.previewKey.value, isNull);
   });
+
+  testWidgets('watcher delays fajr, resumes and triggers again next day', (
+    tester,
+  ) async {
+    var now = DateTime(2026, 9, 11, 4, 58);
+    final env = await setup(
+      now: () => now,
+      times: [TestPrayerDay(now), TestPrayerDay(DateTime(2026, 9, 12))],
+    );
+    await env.container
+        .read(prefsRepositoryProvider)
+        .addRecentLocation(
+          SavedLocation(
+            ulke: Ulke(ulkeAdi: 'Test', ulkeAdiEn: 'Test', ulkeId: 'test'),
+            sehir: Sehir(sehirAdi: 'Test', sehirAdiEn: 'Test', sehirId: 'test'),
+            ilce: Ilce(ilceAdi: 'Test', ilceAdiEn: 'Test', ilceId: 'test'),
+          ),
+        );
+    await env.container
+        .read(alertSettingsProvider.notifier)
+        .togglePrayerAlarm('İmsak', true);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: env.container,
+        child: MaterialApp(
+          navigatorKey: rootNavigatorKey,
+          home: const PrayerAlarmWatcher(child: Scaffold(body: Text('Home'))),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(AlarmPage), findsNothing);
+    for (var day = 11; day <= 12; day++) {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      now = DateTime(2026, 9, day, 5, 28);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlarmPage), findsOneWidget);
+      expect(env.player.played.length, day - 10);
+      env.player.states.add(ProcessingState.completed);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlarmPage), findsNothing);
+      now = DateTime(2026, 9, day, 6, 55);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(AlarmPage), findsNothing);
+    }
+    await env.container.read(alertSettingsProvider.notifier)
+        .setFajrDelayMinutes(116, [TestPrayerDay(now)]);
+    await env.container.read(sharedPrefsProvider).remove(PrayerEventStore.key);
+    now = DateTime(2026, 9, 12, 6, 55);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlarmPage), findsNothing);
+    expect(env.player.played.length, 2);
+    expect(env.notifications.schedules, greaterThan(1));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets(
+    'two consecutive days play despite stale completed player state',
+    (tester) async {
+      var now = DateTime(2026, 9, 11, 13);
+      final env = await setup(now: () => now);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: env.container,
+          child: MaterialApp(
+            navigatorKey: rootNavigatorKey,
+            home: const Scaffold(body: Text('Home')),
+          ),
+        ),
+      );
+      final coordinator = env.container.read(prayerAlarmCoordinatorProvider);
+      for (var day = 11; day <= 12; day++) {
+        now = DateTime(2026, 9, day, 13);
+        env.player.staleCompletion = day == 12;
+        final finished = coordinator.triggerPrayerTime(prayerName: 'Öğle');
+        await tester.pumpAndSettle();
+        expect(find.byType(AlarmPage), findsOneWidget);
+        await coordinator.triggerPrayerTime(prayerName: 'Öğle');
+        expect(env.player.played.length, day - 10);
+        env.player.states.add(ProcessingState.completed);
+        await tester.pumpAndSettle();
+        await finished;
+        await coordinator.triggerPrayerTime(prayerName: 'Öğle');
+        await tester.pumpAndSettle();
+        expect(find.byType(AlarmPage), findsNothing);
+      }
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 
   for (final complete in [false, true]) {
     testWidgets(

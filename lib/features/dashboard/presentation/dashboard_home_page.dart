@@ -1,741 +1,303 @@
-import 'dart:async';
-
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../theme.dart';
-import '../../daily_content/data/daily_content_repository.dart';
-import '../../daily_content/data/models.dart';
-import '../../daily_content/presentation/content_card.dart';
-import '../../daily_content/presentation/daily_content_page.dart';
-import '../../favorites/data/models.dart';
+import '../../../core/live_clock.dart';
 import '../../locations/data/models.dart';
+import '../../locations/presentation/country_page.dart';
 import '../../settings/data/prefs_repository.dart';
-import '../../settings/presentation/content_visibility_controller.dart';
 import '../../times/presentation/slayt_widget.dart';
 import '../../times/presentation/time_utils.dart';
 import '../../times/presentation/times_page.dart' show timesProvider;
-import 'date_navigator.dart';
-import 'selected_date_provider.dart';
+import 'date_format.dart';
 
-const _wideBreakpoint = 840.0;
+const calendarBackground = Color(0xFFEEEFEF);
+const calendarCream = Color(0xFFF7F0E1);
+const calendarGold = Color(0xFFB38B42);
+const calendarInk = Color(0xFF242B30);
+const _muted = Color(0xFF62635E);
 
-/// Ana Sayfa. Kasıtlı olarak sade tutulur: yalnızca konum, tarih/hicri
-/// tarih, hero/slayt alanı, namaz vakitleri, sonraki namaza geri sayım ve
-/// dört günlük içerik kartı (+ paylaş butonları) bulunur. Tema, bildirim,
-/// hesaplama yöntemi gibi hiçbir ayar kontrolü burada gösterilmez — hepsi
-/// Ayarlar sayfasındadır (`settings_hub_page.dart`).
+/// The home screen always shows today's live schedule, independently of the
+/// date being browsed on the separate prayer-times / daily-content pages.
 class DashboardHomePage extends ConsumerWidget {
-  const DashboardHomePage({super.key});
+  const DashboardHomePage({super.key, this.location});
+  final SavedLocation? location;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDate = ref.watch(selectedDateProvider);
-    final recentLocations =
-        ref.watch(prefsRepositoryProvider).getRecentLocations();
-    final lastLocation =
-        recentLocations.isNotEmpty ? recentLocations.first : null;
-    final bundle = ref.watch(dailyContentForDateProvider(selectedDate));
-    final visibility = ref.watch(contentVisibilityProvider);
+    final now = ref.watch(liveClockProvider);
+    final recent = ref.watch(prefsRepositoryProvider).getRecentLocations();
+    final selected = location ?? (recent.isEmpty ? null : recent.first);
+    final result = selected == null ? null : ref.watch(timesProvider(selected.ilce.ilceId));
+    final list = result?.valueOrNull;
+    final today = list == null ? null : findVakitForDate(list, now);
+    final tomorrow = list == null ? null : findVakitForDate(list,
+        DateTime(now.year, now.month, now.day + 1));
+    final next = today == null ? null : nextPrayerInfo(today, now, tomorrow: tomorrow);
+    final unavailable = selected == null ? 'Vakitler için şehir seçin'
+        : result?.hasError == true ? 'Vakitler alınamadı. Yeniden denenecek.'
+        : 'Güncel vakitler yükleniyor';
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide =
-            constraints.maxWidth >= _wideBreakpoint &&
-            constraints.maxHeight >= 500;
-        final isLandscape =
-            MediaQuery.of(context).orientation == Orientation.landscape;
-
-        if (!wide && isLandscape && constraints.maxHeight < 500) {
-          return _LandscapeCompactLayout(
-            ilceId: lastLocation?.ilce.ilceId,
-            ilceAdi: lastLocation?.ilce.ilceAdi,
-            date: selectedDate,
+    return ColoredBox(
+      color: calendarBackground,
+      child: LayoutBuilder(builder: (context, constraints) {
+        final landscape = constraints.maxWidth > constraints.maxHeight;
+        final gap = (constraints.maxWidth * .012).clamp(10.0, 24.0);
+        final stripHeight = (constraints.maxHeight * .155).clamp(76.0, 154.0);
+        final city = _CityCard(location: selected, today: today, now: now);
+        final countdown = _CountdownCard(next: next, now: now, unavailable: unavailable);
+        final strip = PrayerTimeStrip(today: today, now: now);
+        final slide = ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: const SlaytWidget(
+            key: ValueKey('home-slideshow'),
+            height: 0,
+            showFullscreenButton: false,
+            backgroundColor: Color(0xFFE3E1DA),
+          ),
+        );
+        if (landscape) {
+          return Padding(
+            padding: EdgeInsets.all(gap),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Expanded(flex: 3, child: Column(children: [
+                Expanded(child: slide),
+                SizedBox(height: gap),
+                SizedBox(height: stripHeight, child: strip),
+              ])),
+              SizedBox(width: gap),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Expanded(flex: 34, child: city),
+                SizedBox(height: gap),
+                Expanded(flex: 66, child: countdown),
+                SizedBox(height: gap),
+                const _HomeMenuButton(),
+              ])),
+            ]),
           );
         }
-
-        final mainContent = _MainColumn(
-          lastLocationLabel:
-              lastLocation == null
-                  ? null
-                  : '${lastLocation.ilce.ilceAdi}, ${lastLocation.sehir.sehirAdi}',
-          bundle: bundle,
-          visibility: visibility,
-          inlineCountdown:
-              wide
-                  ? null
-                  : lastLocation == null
-                  ? const _NoLocationPanel()
-                  : _SidePanel(
-                    ilceId: lastLocation.ilce.ilceId,
-                    ilceAdi: lastLocation.ilce.ilceAdi,
-                    date: selectedDate,
-                    showTimes: false,
-                    showDetails: false,
-                  ),
-        );
-
-        final sidePanel =
-            lastLocation == null
-                ? const _NoLocationPanel()
-                : _SidePanel(
-                  ilceId: lastLocation.ilce.ilceId,
-                  ilceAdi: lastLocation.ilce.ilceAdi,
-                  date: selectedDate,
-                  showCountdown: wide,
-                );
-
-        if (!wide) {
-          return ListView(
-            padding: const EdgeInsets.all(12),
-            children: [
-              mainContent,
-              if (lastLocation != null) ...[
-                const SizedBox(height: 12),
-                sidePanel,
-              ],
-            ],
-          );
-        }
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [mainContent],
-              ),
-            ),
-            SizedBox(
-              width: 320,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
-                children: [sidePanel],
-              ),
-            ),
-          ],
-        );
-      },
+        // Phone/portrait fallback keeps the same content and drawer access.
+        return ListView(padding: EdgeInsets.all(gap), children: [
+          SizedBox(height: 215, child: city),
+          SizedBox(height: gap),
+          SizedBox(height: constraints.maxWidth * .72, child: slide),
+          SizedBox(height: gap),
+          SizedBox(height: 88, child: strip),
+          SizedBox(height: gap),
+          SizedBox(height: 270, child: countdown),
+          SizedBox(height: gap),
+          const _HomeMenuButton(),
+        ]);
+      }),
     );
   }
 }
 
-class _LocationLabel extends StatelessWidget {
-  final String? label;
-
-  const _LocationLabel({required this.label});
+class _CityCard extends StatelessWidget {
+  const _CityCard({required this.location, required this.today, required this.now});
+  final SavedLocation? location;
+  final Vakit? today;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.location_on_outlined, size: 18),
-        const SizedBox(width: 6),
-        Flexible(
-          child: Text(
-            label ?? 'Konum seçilmedi',
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
+    return _Surface(
+      key: const ValueKey('home-city-card'),
+      color: calendarCream,
+      child: LayoutBuilder(builder: (context, c) {
+        final size = (c.maxWidth * .095).clamp(18.0, 44.0);
+        return Center(child: FittedBox(fit: BoxFit.scaleDown,
+          child: SizedBox(width: c.maxWidth, child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.mosque_outlined, color: calendarGold, size: size * 1.05),
+            const SizedBox(height: 8),
+            Text('NURANÎ TAKVİM', style: TextStyle(color: _muted,
+                fontSize: size * .43, letterSpacing: 2.0, fontWeight: FontWeight.w700)),
+            SizedBox(height: size * .45),
+            Text(location?.ilce.ilceAdi ?? 'Şehir seçin', textAlign: TextAlign.center,
+                style: TextStyle(color: calendarInk, fontSize: size,
+                    height: 1.1, fontWeight: FontWeight.w800)),
+            SizedBox(height: size * .4),
+            Text('${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
+                textAlign: TextAlign.center, style: TextStyle(color: calendarInk,
+                    fontSize: size * .65, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(gunAdlari[now.weekday - 1], style: TextStyle(
+                color: _muted, fontSize: size * .57)),
+            SizedBox(height: size * .35),
+            Container(width: 44, height: 2, color: calendarGold),
+            SizedBox(height: size * .35),
+            Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
+                : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
+                style: TextStyle(color: calendarInk, fontSize: size * .57,
+                    fontWeight: FontWeight.w500)),
+            if (location == null) TextButton(onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const CountryPage())),
+                child: const Text('Konum seç')),
+          ])),
+        ));
+      }),
     );
   }
 }
 
-class _MainColumn extends StatelessWidget {
-  final String? lastLocationLabel;
-  final DailyContentBundle? bundle;
-  final ContentVisibility visibility;
-  final Widget? inlineCountdown;
-
-  const _MainColumn({
-    required this.lastLocationLabel,
-    required this.bundle,
-    required this.visibility,
-    this.inlineCountdown,
-  });
+class _CountdownCard extends StatelessWidget {
+  const _CountdownCard({required this.next, required this.now, required this.unavailable});
+  final ({String name, DateTime time})? next;
+  final DateTime now;
+  final String unavailable;
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
+    return _Surface(
+      key: const ValueKey('home-countdown'),
+      color: Colors.white,
+      child: LayoutBuilder(builder: (context, bounds) {
+        final c = BoxConstraints.tightFor(
+          width: math.min(bounds.maxWidth, bounds.maxHeight * 1.15),
+          height: math.max(bounds.maxHeight, 300),
+        );
+        final titleSize = (c.maxWidth * .095).clamp(18.0, 42.0);
+        final clockSize = (c.maxWidth * .09).clamp(18.0, 36.0);
+        final remaining = next?.time.difference(now);
+        final value = remaining == null ? '--:--:--' : _formatRemaining(remaining);
+        return Center(child: FittedBox(fit: BoxFit.scaleDown,
+          child: SizedBox(width: c.maxWidth, height: c.maxHeight,
+            child: Column(children: [
+          const Spacer(flex: 2),
+          Icon(Icons.schedule_rounded, color: calendarGold,
+              size: (c.maxHeight * .11).clamp(26.0, 58.0)),
+          const Spacer(),
+          Text(next == null ? unavailable : next!.name == 'Güneş'
+              ? 'Güneşin Doğmasına' : '${next!.name} Vaktine',
+              key: const ValueKey('countdown-target'), textAlign: TextAlign.center,
+              style: TextStyle(color: calendarInk, fontSize: titleSize,
+                  height: 1.15, fontWeight: FontWeight.w700)),
+          SizedBox(height: (c.maxHeight * .035).clamp(6.0, 24.0)),
+          StableCountdownDigits(value: value),
+          const SizedBox(height: 8),
+          Text('KALAN SÜRE', style: TextStyle(color: _muted,
+              letterSpacing: 2, fontSize: (c.maxWidth * .044).clamp(10.0, 18.0),
+              fontWeight: FontWeight.w600)),
+          const Spacer(flex: 2),
+          Container(height: 1, color: const Color(0xFFE7E4DC)),
+          const Spacer(),
+          Text('${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}',
+              key: const ValueKey('home-live-clock'),
+              style: TextStyle(color: _muted, fontSize: clockSize,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                  fontWeight: FontWeight.w500)),
+          const Spacer(),
+        ]))));
+      }),
+    );
+  }
+}
 
-    final cards = <_NamedCard>[
-      if (visibility.showAyet && bundle != null)
-        _NamedCard(
-          'ayet',
-          ContentCard(
-            icon: Icons.menu_book_outlined,
-            title: 'Günün Âyeti',
-            body: '"${bundle!.ayet.meal}"',
-            sourceLine:
-                '${bundle!.ayet.sureAdi} Sûresi, ${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
-            shareText: shareTextForAyet(bundle!),
-            isSampleData: bundle!.ayet.isSampleData,
-            backgroundColor: dashboardCardGreen(brightness),
-            favoriteType: FavoriteType.ayet,
-            favoriteRefId: 'ayet:${bundle!.ayet.sureNo}:${bundle!.ayet.ayetNo}',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
-                ),
-          ),
-        ),
-      if (visibility.showHadith && bundle != null)
-        _NamedCard(
-          'hadith',
-          ContentCard(
-            icon: Icons.eco_outlined,
-            title: 'Günün Hadisi',
-            body: bundle!.hadith.metin,
-            sourceLine: bundle!.hadith.kaynak,
-            shareText: shareTextForHadith(bundle!),
-            isSampleData: bundle!.hadith.isSampleData,
-            verified: bundle!.hadith.verified,
-            backgroundColor: dashboardCardGreen(brightness),
-            favoriteType: FavoriteType.hadith,
-            favoriteRefId: 'hadith:${bundle!.hadith.metin.hashCode}',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
-                ),
-          ),
-        ),
-      if (visibility.showEvent && bundle != null)
-        _NamedCard(
-          'event',
-          bundle!.tarihiOlay != null
-              ? ContentCard(
-                icon: Icons.history_edu_outlined,
-                title: 'Tarihte Bugün',
-                body:
-                    '${bundle!.tarihiOlay!.yil ?? ''} — ${bundle!.tarihiOlay!.baslik}',
-                sourceLine: bundle!.tarihiOlay!.kaynak,
-                shareText: shareTextForEvent(bundle!),
-                isSampleData: bundle!.tarihiOlay!.isSampleData,
-                backgroundColor: dashboardCardGold(brightness),
-                favoriteType: FavoriteType.event,
-                favoriteRefId:
-                    'event:${bundle!.tarihiOlay!.ay}-${bundle!.tarihiOlay!.gun}',
-                onTap:
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DailyContentPage(),
-                      ),
-                    ),
-              )
-              : _EmptyEventCard(brightness: brightness),
-        ),
-    ];
+/// Each digit owns an equal, fixed slot. Font fallback and proportional glyphs
+/// cannot move the neighbouring digits when a second changes.
+class StableCountdownDigits extends StatelessWidget {
+  const StableCountdownDigits({super.key, required this.value});
+  final String value;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _LocationLabel(label: lastLocationLabel),
-        const SizedBox(height: 10),
-        const DateNavigatorBar(),
-        const SizedBox(height: 12),
-        LayoutBuilder(
-          builder:
-              (context, constraints) => ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SlaytWidget(
-                  height: (constraints.maxWidth * 9 / 16).clamp(180.0, 320.0),
-                  userImages: const [],
-                ),
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(label: value, child: ExcludeSemantics(
+      child: LayoutBuilder(builder: (context, c) {
+        final fontSize = c.maxWidth / 4.8;
+        return SizedBox(height: fontSize * 1.3, child: Row(
+          key: const ValueKey('countdown-digits'),
+          children: List.generate(value.length, (i) => Expanded(
+            flex: value[i] == ':' ? 5 : 10,
+            child: Center(child: FittedBox(fit: BoxFit.scaleDown,
+              child: Text(value[i], key: ValueKey('countdown-digit-$i'),
+                style: TextStyle(color: calendarInk, fontSize: fontSize,
+                    fontFamily: 'monospace', fontFeatures: const [FontFeature.tabularFigures()],
+                    height: 1.05, fontWeight: FontWeight.w900)),
+            )),
+          )),
+        ));
+      }),
+    ));
+  }
+}
+
+class PrayerTimeStrip extends StatelessWidget {
+  const PrayerTimeStrip({super.key, required this.today, required this.now});
+  final Vakit? today;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = today == null ? null : currentPrayerName(today!, now);
+    final entries = today == null
+        ? [for (final name in ['İmsak', 'Güneş', 'Öğle', 'İkindi', 'Akşam', 'Yatsı']) (name, '--:--')]
+        : prayerTimeEntries(today!);
+    return LayoutBuilder(builder: (context, c) {
+      final nameSize = (c.maxWidth / 44).clamp(12.0, 31.0);
+      final timeSize = (c.maxWidth / 30).clamp(17.0, 46.0);
+      return Row(key: const ValueKey('home-prayer-strip'), children: [
+        for (var i = 0; i < entries.length; i++) ...[
+          if (i > 0) SizedBox(width: (c.maxWidth * .009).clamp(4.0, 14.0)),
+          Expanded(child: Semantics(selected: entries[i].$1 == active,
+            child: Container(
+              key: ValueKey('prayer-cell-${entries[i].$1}'),
+              decoration: BoxDecoration(
+                color: entries[i].$1 == active ? const Color(0xFFF4E6C5) : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: entries[i].$1 == active ? calendarGold
+                    : const Color(0xFFE1E2DF), width: entries[i].$1 == active ? 3 : 1),
               ),
-        ),
-        const SizedBox(height: 12),
-        if (inlineCountdown != null) ...[
-          KeyedSubtree(
-            key: const ValueKey('home-countdown'),
-            child: inlineCountdown!,
-          ),
-          const SizedBox(height: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+                  child: Text(entries[i].$1, style: TextStyle(color: calendarInk,
+                      fontSize: nameSize, fontWeight: entries[i].$1 == active
+                          ? FontWeight.w800 : FontWeight.w500)))),
+                const SizedBox(height: 5),
+                Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+                  child: Text(entries[i].$2, style: TextStyle(color: calendarInk,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontSize: timeSize, height: 1.15, fontWeight: FontWeight.w800)))),
+              ]),
+            ),
+          )),
         ],
-        if (bundle == null)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 40),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (cards.isNotEmpty)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns = (constraints.maxWidth / 320).floor().clamp(1, 3);
-              final cardWidth =
-                  (constraints.maxWidth - (columns - 1) * 10) / columns;
-              return Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final c in cards)
-                    SizedBox(width: cardWidth, child: c.card),
-                ],
-              );
-            },
-          ),
-        if (bundle != null && visibility.showSoz) ...[
-          const SizedBox(height: 10),
-          ContentCard(
-            icon: Icons.format_quote_outlined,
-            title: 'Günün Sözü',
-            body: '"${bundle!.soz.soz}"',
-            sourceLine: [
-              bundle!.soz.yazar,
-              if (bundle!.soz.eser != null) bundle!.soz.eser!,
-            ].join(' — '),
-            shareText: shareTextForSoz(bundle!),
-            isSampleData: bundle!.soz.isSampleData,
-            verified: bundle!.soz.verified,
-            backgroundColor: dashboardCardGreen(brightness),
-            favoriteType: FavoriteType.soz,
-            favoriteRefId: 'soz:${bundle!.soz.soz.hashCode}',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DailyContentPage()),
-                ),
-          ),
-        ],
-      ],
-    );
+      ]);
+    });
   }
 }
 
-class _NamedCard {
-  final String name;
-  final Widget card;
-  const _NamedCard(this.name, this.card);
-}
-
-String shareTextForAyet(DailyContentBundle b) =>
-    '📖 Günün Âyeti\n\n"${b.ayet.meal}"\n\n(${b.ayet.sureAdi} Sûresi, ${b.ayet.sureNo}:${b.ayet.ayetNo})\n\nEzan Vakti uygulamasından paylaşıldı.';
-
-String shareTextForHadith(DailyContentBundle b) =>
-    '🌿 Günün Hadisi\n\n"${b.hadith.metin}"\n\n(${b.hadith.kaynak})\n\nEzan Vakti uygulamasından paylaşıldı.';
-
-String shareTextForEvent(DailyContentBundle b) =>
-    b.tarihiOlay == null
-        ? ''
-        : '📜 Tarihte Bugün\n\n${b.tarihiOlay!.yil ?? ''} — ${b.tarihiOlay!.baslik}\n${b.tarihiOlay!.aciklama}\n\nEzan Vakti uygulamasından paylaşıldı.';
-
-String shareTextForSoz(DailyContentBundle b) =>
-    '💬 Günün Sözü\n\n"${b.soz.soz}"\n\n— ${b.soz.yazar}${b.soz.eser != null ? ', ${b.soz.eser}' : ''}\n\nEzan Vakti uygulamasından paylaşıldı.';
-
-class _EmptyEventCard extends StatelessWidget {
-  final Brightness brightness;
-
-  const _EmptyEventCard({required this.brightness});
-
+class _Surface extends StatelessWidget {
+  const _Surface({super.key, required this.color, required this.child});
+  final Color color;
+  final Widget child;
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: dashboardCardGold(brightness),
-      child: const Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.history_edu_outlined),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Bu tarih için kayıtlı bir tarihî olay henüz eklenmedi.',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) => Container(
+    padding: EdgeInsets.all((c.maxWidth * .055).clamp(12.0, 26.0)),
+    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: const Color(0xFFE0DDD5)),
+      boxShadow: const [BoxShadow(color: Color(0x09000000), blurRadius: 16, offset: Offset(0, 4))]),
+    child: child,
+  ));
 }
 
-class _NoLocationPanel extends StatelessWidget {
-  const _NoLocationPanel();
-
+class _HomeMenuButton extends StatelessWidget {
+  const _HomeMenuButton();
   @override
-  Widget build(BuildContext context) {
-    return const Card(
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Text(
-          'Namaz vakitlerini görmek için Ayarlar > Konum bölümünden bir konum seçin.',
-        ),
-      ),
-    );
-  }
-}
-
-/// Tarih/hicri tarih, sonraki namaza geri sayım ve namaz vakitleri
-/// listesi — hiçbir ayar/kısayol butonu içermez.
-class _SidePanel extends ConsumerWidget {
-  final String ilceId;
-  final String ilceAdi;
-  final DateTime date;
-  final bool showTimes;
-  final bool showDetails;
-  final bool showCountdown;
-
-  const _SidePanel({
-    required this.ilceId,
-    required this.ilceAdi,
-    required this.date,
-    this.showTimes = true,
-    this.showDetails = true,
-    this.showCountdown = true,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncTimes = ref.watch(timesProvider(ilceId));
-    final brightness = Theme.of(context).brightness;
-
-    return asyncTimes.when(
-      loading:
-          () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
-            ),
-          ),
-      error: (e, _) => Text('Namaz vakitleri alınamadı: $e'),
-      data: (list) {
-        final vakit = findVakitForDate(list, date);
-        if (vakit == null) {
-          return const Text('Bu tarih için namaz vakti verisi bulunamadı.');
-        }
-        final now = phoneLocalNow();
-        final activeName = currentPrayerName(vakit, now);
-
-        final times = prayerTimeEntries(vakit);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (showDetails)
-              Card(
-                color: dashboardCardGold(brightness),
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    children: [
-                      Text(
-                        ilceAdi.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        vakit.miladiTarihUzun,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Text(
-                        vakit.hicriTarihUzun,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            if (showDetails && showCountdown) const SizedBox(height: 10),
-            if (showCountdown)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: _LivePrayerCountdown(list: list),
-                ),
-              ),
-            if (showTimes) ...[
-              const SizedBox(height: 10),
-              ...times.map(
-                (t) => Card(
-                  color:
-                      t.$1 == activeName
-                          ? dashboardAccentGreen.withValues(alpha: 0.15)
-                          : null,
-                  child: ListTile(
-                    dense: true,
-                    title: Text(
-                      t.$1,
-                      style: TextStyle(
-                        fontWeight:
-                            t.$1 == activeName
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                      ),
-                    ),
-                    trailing: Text(
-                      t.$2,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => SizedBox(height: 54, child: FilledButton.icon(
+    key: const ValueKey('home-menu-button'),
+    onPressed: () => Scaffold.of(context).openDrawer(),
+    style: FilledButton.styleFrom(backgroundColor: calendarInk, foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
+    icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
+    label: const Text('Menü'),
+  ));
 }
 
 List<(String, String)> prayerTimeEntries(Vakit vakit) => [
-  ('İmsak', vakit.imsak),
-  ('Güneş', vakit.gunes),
-  ('Öğle', vakit.ogle),
-  ('İkindi', vakit.ikindi),
-  ('Akşam', vakit.aksam),
-  ('Yatsı', vakit.yatsi),
+  ('İmsak', vakit.imsak), ('Güneş', vakit.gunes), ('Öğle', vakit.ogle),
+  ('İkindi', vakit.ikindi), ('Akşam', vakit.aksam), ('Yatsı', vakit.yatsi),
 ];
-
-String _formatRemaining(Duration d) {
-  if (d.isNegative) return '00:00:00';
-  String two(int n) => n.toString().padLeft(2, '0');
-  return '${two(d.inHours)}:${two(d.inMinutes.remainder(60))}:${two(d.inSeconds.remainder(60))}';
-}
-
-class _LivePrayerCountdown extends StatefulWidget {
-  final List<Vakit> list;
-
-  const _LivePrayerCountdown({required this.list});
-
-  @override
-  State<_LivePrayerCountdown> createState() => _LivePrayerCountdownState();
-}
-
-class _LivePrayerCountdownState extends State<_LivePrayerCountdown> {
-  late DateTime _now;
-  late Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _now = phoneLocalNow();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        setState(() => _now = phoneLocalNow());
-      }
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant _LivePrayerCountdown oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.list != widget.list) {
-      _now = phoneLocalNow();
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final today = findVakitForDate(widget.list, _now);
-    if (today == null) {
-      return const Text('Bugün için namaz vakti verisi bulunamadı.');
-    }
-
-    final tomorrow = findVakitForDate(
-      widget.list,
-      _now.add(const Duration(days: 1)),
-    );
-    final next = nextPrayerInfo(today, _now, tomorrow: tomorrow);
-
-    return Column(
-      children: [
-        Text(
-          '${next.name} Vaktine',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 42,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              _formatRemaining(next.time.difference(_now)),
-              maxLines: 1,
-              softWrap: false,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'monospace',
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Image.network(
-          today.ayinSekliURL,
-          height: 44,
-          errorBuilder:
-              (_, __, ___) => const Icon(Icons.brightness_3, size: 40),
-        ),
-      ],
-    );
-  }
-}
-
-/// Telefon yatay (landscape) modunda kompakt Ana Sayfa: slayt + vakit
-/// şeridi ortada, sağda dar bir panel (tarih/hicri + geri sayım + namaz
-/// vakitleri). Hiçbir ayar butonu göstermez.
-class _LandscapeCompactLayout extends ConsumerWidget {
-  final String? ilceId;
-  final String? ilceAdi;
-  final DateTime date;
-
-  const _LandscapeCompactLayout({
-    required this.ilceId,
-    required this.ilceAdi,
-    required this.date,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: const SlaytWidget(
-                      height: double.infinity,
-                      userImages: [],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 1,
-                  child:
-                      ilceId == null
-                          ? const _NoLocationPanel()
-                          : SingleChildScrollView(
-                            child: _SidePanel(
-                              ilceId: ilceId!,
-                              ilceAdi: ilceAdi!,
-                              date: date,
-                              showTimes: false,
-                            ),
-                          ),
-                ),
-              ],
-            ),
-          ),
-          if (ilceId != null) ...[
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.only(right: 58),
-              child: _LandscapePrayerTimesStrip(ilceId: ilceId!, date: date),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _LandscapePrayerTimesStrip extends ConsumerWidget {
-  final String ilceId;
-  final DateTime date;
-
-  const _LandscapePrayerTimesStrip({required this.ilceId, required this.date});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncTimes = ref.watch(timesProvider(ilceId));
-
-    return asyncTimes.when(
-      loading:
-          () => const SizedBox(
-            height: 42,
-            child: Center(child: LinearProgressIndicator()),
-          ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (list) {
-        final vakit = findVakitForDate(list, date);
-        if (vakit == null) return const SizedBox.shrink();
-
-        final now = phoneLocalNow();
-        final activeName = currentPrayerName(vakit, now);
-
-        return SizedBox(
-          height: 42,
-          child: Row(
-            children:
-                prayerTimeEntries(vakit).map((entry) {
-                  final isActive = entry.$1 == activeName;
-                  return Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isActive
-                                ? dashboardAccentGreen.withValues(alpha: 0.18)
-                                : Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color:
-                              isActive ? dashboardAccentGold : Colors.black12,
-                        ),
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              entry.$1,
-                              style: TextStyle(
-                                fontWeight:
-                                    isActive
-                                        ? FontWeight.bold
-                                        : FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              entry.$2,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-          ),
-        );
-      },
-    );
-  }
-}
+String _two(int n) => n.toString().padLeft(2, '0');
+String _formatRemaining(Duration d) => d.isNegative ? '00:00:00'
+    : '${_two(d.inHours)}:${_two(d.inMinutes.remainder(60))}:${_two(d.inSeconds.remainder(60))}';

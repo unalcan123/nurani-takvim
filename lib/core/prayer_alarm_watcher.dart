@@ -11,6 +11,7 @@ import '../features/times/presentation/time_utils.dart';
 import '../features/times/presentation/times_page.dart' show timesProvider;
 import 'prayer_alarm_coordinator.dart';
 import 'notification_service.dart';
+import 'live_clock.dart';
 
 const List<String> _alarmPrayerNames = [
   'İmsak',
@@ -25,7 +26,6 @@ const List<String> _alarmPrayerNames = [
 // bu pencereye saniyeler içinde girilir; web'de arka plan sekmesi kısılması
 // (throttling) gibi durumlara karşı biraz pay bırakır.
 const Duration _arrivalGraceWindow = Duration(seconds: 90);
-const Duration _alarmCooldown = Duration(seconds: 20);
 const String _triggeredEventsPrefsKey = 'prayer_alarm_triggered_events_v1';
 
 /// Uygulama açıkken — hangi ekranda olursa olsun (Ana Sayfa, TV modu,
@@ -61,7 +61,6 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
   Timer? _timer;
   List<Vakit>? _list;
   String? _ilceId;
-  bool _isCoolingDown = false;
   bool _triggeredLoaded = false;
 
   String _scheduledDayKey = '';
@@ -87,6 +86,7 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _scheduledDayKey = '';
+      if (_ilceId != null) ref.invalidate(timesProvider(_ilceId!));
       _tick();
     }
   }
@@ -96,8 +96,9 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
 
   Future<void> _loadTriggeredState() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final raw = prefs.getString(_triggeredEventsPrefsKey);
-    final todayKey = _dayKeyFor(phoneLocalNow());
+    final todayKey = _dayKeyFor(ref.read(clockSourceProvider)());
     if (raw != null) {
       final parts = raw.split('|');
       if (parts.isNotEmpty && parts.first == todayKey) {
@@ -132,33 +133,6 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
     unawaited(_persistTriggeredState());
   }
 
-  DateTime _parseTime(String timeStr, DateTime date) {
-    final parts = timeStr.split(':');
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-      int.parse(parts[0]),
-      int.parse(parts[1]),
-    );
-  }
-
-  String? _timeStrFor(Vakit v, String prayerName) {
-    switch (prayerName) {
-      case 'İmsak':
-        return v.imsak;
-      case 'Öğle':
-        return v.ogle;
-      case 'İkindi':
-        return v.ikindi;
-      case 'Akşam':
-        return v.aksam;
-      case 'Yatsı':
-        return v.yatsi;
-    }
-    return null;
-  }
-
   void _tick() {
     if (!_triggeredLoaded || !mounted) return;
     final list = _list;
@@ -170,7 +144,7 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
     // döndürdüğü "HH:mm" değerleri zaten cihazın yerel saat dilimine göre
     // yorumlanır; ekstra bir UTC dönüşümü yapılmaz, aksi halde vakitler
     // yanlış kayar).
-    final now = phoneLocalNow();
+    final now = ref.read(clockSourceProvider)();
     final dayKey = _dayKeyFor(now);
     if (_scheduledDayKey != dayKey) {
       _scheduledDayKey = dayKey;
@@ -187,41 +161,36 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
     final today = findVakitForDate(list, now);
     if (today == null) {
       // Elimizdeki liste bugünü kapsamıyor (ör. ay değişti) — yeniden çek.
-      ref.invalidate(timesProvider(ilceId));
-      return;
+      return; // timesProvider refreshes on day change and retries offline data.
     }
 
     final settings = ref.read(alertSettingsProvider);
     final notificationService = ref.read(notificationServiceProvider);
 
     for (final name in _alarmPrayerNames) {
-      final timeStr = _timeStrFor(today, name);
-      if (timeStr == null) continue;
-      final prayerTime = _parseTime(timeStr, now);
+      final prayerTime = adhanTime(today, now, name, settings.fajrDelayMinutes);
+      if (prayerTime == null) continue;
+      // A late resume must not carry the morning adhan past sunrise.
+      if (name == 'İmsak' && currentPrayerName(today, now) != 'İmsak') {
+        continue;
+      }
       final diff = now.difference(prayerTime);
       if (diff < Duration.zero || diff > _arrivalGraceWindow) continue;
 
-      final key = 'alarm_$name';
-      if (_wasTriggered(dayKey, key)) continue;
       if (!settings.isPrayerEnabled(name)) continue;
-      if (_isCoolingDown) continue;
-
-      _markTriggered(dayKey, key);
-      _isCoolingDown = true;
 
       ref
           .read(prayerAlarmCoordinatorProvider)
           .triggerPrayerTime(prayerName: name, scheduledDate: prayerTime);
 
-      Future.delayed(_alarmCooldown, () {
-        _isCoolingDown = false;
-      });
       break; // aynı tick'te en fazla bir vakit tetiklenir
     }
 
     final tomorrow = findVakitForDate(list, now.add(const Duration(days: 1)));
     final next = nextPrayerInfo(today, now, tomorrow: tomorrow);
-    if (next.name != 'İmsak') {
+    if (next.name != 'İmsak' &&
+        next.name != 'Güneş' &&
+        !notificationService.adhanActive) {
       final remaining = next.time.difference(now);
       for (final minute in preNotificationMinutes) {
         if (!settings.isPreNotificationEnabled(minute)) continue;
@@ -262,7 +231,7 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
           // yeniden planla.
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
-            _scheduledDayKey = _dayKeyFor(phoneLocalNow());
+            _scheduledDayKey = _dayKeyFor(ref.read(clockSourceProvider)());
             ref
                 .read(notificationServiceProvider)
                 .scheduleAlarms(list, ref.read(alertSettingsProvider));

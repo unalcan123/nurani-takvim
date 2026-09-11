@@ -1,4 +1,5 @@
 import 'custom_audio_store.dart';
+import 'ezan_library.dart';
 
 enum PrayerType {
   fajr,
@@ -32,7 +33,8 @@ enum AdhanType {
   makkah,
   madinah,
   world,
-  custom;
+  custom,
+  library;
 
   String get storageValue => name;
 
@@ -47,23 +49,41 @@ class AdhanSettings {
   final String? worldAssetPath;
   final String? customAudioId;
 
+  /// [AdhanType.library] seçiliyken: normal (fecr dışı) dört vakit için
+  /// kullanılan kütüphane kaydının kimliği.
+  final String? libraryEntryId;
+
+  /// [AdhanType.library] seçiliyken: sabah (fecr) vakti için ayrı bir kayıt
+  /// seçildiyse onun kimliği. `null` ise sabah vaktinde de [libraryEntryId]
+  /// çalınır.
+  final String? libraryFajrEntryId;
+
   const AdhanSettings({
     this.type = AdhanType.makkah,
     this.worldAssetPath,
     this.customAudioId,
+    this.libraryEntryId,
+    this.libraryFajrEntryId,
   });
 
   AdhanSettings copyWith({
     AdhanType? type,
     String? worldAssetPath,
     String? customAudioId,
+    String? libraryEntryId,
+    String? libraryFajrEntryId,
     bool clearWorldAssetPath = false,
     bool clearCustomAudioId = false,
+    bool clearLibraryFajrEntryId = false,
   }) {
     return AdhanSettings(
       type: type ?? this.type,
       worldAssetPath: clearWorldAssetPath ? null : (worldAssetPath ?? this.worldAssetPath),
       customAudioId: clearCustomAudioId ? null : (customAudioId ?? this.customAudioId),
+      libraryEntryId: libraryEntryId ?? this.libraryEntryId,
+      libraryFajrEntryId: clearLibraryFajrEntryId
+          ? null
+          : (libraryFajrEntryId ?? this.libraryFajrEntryId),
     );
   }
 }
@@ -102,6 +122,8 @@ Future<AdhanSource> resolveSelectedAdhan({
   required PrayerType prayer,
   required AdhanSettings settings,
   required CustomAudioStore customAudioStore,
+  EzanLibraryService? libraryService,
+  EzanDownloadCache? downloadCache,
 }) async {
   switch (settings.type) {
     case AdhanType.makkah:
@@ -126,6 +148,32 @@ Future<AdhanSource> resolveSelectedAdhan({
         final file = await customAudioStore.get(id);
         if (file != null) {
           return AdhanSource.custom(title: cleanAdhanTitle(file.fileName), file: file);
+        }
+      }
+      return _fallbackSource(prayer);
+    case AdhanType.library:
+      final id = (prayer.isFajr ? settings.libraryFajrEntryId : null) ??
+          settings.libraryEntryId;
+      if (id != null) {
+        final service = libraryService ?? EzanLibraryService();
+        final entry = await service.findById(id);
+        if (entry != null) {
+          if (entry.source == EzanLibrarySource.asset) {
+            return AdhanSource.asset(title: entry.title, path: entry.assetPath!);
+          }
+          final cache = downloadCache ?? EzanDownloadCache();
+          final bytes = await cache.cachedBytes(entry);
+          if (bytes != null) {
+            return AdhanSource.custom(
+              title: entry.title,
+              file: CustomAudioFile(
+                id: entry.id,
+                fileName: '${entry.title}.mp3',
+                bytes: bytes,
+                addedAt: DateTime.now(),
+              ),
+            );
+          }
         }
       }
       return _fallbackSource(prayer);

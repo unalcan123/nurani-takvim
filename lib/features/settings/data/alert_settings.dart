@@ -22,6 +22,7 @@ class AlertSettings {
 
   /// Ezan/bildirim ortak ses seviyesi (0.0 - 1.0).
   final double ezanVolume;
+  final int fajrDelayMinutes;
 
   /// Global ezan seçimi: Mekke, Medine, Dünya ezanı veya kullanıcı dosyası.
   final AdhanSettings adhanSettings;
@@ -40,6 +41,7 @@ class AlertSettings {
     Map<String, bool>? prayerAlarms,
     Map<String, PrayerSoundSetting>? prayerSounds,
     this.ezanVolume = 1.0,
+    this.fajrDelayMinutes = 30,
     this.adhanSettings = const AdhanSettings(),
     Map<int, bool>? preNotifications,
     this.slideDuration = 15,
@@ -48,9 +50,10 @@ class AlertSettings {
     this.userCategories = const {},
     this.bgMusicPaths = const [defaultBgMusicPath],
     this.bgMusicEnabled = false,
-  })  : prayerAlarms = prayerAlarms ?? {for (var v in prayerNames) v: false},
-        prayerSounds = prayerSounds ?? defaultPrayerSounds(),
-        preNotifications = preNotifications ?? {for (var m in preNotificationMinutes) m: false};
+  }) : prayerAlarms = prayerAlarms ?? {for (var v in prayerNames) v: false},
+       prayerSounds = prayerSounds ?? defaultPrayerSounds(),
+       preNotifications =
+           preNotifications ?? {for (var m in preNotificationMinutes) m: false};
 
   bool isPrayerEnabled(String prayerName) {
     return prayerAlarms[prayerName] ?? false;
@@ -68,6 +71,7 @@ class AlertSettings {
     Map<String, bool>? prayerAlarms,
     Map<String, PrayerSoundSetting>? prayerSounds,
     double? ezanVolume,
+    int? fajrDelayMinutes,
     AdhanSettings? adhanSettings,
     Map<int, bool>? preNotifications,
     int? slideDuration,
@@ -81,6 +85,7 @@ class AlertSettings {
       prayerAlarms: prayerAlarms ?? this.prayerAlarms,
       prayerSounds: prayerSounds ?? this.prayerSounds,
       ezanVolume: ezanVolume ?? this.ezanVolume,
+      fajrDelayMinutes: fajrDelayMinutes ?? this.fajrDelayMinutes,
       adhanSettings: adhanSettings ?? this.adhanSettings,
       preNotifications: preNotifications ?? this.preNotifications,
       slideDuration: slideDuration ?? this.slideDuration,

@@ -19,6 +19,7 @@ class AlarmPage extends ConsumerStatefulWidget {
 class _AlarmPageState extends ConsumerState<AlarmPage> {
   late final AudioManager _audio;
   bool _closing = false;
+  bool _playbackStarted = false;
   String? _background;
   StreamSubscription? _playerStateSubscription;
 
@@ -35,7 +36,9 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
     _playerStateSubscription = _audio.player.processingStateStream.listen((
       state,
     ) {
-      if (state == ProcessingState.completed) unawaited(_closePage());
+      if (_playbackStarted && state == ProcessingState.completed) {
+        unawaited(_closePage());
+      }
     });
     _loadBackground();
     _initPlayer();
@@ -61,9 +64,11 @@ class _AlarmPageState extends ConsumerState<AlarmPage> {
 
   Future<void> _initPlayer() async {
     if (_closing) return;
+    _playbackStarted = false;
     setState(() => _playbackBlocked = false);
     try {
       await _audio.playAdhan(widget.nextPrayerName, onError: _onPlaybackError);
+      if (mounted && !_closing && !_playbackBlocked) _playbackStarted = true;
     } catch (e) {
       _onPlaybackError(e);
     }

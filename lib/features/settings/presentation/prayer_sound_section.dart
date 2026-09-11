@@ -7,8 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/audio_manager.dart';
 import '../../../core/notification_service.dart';
 import '../../../core/prayer_alarm_coordinator.dart';
-import '../data/adhan_library.dart';
 import '../data/adhan_settings.dart';
+import '../data/custom_audio_store.dart';
+import '../data/ezan_library.dart';
 import '../data/notification_capabilities.dart';
 import 'alert_settings_controller.dart';
 
@@ -143,14 +144,14 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection>
     }
   }
 
-  Future<void> _openWorldAdhans() async {
-    await _stopPreview();
+  Future<void> _openEzanLibrary() async {
+    // Sahip (owner) eşleşmese bile önceki bir önizlemeyi zorla durdur; aksi
+    // halde eski bir önizleme kilidi takılı kalıp sayfa tepkisiz görünebiliyordu.
+    await audio.stopPreview();
     if (!mounted) return;
-    final selected = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const WorldAdhanPickerPage()),
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const EzanLibraryPickerPage()),
     );
-    if (selected == null) return;
-    await ref.read(alertSettingsProvider.notifier).selectWorldAdhan(selected);
     await _refreshSelectedTitle();
   }
 
@@ -239,16 +240,16 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection>
               ),
               const Divider(height: 1),
               RadioListTile<AdhanType>(
-                secondary: const Icon(Icons.chevron_right),
-                title: const Text('Dünya Ezanları'),
+                secondary: const Icon(Icons.library_music_outlined),
+                title: const Text('Ezan Kütüphanesi'),
                 subtitle: Text(
-                  selectedType == AdhanType.world && _selectedTitle != null
+                  selectedType == AdhanType.library && _selectedTitle != null
                       ? 'Seçili: $_selectedTitle'
-                      : '200+ ezan arasından seç',
+                      : 'Sabah ezanı ayrı seçilebilir · 200+ ses',
                 ),
-                value: AdhanType.world,
+                value: AdhanType.library,
                 groupValue: selectedType,
-                onChanged: (_) => _openWorldAdhans(),
+                onChanged: (_) => _openEzanLibrary(),
               ),
               const Divider(height: 1),
               RadioListTile<AdhanType>(
@@ -307,35 +308,108 @@ class _PrayerSoundSectionState extends ConsumerState<PrayerSoundSection>
   }
 }
 
-class WorldAdhanPickerPage extends ConsumerStatefulWidget {
-  const WorldAdhanPickerPage({super.key});
+class EzanLibraryPickerPage extends ConsumerStatefulWidget {
+  const EzanLibraryPickerPage({super.key});
 
   @override
-  ConsumerState<WorldAdhanPickerPage> createState() =>
-      _WorldAdhanPickerPageState();
+  ConsumerState<EzanLibraryPickerPage> createState() =>
+      _EzanLibraryPickerPageState();
 }
 
-class _WorldAdhanPickerPageState extends ConsumerState<WorldAdhanPickerPage>
-    with _PreviewRoute<WorldAdhanPickerPage> {
-  final _library = AdhanLibraryService();
+class _EzanLibraryPickerPageState extends ConsumerState<EzanLibraryPickerPage>
+    with _PreviewRoute<EzanLibraryPickerPage> {
+  final _libraryService = EzanLibraryService();
+  final _downloadCache = EzanDownloadCache();
   final _searchController = TextEditingController();
-  late Future<List<WorldAdhan>> _future;
+  late Future<EzanLibraryManifest> _future;
   String _query = '';
-  String? get _playingPath => audio.previewKey.value;
+  final Map<String, double> _downloadProgress = {};
+  final Set<String> _cachedIds = {};
+  String? get _playingId => audio.previewKey.value;
 
   @override
   void initState() {
     super.initState();
-    _future = _library.loadWorldAdhans();
+    _future = _loadAndCheckCache();
   }
 
-  Future<void> _togglePreview(WorldAdhan item) async {
-    try {
-      await audio.playPreview(
-        this,
-        item.assetPath,
-        AdhanSource.asset(title: item.title, path: item.assetPath),
+  Future<EzanLibraryManifest> _loadAndCheckCache() async {
+    final manifest = await _libraryService.loadManifest();
+    final results = await Future.wait(
+      manifest.entries.map((e) async => MapEntry(e.id, await _downloadCache.isCached(e))),
+    );
+    if (mounted) {
+      setState(() {
+        _cachedIds
+          ..clear()
+          ..addAll(results.where((r) => r.value).map((r) => r.key));
+      });
+    }
+    return manifest;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<AdhanSource?> _sourceFor(EzanLibraryManifest manifest, EzanLibraryEntry entry) async {
+    if (entry.source == EzanLibrarySource.asset) {
+      return AdhanSource.asset(title: entry.title, path: entry.assetPath!);
+    }
+    final cached = await _downloadCache.cachedBytes(entry);
+    if (cached != null) {
+      return AdhanSource.custom(
+        title: entry.title,
+        file: CustomAudioFile(
+          id: entry.id,
+          fileName: '${entry.title}.mp3',
+          bytes: cached,
+          addedAt: DateTime.now(),
+        ),
       );
+    }
+    setState(() => _downloadProgress[entry.id] = 0.0);
+    try {
+      final bytes = await _downloadCache.ensureDownloaded(
+        entry,
+        baseUrl: manifest.baseUrl,
+        onProgress: (p) {
+          if (mounted) setState(() => _downloadProgress[entry.id] = p);
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _downloadProgress.remove(entry.id);
+          _cachedIds.add(entry.id);
+        });
+      }
+      return AdhanSource.custom(
+        title: entry.title,
+        file: CustomAudioFile(
+          id: entry.id,
+          fileName: '${entry.title}.mp3',
+          bytes: bytes,
+          addedAt: DateTime.now(),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _downloadProgress.remove(entry.id));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('İndirme başarısız: $e')),
+        );
+      }
+      return null;
+    }
+  }
+
+  Future<void> _togglePreview(EzanLibraryManifest manifest, EzanLibraryEntry entry) async {
+    final source = await _sourceFor(manifest, entry);
+    if (source == null || !mounted) return;
+    try {
+      await audio.playPreview(this, entry.id, source);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -345,37 +419,104 @@ class _WorldAdhanPickerPageState extends ConsumerState<WorldAdhanPickerPage>
     }
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Future<void> _selectEntry(EzanLibraryManifest manifest, EzanLibraryEntry entry) async {
+    final needsDownload =
+        entry.source == EzanLibrarySource.remote && !_cachedIds.contains(entry.id);
+    if (needsDownload) setState(() => _downloadProgress[entry.id] = 0.0);
+    void onProgress(double p) {
+      if (mounted) setState(() => _downloadProgress[entry.id] = p);
+    }
+
+    final notifier = ref.read(alertSettingsProvider.notifier);
+    try {
+      if (entry.isFajr) {
+        await notifier.selectLibraryFajrEntry(
+          entry,
+          baseUrl: manifest.baseUrl,
+          downloadCache: _downloadCache,
+          onProgress: needsDownload ? onProgress : null,
+        );
+      } else {
+        await notifier.selectLibraryEntry(
+          entry,
+          baseUrl: manifest.baseUrl,
+          downloadCache: _downloadCache,
+          onProgress: needsDownload ? onProgress : null,
+        );
+      }
+      if (!mounted) return;
+      setState(() {
+        _downloadProgress.remove(entry.id);
+        _cachedIds.add(entry.id);
+      });
+      // Herhangi bir önizleme (bu sayfaya veya başka bir sahibe ait) kalmışsa
+      // zorla temizle; aksi halde geri dönüldüğünde önizleme kilidi takılı
+      // kalıp bir sonraki açılışta ekran tepkisiz görünebiliyordu.
+      await audio.stopPreview();
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _downloadProgress.remove(entry.id));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('İndirme başarısız: $e')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedPath =
-        ref.watch(alertSettingsProvider).adhanSettings.worldAssetPath;
+    final adhanSettings = ref.watch(alertSettingsProvider).adhanSettings;
+    final selectedFajrId = adhanSettings.type == AdhanType.library
+        ? adhanSettings.libraryFajrEntryId
+        : null;
+    final selectedNormalId = adhanSettings.type == AdhanType.library
+        ? adhanSettings.libraryEntryId
+        : null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Dünya Ezanları')),
-      body: FutureBuilder<List<WorldAdhan>>(
+      appBar: AppBar(title: const Text('Ezan Kütüphanesi')),
+      body: FutureBuilder<EzanLibraryManifest>(
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(
-              child: Text('Ezan listesi okunamadı: ${snapshot.error}'),
+            return Center(child: Text('Kütüphane okunamadı: ${snapshot.error}'));
+          }
+          final manifest = snapshot.data!;
+          final query = _query.trim().toLowerCase();
+          bool matches(EzanLibraryEntry e) =>
+              query.isEmpty || e.title.toLowerCase().contains(query);
+          final fajrItems = manifest.fajrEntries.where(matches).toList();
+          final normalItems = manifest.normalEntries.where(matches).toList();
+
+          Widget tileFor(EzanLibraryEntry entry, {required bool selected}) {
+            final progress = _downloadProgress[entry.id];
+            final cached = entry.source == EzanLibrarySource.asset ||
+                _cachedIds.contains(entry.id);
+            final playing = _playingId == entry.id;
+            return _AdhanChoiceTile(
+              title: Text(entry.title),
+              subtitle: !cached && progress == null
+                  ? const Text('İndirilmedi')
+                  : null,
+              selected: selected,
+              onSelect: () => _selectEntry(manifest, entry),
+              controls: progress != null
+                  ? SizedBox(
+                      width: 120,
+                      child: LinearProgressIndicator(value: progress),
+                    )
+                  : _PreviewControls(
+                      playing: playing,
+                      onListen: () => _togglePreview(manifest, entry),
+                      onStop: () => audio.stopPreview(this),
+                    ),
             );
           }
-          final allItems = snapshot.data ?? const <WorldAdhan>[];
-          final query = _query.trim().toLowerCase();
-          final items =
-              query.isEmpty
-                  ? allItems
-                  : allItems
-                      .where((item) => item.title.toLowerCase().contains(query))
-                      .toList();
+
           return Column(
             children: [
               Padding(
@@ -391,23 +532,19 @@ class _WorldAdhanPickerPageState extends ConsumerState<WorldAdhanPickerPage>
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    final selected = selectedPath == item.assetPath;
-                    final playing = _playingPath == item.assetPath;
-                    return _AdhanChoiceTile(
-                      title: Text(item.title),
-                      selected: selected,
-                      onSelect: () => Navigator.of(context).pop(item.assetPath),
-                      controls: _PreviewControls(
-                        playing: playing,
-                        onListen: () => _togglePreview(item),
-                        onStop: () => audio.stopPreview(this),
-                      ),
-                    );
-                  },
+                child: ListView(
+                  children: [
+                    if (fajrItems.isNotEmpty) ...[
+                      const _SectionHeader('SABAH EZANLARI (FECR)'),
+                      for (final e in fajrItems)
+                        tileFor(e, selected: selectedFajrId == e.id),
+                    ],
+                    if (normalItems.isNotEmpty) ...[
+                      const _SectionHeader('NORMAL VAKİTLER (ÖĞLE / İKİNDİ / AKŞAM / YATSI)'),
+                      for (final e in normalItems)
+                        tileFor(e, selected: selectedNormalId == e.id),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -416,6 +553,23 @@ class _WorldAdhanPickerPageState extends ConsumerState<WorldAdhanPickerPage>
       ),
     );
   }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+        child: Text(
+          label,
+          style: Theme.of(context)
+              .textTheme
+              .titleSmall
+              ?.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+        ),
+      );
 }
 
 class _CapabilityBanner extends StatelessWidget {
