@@ -17,3 +17,14 @@ Future<void> deleteLocalFile(String path) async {}
 ImageProvider localFileImageProvider(String path) {
   throw UnsupportedError('Local files are not available on this platform.');
 }
+
+/// Web'de dosya sistemi yoktur; çağıran taraf bu durumda başka bir oynatma
+/// yoluna (ör. bellekteki baytlardan `data:` URI) düşmelidir.
+Future<String?> saveMediaBytes(
+  String category,
+  String fileName,
+  Uint8List bytes,
+) async =>
+    null;
+
+Future<void> deleteMediaBytes(String category, String fileName) async {}

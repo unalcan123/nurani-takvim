@@ -158,10 +158,10 @@ void main() {
         expect(find.descendant(of: home, matching: find.byType(ListView)), findsNothing);
         await tester.tap(find.byKey(const ValueKey('home-menu-button')));
         await tester.pumpAndSettle();
-        expect(find.text('Namaz Vakitleri'), findsOneWidget);
-        await tester.tap(find.text('Namaz Vakitleri'));
+        expect(find.text('Ayarlar'), findsOneWidget);
+        await tester.tap(find.text('Ayarlar'));
         await tester.pumpAndSettle();
-        expect(env.container.read(dashboardSelectedTabProvider), 2);
+        expect(env.container.read(dashboardSelectedTabProvider), 3);
         expect(tester.takeException(), isNull);
       }
       await tester.pumpWidget(const SizedBox());

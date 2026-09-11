@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/live_clock.dart';
 import '../../locations/data/models.dart';
 import '../../locations/presentation/country_page.dart';
+import '../../media/player/compact_play_controls.dart';
 import '../../settings/data/prefs_repository.dart';
 import '../../times/presentation/slayt_widget.dart';
 import '../../times/presentation/time_utils.dart';
@@ -283,15 +284,22 @@ class _Surface extends StatelessWidget {
 class _HomeMenuButton extends StatelessWidget {
   const _HomeMenuButton();
   @override
-  Widget build(BuildContext context) => SizedBox(height: 54, child: FilledButton.icon(
-    key: const ValueKey('home-menu-button'),
-    onPressed: () => Scaffold.of(context).openDrawer(),
-    style: FilledButton.styleFrom(backgroundColor: calendarInk, foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
-    icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
-    label: const Text('Menü'),
-  ));
+  Widget build(BuildContext context) => SizedBox(
+    height: 54,
+    child: Row(children: [
+      const CompactPlayControls(),
+      const SizedBox(width: 8),
+      Expanded(child: FilledButton.icon(
+        key: const ValueKey('home-menu-button'),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+        style: FilledButton.styleFrom(backgroundColor: calendarInk, foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
+        icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
+        label: const Text('Menü'),
+      )),
+    ]),
+  );
 }
 
 List<(String, String)> prayerTimeEntries(Vakit vakit) => [

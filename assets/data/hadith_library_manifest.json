@@ -1,0 +1,2619 @@
+{
+  "version": 1,
+  "source": "https://archive.org/details/Riyazus_Salihin_Hadisler",
+  "narrator": "Hayri Küçükdeniz",
+  "baseUrl": "https://archive.org/download/Riyazus_Salihin_Hadisler/",
+  "entries": [
+    {
+      "id": "h_000",
+      "order": 0,
+      "title": "Giriş",
+      "fileName": "000_Giriş_Riyaz'üs Salihin Hadisler Giriş İmam Nevevi.mp3",
+      "sizeBytes": 2047242
+    },
+    {
+      "id": "h_001",
+      "order": 1,
+      "title": "İyi Niyet Ve Samimiyet",
+      "fileName": "001 Riyaz'üs Salihin Hadisler İyi Niyet Ve Samimiyet İmam Nevevi.mp3",
+      "sizeBytes": 13174554
+    },
+    {
+      "id": "h_002",
+      "order": 2,
+      "title": "Tövbe ve Allah'tan Affedilmeyi İstemek",
+      "fileName": "002 Riyaz'üs Salihin Hadisler Tövbe ve Allah'tan Affedilmeyi İstemek İmam Nevevi.mp3",
+      "sizeBytes": 30192162
+    },
+    {
+      "id": "h_003",
+      "order": 3,
+      "title": "Sabrın Fazileti",
+      "fileName": "003 Riyaz'üs Salihin Hadisler Sabrın Fazileti İmam Nevevi.mp3",
+      "sizeBytes": 31174146
+    },
+    {
+      "id": "h_004",
+      "order": 4,
+      "title": "Doğru Sözlü Olmak",
+      "fileName": "004 Riyaz'üs Salihin Hadisler Doğru Sözlü Olmak İmam Nevevi.mp3",
+      "sizeBytes": 6405450
+    },
+    {
+      "id": "h_005",
+      "order": 5,
+      "title": "Allah'ın Kullarını Kontrol ve Denetimi",
+      "fileName": "005 Riyaz'üs Salihin Hadisler Allah'ın Kullarını Kontrol ve Denetimi İmam Nevevi.mp3",
+      "sizeBytes": 12085434
+    },
+    {
+      "id": "h_006",
+      "order": 6,
+      "title": "Allah'tan Korkmak",
+      "fileName": "006 Riyaz'üs Salihin Hadisler Allah'tan Korkmak İmam Nevevi.mp3",
+      "sizeBytes": 4711434
+    },
+    {
+      "id": "h_007",
+      "order": 7,
+      "title": "Sağlam İman ve Allah'a Güvenmek",
+      "fileName": "007 Riyaz'üs Salihin Hadisler Sağlam İman ve Allah'a Güvenmek İmam Nevevi.mp3",
+      "sizeBytes": 12293898
+    },
+    {
+      "id": "h_008",
+      "order": 8,
+      "title": "Allah'ın Çizdiği Dogru Yolda Olmak",
+      "fileName": "008 Riyaz'üs Salihin Hadisler Allah'ın Çizdiği Dogru Yolda Olmak İmam Nevevi.mp3",
+      "sizeBytes": 2422866
+    },
+    {
+      "id": "h_009",
+      "order": 9,
+      "title": "Yaratılanların Büyüklüğü, Ahiret, Nefis",
+      "fileName": "009 Riyaz'üs Salihin Hadisler Yaratılanların Büyüklüğü, Ahiret, Nefis İmam Nevevi.mp3",
+      "sizeBytes": 2101242
+    },
+    {
+      "id": "h_010",
+      "order": 10,
+      "title": "Hayırlı İşlere Koşmak",
+      "fileName": "010 Riyaz'üs Salihin Hadisler Hayırlı İşlere Koşmak İmam Nevevi.mp3",
+      "sizeBytes": 6861402
+    },
+    {
+      "id": "h_011",
+      "order": 11,
+      "title": "Allah'ın Rızasını Kazanmak ve Cennet için Gayret Etmek",
+      "fileName": "011 Riyaz'üs Salihin Allah'ın Rızasını Kazanmak ve Cennet için Gayret Etmek.mp3",
+      "sizeBytes": 14316234
+    },
+    {
+      "id": "h_012",
+      "order": 12,
+      "title": "Ömrün Sonlarına Doğru İyilikleri Artırmayı Teşvik Etmek",
+      "fileName": "012 Riyaz'üs Salihin Ömrün Sonlarına Doğru İyilikleri Artırmayı Teşvik Etmek.mp3",
+      "sizeBytes": 5485050
+    },
+    {
+      "id": "h_013",
+      "order": 13,
+      "title": "Hayır Yollarının Çok Oluşu",
+      "fileName": "013 Riyaz'üs Salihin Hayır Yollarının Çok Oluşu İmam Nevevi.mp3",
+      "sizeBytes": 15954570
+    },
+    {
+      "id": "h_014",
+      "order": 14,
+      "title": "İbadet ve Allah'ın Emirlerinde Ölçülü Olmak",
+      "fileName": "014 Riyaz'üs Salihin Hadisler İbadet ve Allah'ın Emirlerinde Ölçülü Olmak İmam Nevevi.mp3",
+      "sizeBytes": 14391586
+    },
+    {
+      "id": "h_015",
+      "order": 15,
+      "title": "İbadet ve İyi İşleri Sürekli Yapmak",
+      "fileName": "015 Riyaz'üs Salihin Hadisler İbadet ve İyi İşleri Sürekli Yapmak İmam Nevevi.mp3",
+      "sizeBytes": 3300394
+    },
+    {
+      "id": "h_016",
+      "order": 16,
+      "title": "Peygamber Edep ve Sünnetlerine Uymak",
+      "fileName": "016 Riyaz'üs Salihin Hadisler Peygamber Edep ve Sünnetlerine Uymak İmam Nevevi.mp3",
+      "sizeBytes": 12161122
+    },
+    {
+      "id": "h_017",
+      "order": 17,
+      "title": "Allah'ın Hükmüne Boyun Eğmek",
+      "fileName": "017 Riyaz'üs Salihin Hadisler Allah'ın Hükmüne Boyun Eğmek İmam Nevevi.mp3",
+      "sizeBytes": 3463810
+    },
+    {
+      "id": "h_018",
+      "order": 18,
+      "title": "Bidatlerden Çekinmek",
+      "fileName": "018 Riyaz'üs Salihin Hadisler Bidatlerden Çekinmek İmam Nevevi.mp3",
+      "sizeBytes": 3526258
+    },
+    {
+      "id": "h_019",
+      "order": 19,
+      "title": "İyi veya Kötü Çıgır Açanlar",
+      "fileName": "019 Riyaz'üs Salihin Hadisler İyi veya Kötü Çıgır Açanlar İmam Nevevi.mp3",
+      "sizeBytes": 3371722
+    },
+    {
+      "id": "h_020",
+      "order": 20,
+      "title": "Hayır Ve İyilikte Öncülük Etme",
+      "fileName": "020 Riyaz'üs Salihin Hadisler Hayır Ve İyilikte Öncülük Etme İmam Nevevi.mp3",
+      "sizeBytes": 3952522
+    },
+    {
+      "id": "h_021",
+      "order": 21,
+      "title": "Hayır Ve İyilikte Yardımlaşma",
+      "fileName": "021 Riyaz'üs Salihin Hadisler Hayır Ve İyilikte Yardımlaşma İmam Nevevi.mp3",
+      "sizeBytes": 2789002
+    },
+    {
+      "id": "h_022",
+      "order": 22,
+      "title": "Nasihat İkaz ve Hatırlatma",
+      "fileName": "022 Riyaz'üs Salihin Hadisler Nasihat İkaz ve Hatırlatma İmam Nevevi.mp3",
+      "sizeBytes": 1501810
+    },
+    {
+      "id": "h_023",
+      "order": 23,
+      "title": "İyiliği Emretmek Kötülükten Nehy Etmek",
+      "fileName": "023 Riyaz'üs Salihin Hadisler İyiliği Emretmek Kötülükten Nehy Etmek İmam Nevevi.mp3",
+      "sizeBytes": 14050978
+    },
+    {
+      "id": "h_024",
+      "order": 24,
+      "title": "Sözü İle Ameli Farklı Olanların Cezası",
+      "fileName": "024 Riyaz'üs Salihin Hadisler Sözü İle Ameli Farklı Olanların Cezası İmam Nevevi.mp3",
+      "sizeBytes": 1630666
+    },
+    {
+      "id": "h_025",
+      "order": 25,
+      "title": "Emaneti Yerine Getirmek",
+      "fileName": "025 Riyaz'üs Salihin Hadisler Emaneti Yerine Getirmek İmam Nevevi.mp3",
+      "sizeBytes": 10251802
+    },
+    {
+      "id": "h_026",
+      "order": 26,
+      "title": "Zulmün Haram Oluşu",
+      "fileName": "026 Riyaz'üs Salihin Hadisler Zulmün Haram Oluşu İmam Nevevi.mp3",
+      "sizeBytes": 14287642
+    },
+    {
+      "id": "h_027",
+      "order": 27,
+      "title": "Başkalarının Haklarına Saygı Göstermek",
+      "fileName": "027 Riyaz'üs Salihin Hadisler Başkalarının Haklarına Saygı Göstermek İmam Nevevi.mp3",
+      "sizeBytes": 10992538
+    },
+    {
+      "id": "h_028",
+      "order": 28,
+      "title": "Müslümanların Ayıplarını Örtmek",
+      "fileName": "028 Riyaz'üs Salihin Hadisler Müslümanların Ayıplarını Örtmek İmam Nevevi.mp3",
+      "sizeBytes": 2443234
+    },
+    {
+      "id": "h_029",
+      "order": 29,
+      "title": "Müslümanların İhtiyaçlarını Karşılamak",
+      "fileName": "029 Riyaz'üs Salihin Hadisler Müslümanların İhtiyaçlarını Karşılamak İmam Nevevi.mp3",
+      "sizeBytes": 2138002
+    },
+    {
+      "id": "h_030",
+      "order": 30,
+      "title": "Yardım Ve Aracılık Etmek",
+      "fileName": "030 Riyaz'üs Salihin Hadisler Yardım Ve Aracılık Etmek İmam Nevevi.mp3",
+      "sizeBytes": 1209538
+    },
+    {
+      "id": "h_031",
+      "order": 31,
+      "title": "İnsanların Arasını Bulmak",
+      "fileName": "031 Riyaz'üs Salihin Hadisler İnsanların Arasını Bulmak İmam Nevevi.mp3",
+      "sizeBytes": 4766098
+    },
+    {
+      "id": "h_032",
+      "order": 32,
+      "title": "Zayıf Güçsüz İsmi Bilinmeyen Müslümanların Degerleri",
+      "fileName": "032 Riyaz'üs Salihin Hadisler Zayıf Güçsüz İsmi Bilinmeyen Müslümanların Degerleri İmam Nevevi.mp3",
+      "sizeBytes": 9287898
+    },
+    {
+      "id": "h_033",
+      "order": 33,
+      "title": "Yetim Zayıf Ve Kimsesizlere Sahip Çıkmak",
+      "fileName": "033 Riyaz'üs Salihin Hadisler Yetim Zayıf Ve Kimsesizlere Sahip Çıkmak İmam Nevevi.mp3",
+      "sizeBytes": 8025226
+    },
+    {
+      "id": "h_034",
+      "order": 34,
+      "title": "Kadınlara İyi Davranmak",
+      "fileName": "034 Riyaz'üs Salihin Hadisler Kadınlara İyi Davranmak İmam Nevevi.mp3",
+      "sizeBytes": 6055474
+    },
+    {
+      "id": "h_035",
+      "order": 35,
+      "title": "Kocanın Karısı Üzerindeki Hakları",
+      "fileName": "035 Riyaz'üs Salihin Hadisler Kocanın Karısı Üzerindeki Hakları İmam Nevevi.mp3",
+      "sizeBytes": 3732538
+    },
+    {
+      "id": "h_036",
+      "order": 36,
+      "title": "Ailenin Geçimi",
+      "fileName": "036 Riyaz'üs Salihin Hadisler Ailenin Geçimi İmam Nevevi.mp3",
+      "sizeBytes": 4352458
+    },
+    {
+      "id": "h_037",
+      "order": 37,
+      "title": "Mümin İyi ve Degerli Şeyleri İnfak Etmeli",
+      "fileName": "037 Riyaz'üs Salihin Hadisler Mümin İyi ve Degerli Şeyleri İnfak Etmeli İmam Nevevi.mp3",
+      "sizeBytes": 2010010
+    },
+    {
+      "id": "h_038",
+      "order": 38,
+      "title": "Ailede Din Egitimi",
+      "fileName": "038 Riyaz'üs Salihin Hadisler Ailede Din Egitimi İmam Nevevi.mp3",
+      "sizeBytes": 2924290
+    },
+    {
+      "id": "h_039",
+      "order": 39,
+      "title": "Komşu ve Komşuluk Hakkı",
+      "fileName": "039 Riyaz'üs Salihin Hadisler Komşu ve Komşuluk Hakkı İmam Nevevi.mp3",
+      "sizeBytes": 4219810
+    },
+    {
+      "id": "h_040",
+      "order": 40,
+      "title": "Ana Babaya İyilik ve Akrabayı Ziyaret",
+      "fileName": "040 Riyaz'üs Salihin Hadisler Ana Babaya İyilik ve Akrabayı Ziyaret İmam Nevevi.mp3",
+      "sizeBytes": 19542202
+    },
+    {
+      "id": "h_041",
+      "order": 41,
+      "title": "Ana Babaya Karşı Gelmenin ve Akrabayla İlişkiyi Kesmenin Haramlığı İ",
+      "fileName": "041 Riyaz'üs Salihin Hadisler Ana Babaya Karşı Gelmenin ve Akrabayla İlişkiyi Kesmenin Haramlığı İ.mp3",
+      "sizeBytes": 4270690
+    },
+    {
+      "id": "h_042",
+      "order": 42,
+      "title": "Ana Babaya, Dostlarına İkram Etmek",
+      "fileName": "042 Riyaz'üs Salihin Hadisler Ana Babaya, Dostlarına İkram Etmek İmam Nevevi.mp3",
+      "sizeBytes": 4095442
+    },
+    {
+      "id": "h_043",
+      "order": 43,
+      "title": "Resullahın Yakınları, Ehlibeytine Saygı ve Onların Üstünlükleri İma",
+      "fileName": "043 Riyaz'üs Salihin Hadisler Resullahın Yakınları, Ehlibeytine Saygı ve Onların Üstünlükleri İma.mp3",
+      "sizeBytes": 3361266
+    },
+    {
+      "id": "h_044",
+      "order": 44,
+      "title": "Alimlere ve Büyüklere Saygılı Olmak",
+      "fileName": "044 Riyaz'üs Salihin Hadisler Alimlere ve Büyüklere Saygılı Olmak İmam Nevevi.mp3",
+      "sizeBytes": 7213554
+    },
+    {
+      "id": "h_045",
+      "order": 45,
+      "title": "İyi Kişileri Ziyaret Edip Sohbette Bulunmak",
+      "fileName": "045 Riyaz'üs Salihin Hadisler İyi Kişileri Ziyaret Edip Sohbette Bulunmak İmam Nevevi.mp3",
+      "sizeBytes": 13083474
+    },
+    {
+      "id": "h_046",
+      "order": 46,
+      "title": "Allah İçin Sevmek ve Bunu Yaymak",
+      "fileName": "046 Riyaz'üs Salihin Hadisler Allah İçin Sevmek ve Bunu Yaymak İmam Nevevi.mp3",
+      "sizeBytes": 7865370
+    },
+    {
+      "id": "h_047",
+      "order": 47,
+      "title": "Allahın Kulunu Sevmesinin İşaretleri",
+      "fileName": "047 Riyaz'üs Salihin Hadisler   Allahın Kulunu Sevmesinin İşaretleri   İmam Nevevi.mp3",
+      "sizeBytes": 3839418
+    },
+    {
+      "id": "h_048",
+      "order": 48,
+      "title": "Fakir ve Güçsüzlere Eziyet Etmemek",
+      "fileName": "048 Riyaz'üs Salihin Hadisler Fakir ve Güçsüzlere Eziyet Etmemek İmam Nevevi.mp3",
+      "sizeBytes": 965466
+    },
+    {
+      "id": "h_049",
+      "order": 49,
+      "title": "Görünüşe Göre Hüküm Vermek Kalblerdekini Allah'a Bırakmak İmam Neve",
+      "fileName": "049 Riyaz'üs Salihin Hadisler Görünüşe Göre Hüküm Vermek Kalblerdekini Allah'a Bırakmak İmam Neve.mp3",
+      "sizeBytes": 6113610
+    },
+    {
+      "id": "h_050",
+      "order": 50,
+      "title": "Allahın Güç ve Kudretine Karşı Devamlı Sorumluluk Sahibi Olmak İmam",
+      "fileName": "050 Riyaz'üs Salihin Hadisler Allahın Güç ve Kudretine Karşı Devamlı Sorumluluk Sahibi Olmak İmam.mp3",
+      "sizeBytes": 12414762
+    },
+    {
+      "id": "h_051",
+      "order": 51,
+      "title": "Allahın Rahmetini Ümit Etmek",
+      "fileName": "051 Riyaz'üs Salihin Hadisler Allahın Rahmetini Ümit Etmek İmam Nevevi.mp3",
+      "sizeBytes": 27730794
+    },
+    {
+      "id": "h_052",
+      "order": 52,
+      "title": "Allahdan Rahmetini Ümit Etmek",
+      "fileName": "052 Riyaz'üs Salihin Hadisler Allahdan Rahmetini Ümit Etmek İmam Nevevi.mp3",
+      "sizeBytes": 2404626
+    },
+    {
+      "id": "h_053",
+      "order": 53,
+      "title": "Korku İle Ümit Arasında Yaşamak",
+      "fileName": "053 Riyaz'üs Salihin Hadisler Korku İle Ümit Arasında Yaşamak İmam Nevevi.mp3",
+      "sizeBytes": 2946138
+    },
+    {
+      "id": "h_054",
+      "order": 54,
+      "title": "Allah İçin Gözyaşı Dökmek",
+      "fileName": "054 Riyaz'üs Salihin Hadisler Allah İçin Gözyaşı Dökmek İmam Nevevi.mp3",
+      "sizeBytes": 7906362
+    },
+    {
+      "id": "h_055",
+      "order": 55,
+      "title": "Dünyada İhtiyaçtan Fazlanın Gereksizliği ve Fakirliğin Üstünlüğü İmam",
+      "fileName": "055 Riyaz'üs Salihin Hadisler Dünyada İhtiyaçtan Fazlanın Gereksizliği ve Fakirliğin Üstünlüğü İmam.mp3",
+      "sizeBytes": 21113969
+    },
+    {
+      "id": "h_056",
+      "order": 56,
+      "title": "Açlık ve Sade Yaşamanın Üstünlüğü",
+      "fileName": "056 Riyaz'üs Salihin Hadisler Açlık ve Sade Yaşamanın Üstünlüğü İmam Nevevi.mp3",
+      "sizeBytes": 26900177
+    },
+    {
+      "id": "h_057",
+      "order": 57,
+      "title": "Kanaat Tok Gözlülük Orta Yolu Seçmek",
+      "fileName": "057 Riyaz'üs Salihin Hadisler Kanaat Tok Gözlülük Orta Yolu Seçmek İmam Nevevi.mp3",
+      "sizeBytes": 11083361
+    },
+    {
+      "id": "h_058",
+      "order": 58,
+      "title": "İstemeyerek Sadaka Almanın Caiz Oluşu",
+      "fileName": "058 Riyaz'üs Salihin Hadisler İstemeyerek Sadaka Almanın Caiz Oluşu İmam Nevevi.mp3",
+      "sizeBytes": 1058609
+    },
+    {
+      "id": "h_059",
+      "order": 59,
+      "title": "Kendi Emeğiyle Geçinip Kimseden Birşey İstememek",
+      "fileName": "059 Riyaz'üs Salihin Hadisler Kendi Emeğiyle Geçinip Kimseden Birşey İstememek İmam Nevevi.mp3",
+      "sizeBytes": 2187569
+    },
+    {
+      "id": "h_060",
+      "order": 60,
+      "title": "Cömertlik Ve Hayır Yollarına Harcamak",
+      "fileName": "060 Riyaz'üs Salihin Hadisler Cömertlik Ve Hayır Yollarına Harcamak İmam Nevevi.mp3",
+      "sizeBytes": 12016505
+    },
+    {
+      "id": "h_061",
+      "order": 61,
+      "title": "Cimrilik ve Açgözlülükten Sakınmak",
+      "fileName": "061 Riyaz'üs Salihin Hadisler - Cimrilik ve Açgözlülükten Sakınmak- İmam Nevevi.mp3",
+      "sizeBytes": 1223993
+    },
+    {
+      "id": "h_062",
+      "order": 62,
+      "title": "Başkalarını Kendine Tercih Etmek",
+      "fileName": "062 Riyaz'üs Salihin Hadisler - Başkalarını Kendine Tercih Etmek- İmam Nevevi.mp3",
+      "sizeBytes": 4473737
+    },
+    {
+      "id": "h_063",
+      "order": 63,
+      "title": "Ahirete Yarışırcasına Hazırlanmak",
+      "fileName": "063 Riyaz'üs Salihin Hadisler - Ahirete Yarışırcasına Hazırlanmak - İmam Nevevi.mp3",
+      "sizeBytes": 1378625
+    },
+    {
+      "id": "h_064",
+      "order": 64,
+      "title": "Şükreden Zenginin Fazileti",
+      "fileName": "064 Riyaz'üs Salihin Hadisler - Şükreden Zenginin Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 4042145
+    },
+    {
+      "id": "h_065",
+      "order": 65,
+      "title": "Ölümü Hatırlamak ve Nefsi Dizginlemek",
+      "fileName": "065 Riyaz'üs Salihin Hadisler - Ölümü Hatırlamak ve Nefsi Dizginlemek - İmam Nevevi.mp3",
+      "sizeBytes": 8314673
+    },
+    {
+      "id": "h_066",
+      "order": 66,
+      "title": "Kabir Ziyareti",
+      "fileName": "066 Riyaz'üs Salihin Hadisler - Kabir Ziyareti - İmam Nevevi.mp3",
+      "sizeBytes": 1564145
+    },
+    {
+      "id": "h_067",
+      "order": 67,
+      "title": "Başa Gelenlerden Dolayı Ölümü İstemenin Yanlış Olması",
+      "fileName": "067 Riyaz'üs Salihin Hadisler - Başa Gelenlerden Dolayı Ölümü İstemenin Yanlış Olması - İmam Nevevi.mp3",
+      "sizeBytes": 1956281
+    },
+    {
+      "id": "h_068",
+      "order": 68,
+      "title": "Günahtan Terketmek Şüpheli Şeylerden Sakınmak",
+      "fileName": "068 Riyaz'üs Salihin Hadisler - Günahtan Terketmek Şüpheli Şeylerden Sakınmak - İmam Nevevi.mp3",
+      "sizeBytes": 5442689
+    },
+    {
+      "id": "h_069",
+      "order": 69,
+      "title": "İnsanlar Bozulduğunda ve Bozukluk Artınca Kenara Çekilmenin İyi Oluşu",
+      "fileName": "069 Riyaz'üs Salihin Hadisler - İnsanlar Bozulduğunda ve Bozukluk Artınca Kenara Çekilmenin İyi Oluşu.mp3",
+      "sizeBytes": 2940953
+    },
+    {
+      "id": "h_070",
+      "order": 70,
+      "title": "İnsanlarla Birarada Yaşamanın İyiliği",
+      "fileName": "070 Riyaz'üs Salihin Hadisler - İnsanlarla Birarada Yaşamanın İyiliği - İmam Nevevi.mp3",
+      "sizeBytes": 742313
+    },
+    {
+      "id": "h_071",
+      "order": 71,
+      "title": "Alçakgönüllü Olmak ve Müslümanlara Kol Kanat Germek",
+      "fileName": "071 Riyaz'üs Salihin Hadisler - Alçakgönüllü Olmak ve Müslümanlara Kol Kanat Germek - İmam Nevevi.mp3",
+      "sizeBytes": 5988881
+    },
+    {
+      "id": "h_072",
+      "order": 72,
+      "title": "Kibir ve Kendini Beğenmenin Haram Oluşu",
+      "fileName": "072 Riyaz'üs Salihin Hadisler - Kibir ve Kendini Beğenmenin Haram Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 6970625
+    },
+    {
+      "id": "h_073",
+      "order": 73,
+      "title": "Güzel Ahlak",
+      "fileName": "073 Riyaz'üs Salihin Hadisler - Güzel Ahlak - İmam Nevevi.mp3",
+      "sizeBytes": 5318825
+    },
+    {
+      "id": "h_074",
+      "order": 74,
+      "title": "Acele Etmemek Yumuşak Huylu Olmak ve Acımak",
+      "fileName": "074 Riyaz'üs Salihin Hadisler - Acele Etmemek Yumuşak Huylu Olmak ve Acımak - İmam Nevevi.mp3",
+      "sizeBytes": 5730257
+    },
+    {
+      "id": "h_075",
+      "order": 75,
+      "title": "Hataları Bagışlayıp Bilgisizlere Uymamak",
+      "fileName": "075 Riyaz'üs Salihin Hadisler - Hataları Bagışlayıp Bilgisizlere Uymamak - İmam Nevevi.mp3",
+      "sizeBytes": 4544225
+    },
+    {
+      "id": "h_076",
+      "order": 76,
+      "title": "Allah Rızası İçin Sıkıntılara Katlanmak",
+      "fileName": "076 Riyaz'üs Salihin Hadisler - Allah Rızası İçin Sıkıntılara Katlanmak - İmam Nevevi.mp3",
+      "sizeBytes": 1178753
+    },
+    {
+      "id": "h_077",
+      "order": 77,
+      "title": "Allah'ın Dini İçin Kızmak Allah'ın Dinine Yardım Etmek",
+      "fileName": "077 Riyaz'üs Salihin Hadisler - Allah'ın Dini İçin Kızmak Allah'ın Dinine Yardım Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 3518465
+    },
+    {
+      "id": "h_078",
+      "order": 78,
+      "title": "İdarecilerin İnsanlara İyi Davranmaları Gerektiği",
+      "fileName": "078 Riyaz'üs Salihin Hadisler - İdarecilerin İnsanlara İyi Davranmaları Gerektiği - İmam Nevevi.mp3",
+      "sizeBytes": 3944489
+    },
+    {
+      "id": "h_079",
+      "order": 79,
+      "title": "Adaletli İdareci",
+      "fileName": "079 Riyaz'üs Salihin Hadisler - Adaletli İdareci - İmam Nevevi.mp3",
+      "sizeBytes": 2990873
+    },
+    {
+      "id": "h_080",
+      "order": 80,
+      "title": "Günah Olmadığı Takdirde İdarecilere İtaat Etmek",
+      "fileName": "080 Riyaz'üs Salihin Hadisler - Günah Olmadığı Takdirde İdarecilere İtaat Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 5909825
+    },
+    {
+      "id": "h_081",
+      "order": 81,
+      "title": "Görev Verilmedikçe İdareciliğe İstekli Olmamak",
+      "fileName": "081 Riyaz'üs Salihin Hadisler - Görev Verilmedikçe İdareciliğe İstekli Olmamak - İmam Nevevi.mp3",
+      "sizeBytes": 2164073
+    },
+    {
+      "id": "h_082",
+      "order": 82,
+      "title": "Yöneticilerin Hayırlı Kişileri Yardımcı Edinmesi",
+      "fileName": "082 Riyaz'üs Salihin Hadisler - Yöneticilerin Hayırlı Kişileri Yardımcı Edinmesi - İmam Nevevi.mp3",
+      "sizeBytes": 1387577
+    },
+    {
+      "id": "h_083",
+      "order": 83,
+      "title": "Yöneticilik İstemekte Hırslı Olana Görev Vermemek",
+      "fileName": "083 Riyaz'üs Salihin Hadisler - Yöneticilik İstemekte Hırslı Olana Görev Vermemek - İmam Nevevi.mp3",
+      "sizeBytes": 655265
+    },
+    {
+      "id": "h_084",
+      "order": 84,
+      "title": "Utanma Duygusu",
+      "fileName": "084 Riyaz'üs Salihin Hadisler - Utanma Duygusu - İmam Nevevi.mp3",
+      "sizeBytes": 1450721
+    },
+    {
+      "id": "h_085",
+      "order": 85,
+      "title": "Sır Saklama",
+      "fileName": "085 Riyaz'üs Salihin Hadisler - Sır Saklama - İmam Nevevi.mp3",
+      "sizeBytes": 4384817
+    },
+    {
+      "id": "h_086",
+      "order": 86,
+      "title": "Sözünde Durmak",
+      "fileName": "086 Riyaz'üs Salihin Hadisle - Sözünde Durmak - İmam Nevevi.mp3",
+      "sizeBytes": 2669201
+    },
+    {
+      "id": "h_087",
+      "order": 87,
+      "title": "Alışılan İyiliklere Devam Etmek",
+      "fileName": "087 Riyaz'üs Salihin Hadisler - Alışılan İyiliklere Devam Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 1206017
+    },
+    {
+      "id": "h_088",
+      "order": 88,
+      "title": "Müslümanlara Karşı Güleryüz ve Tatlı Dilli Olmak",
+      "fileName": "088 Riyaz'üs Salihin Hadisler - Müslümanlara Karşı Güleryüz ve Tatlı Dilli Olmak - İmam Nevevi.mp3",
+      "sizeBytes": 1266137
+    },
+    {
+      "id": "h_089",
+      "order": 89,
+      "title": "Dinleyenin Anlayabilmesi İçin Açık Konuşmak",
+      "fileName": "089 Riyaz'üs Salihin Hadisler - Dinleyenin Anlayabilmesi İçin Açık Konuşmak - İmam Nevevi.mp3",
+      "sizeBytes": 597689
+    },
+    {
+      "id": "h_090",
+      "order": 90,
+      "title": "Konuşan Kişinin Dinleyenleri Susturması",
+      "fileName": "090 Riyaz'üs Salihin Hadisler - Konuşan Kişinin Dinleyenleri Susturması - İmam Nevevi.mp3",
+      "sizeBytes": 463841
+    },
+    {
+      "id": "h_091",
+      "order": 91,
+      "title": "Nasihatte Sınırı Aşmamak",
+      "fileName": "091 Riyaz'üs Salihin Hadisler - Nasihatte Sınırı Aşmamak - İmam Nevevi.mp3",
+      "sizeBytes": 3280553
+    },
+    {
+      "id": "h_092",
+      "order": 92,
+      "title": "Agır Başlı ve Vakur Olmak",
+      "fileName": "092 Riyaz'üs Salihin Hadisler - Agır Başlı ve Vakur Olmak - İmam Nevevi.mp3",
+      "sizeBytes": 610361
+    },
+    {
+      "id": "h_093",
+      "order": 93,
+      "title": "İbadet ve ilim gibi Şeylerde Agır Başlı olmak",
+      "fileName": "093 Riyaz'üs Salihin Hadisler - İbadet ve ilim gibi Şeylerde Agır Başlı olmak - İmam Nevevi.mp3",
+      "sizeBytes": 1241537
+    },
+    {
+      "id": "h_094",
+      "order": 94,
+      "title": "Misafire İkram Etmek",
+      "fileName": "094 Riyaz'üs Salihin Hadisler - Misafire İkram Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 2292257
+    },
+    {
+      "id": "h_095",
+      "order": 95,
+      "title": "Hayırlı İşler İçin Müjdelemek ve Tebrik Etmek",
+      "fileName": "095 Riyaz'üs Salihin Hadisler - Hayırlı İşler İçin Müjdelemek ve Tebrik Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 8078177
+    },
+    {
+      "id": "h_096",
+      "order": 96,
+      "title": "Yolculuk Ve Benzeri Ayrılıklarda Vedalaşmak",
+      "fileName": "096 Riyaz'üs Salihin Hadisler - Yolculuk Ve Benzeri Ayrılıklarda Vedalaşmak - İmam Nevevi.mp3",
+      "sizeBytes": 4262321
+    },
+    {
+      "id": "h_097",
+      "order": 97,
+      "title": "İstihare ve İstişare",
+      "fileName": "097 Riyaz'üs Salihin Hadisler - İstihare ve İstişare - İmam Nevevi.mp3",
+      "sizeBytes": 1941017
+    },
+    {
+      "id": "h_098",
+      "order": 98,
+      "title": "Bazı İbadet ve Kulluk Yaptığımız Şeylere Farklı Yolda Gidip Gelmek",
+      "fileName": "098 Riyaz'üs Salihin Hadisler- Bazı İbadet ve Kulluk Yaptığımız Şeylere Farklı Yolda Gidip Gelmek.mp3",
+      "sizeBytes": 696137
+    },
+    {
+      "id": "h_099",
+      "order": 99,
+      "title": "Bazı İşlerde Sağdan Başlamak",
+      "fileName": "099 Riyaz'üs Salihin Hadisler - Bazı İşlerde Sağdan Başlamak - İmam Nevevi.mp3",
+      "sizeBytes": 3010217
+    },
+    {
+      "id": "h_100",
+      "order": 100,
+      "title": "Yemek Yeme Usul ve Adabı",
+      "fileName": "100 Riyaz'üs Salihin Hadisler - Yemek Yeme Usul ve Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 4166633
+    },
+    {
+      "id": "h_101",
+      "order": 101,
+      "title": "Yemekte Kusur Aranmayacağı",
+      "fileName": "101 Riyaz'üs Salihin Hadisler - Yemekte Kusur Aranmayacağı - İmam Nevevi.mp3",
+      "sizeBytes": 711617
+    },
+    {
+      "id": "h_102",
+      "order": 102,
+      "title": "Oruçlunun Sofradan Birşey Yemeyip Ne Söylemesi Gerektiği -İmam Nevev",
+      "fileName": "102 Riyaz'üs Salihin Hadisler - Oruçlunun Sofradan Birşey Yemeyip Ne Söylemesi Gerektiği -İmam Nevev.mp3",
+      "sizeBytes": 431321
+    },
+    {
+      "id": "h_103",
+      "order": 103,
+      "title": "Davete Giden Birinin Peşine Biri Takılırsa Yapması Gereken",
+      "fileName": "103 Riyaz'üs Salihin Hadisler - Davete Giden Birinin Peşine Biri Takılırsa Yapması Gereken.mp3",
+      "sizeBytes": 611753
+    },
+    {
+      "id": "h_104",
+      "order": 104,
+      "title": "Sofra Adabı ve Bilmeyene Ögretilmesi Gerektiği",
+      "fileName": "104 Riyaz'üs Salihin Hadisler - Sofra Adabı ve Bilmeyene Ögretilmesi Gerektiği - İmam Nevevi.mp3",
+      "sizeBytes": 993281
+    },
+    {
+      "id": "h_105",
+      "order": 105,
+      "title": "Hurma ve Benzeri Şeyleri İkişer Yememek",
+      "fileName": "105 Riyaz'üs Salihin Hadisler - Hurma ve Benzeri Şeyleri İkişer Yememek - İmam Nevevi.mp3",
+      "sizeBytes": 504833
+    },
+    {
+      "id": "h_106",
+      "order": 106,
+      "title": "Yemege Doymayan Ne Yapmalı",
+      "fileName": "106 Riyaz'üs Salihin Hadisler - Yemege Doymayan Ne Yapmalı - İmam Nevevi.mp3",
+      "sizeBytes": 588401
+    },
+    {
+      "id": "h_107",
+      "order": 107,
+      "title": "Tabagın Ortasından Değil Kenarından Yemek",
+      "fileName": "107 Riyaz'üs Salihin Hadisler - Tabagın Ortasından Değil Kenarından Yemek - İmam Nevevi.mp3",
+      "sizeBytes": 1084697
+    },
+    {
+      "id": "h_108",
+      "order": 108,
+      "title": "Yaslanarak Yemek Yememek",
+      "fileName": "108 Riyaz'üs Salihin Hadisler - Yaslanarak Yemek Yememek - İmam Nevevi.mp3",
+      "sizeBytes": 516353
+    },
+    {
+      "id": "h_109",
+      "order": 109,
+      "title": "Sofra ve Yemek Adabı",
+      "fileName": "109 Riyaz'üs Salihin Hadisler - Sofra ve Yemek Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 2949137
+    },
+    {
+      "id": "h_110",
+      "order": 110,
+      "title": "Kalabalıkta Yemek Yemek",
+      "fileName": "110 Riyaz'üs Salihin Hadisler - Kalabalıkta Yemek Yemek - İmam Nevevi.mp3",
+      "sizeBytes": 604217
+    },
+    {
+      "id": "h_111",
+      "order": 111,
+      "title": "İçeceklerle İlgili Edeb",
+      "fileName": "111 Riyaz'üs Salihin Hadisler - İçeceklerle İlgili Edeb - İmam Nevevi.mp3",
+      "sizeBytes": 1858073
+    },
+    {
+      "id": "h_112",
+      "order": 112,
+      "title": "Su Tulumunun Agzından Su İçilmemesi",
+      "fileName": "112 Riyaz'üs Salihin Hadisler - Su Tulumunun Agzından Su İçilmemesi - İmam Nevevi.mp3",
+      "sizeBytes": 837641
+    },
+    {
+      "id": "h_113",
+      "order": 113,
+      "title": "Meşrubat Kaplarının İçine Üflenmemesi",
+      "fileName": "113 Riyaz'üs Salihin Hadisler - Meşrubat Kaplarının İçine Üflenmemesi - İmam Nevevi.mp3",
+      "sizeBytes": 767177
+    },
+    {
+      "id": "h_114",
+      "order": 114,
+      "title": "Ayakta Su içilebilir ama Oturarak İçmenin Daha Faziletli Oluşu",
+      "fileName": "114 Riyaz'üs Salihin Hadisler - Ayakta Su içilebilir ama Oturarak İçmenin Daha Faziletli Oluşu.mp3",
+      "sizeBytes": 1842881
+    },
+    {
+      "id": "h_115",
+      "order": 115,
+      "title": "Topluluk İçinde Su dağıtanın En Son İçmesi Gerektiği",
+      "fileName": "115 Riyaz'üs Salihin Hadisler - Topluluk İçinde Su dağıtanın En Son İçmesi Gerektiği - İmam Nevevi.mp3",
+      "sizeBytes": 240641
+    },
+    {
+      "id": "h_116",
+      "order": 116,
+      "title": "Altın ve Gümüş Kaplar Haricinde Temiz Kaplardan Su içmek",
+      "fileName": "116 Riyaz'üs Salihin Hadisler - Altın ve Gümüş Kaplar Haricinde Temiz Kaplardan Su içmek.mp3",
+      "sizeBytes": 2575793
+    },
+    {
+      "id": "h_117",
+      "order": 117,
+      "title": "Yasaklanan Renkler ve Elbiseler",
+      "fileName": "117 Riyaz'üs Salihin Hadisler - Yasaklanan Renkler ve Elbiseler - İmam Nevevi.mp3",
+      "sizeBytes": 4661009
+    },
+    {
+      "id": "h_118",
+      "order": 118,
+      "title": "Gömlek Giymek",
+      "fileName": "118 Riyaz'üs Salihin Hadisler - Gömlek Giymek - İmam Nevevi.mp3",
+      "sizeBytes": 233753
+    },
+    {
+      "id": "h_119",
+      "order": 119,
+      "title": "Giysilerin Uzunluk Kısalık Ölçüleri ve Kibir İçin Giyilen Kıyafetler",
+      "fileName": "119 Riyaz'üs Salihin Hadisler - Giysilerin Uzunluk Kısalık Ölçüleri ve Kibir İçin Giyilen Kıyafetler.mp3",
+      "sizeBytes": 10472729
+    },
+    {
+      "id": "h_120",
+      "order": 120,
+      "title": "Tevazu Yüzünden Lüks Elbise Giyememek",
+      "fileName": "120 Riyaz'üs Salihin - Tevazu Yüzünden Lüks Elbise Giyememek.mp3",
+      "sizeBytes": 508649
+    },
+    {
+      "id": "h_121",
+      "order": 121,
+      "title": "Orta Yollu Elbiseler",
+      "fileName": "121 Riyaz'üs Salihin - Orta Yollu Elbiseler - İmam Nevevi.mp3",
+      "sizeBytes": 343937
+    },
+    {
+      "id": "h_122",
+      "order": 122,
+      "title": "İpek Kullanmanın Erkeklere Haram Oluşu",
+      "fileName": "122 Riyaz'üs Salihin - İpek Kullanmanın Erkeklere Haram Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 1958177
+    },
+    {
+      "id": "h_123",
+      "order": 123,
+      "title": "Uyuz Hastası Olanın İpek Giyebilmesi",
+      "fileName": "123 Riyaz'üs Salihin - Uyuz Hastası Olanın İpek Giyebilmesi - İmam Nevevi.mp3",
+      "sizeBytes": 386777
+    },
+    {
+      "id": "h_124",
+      "order": 124,
+      "title": "Yırtıcı ve Vahşi Hayvanların Derilerini Kullanmak",
+      "fileName": "124 Riyaz'üs Salihin - Yırtıcı ve Vahşi Hayvanların Derilerini Kullanmak - İmam Nevevi.mp3",
+      "sizeBytes": 707465
+    },
+    {
+      "id": "h_125",
+      "order": 125,
+      "title": "Yeni Elbise ve Ayakkabı Giyerken Nasıl Dua Edileceği",
+      "fileName": "125 Riyaz'üs Salihin - Yeni Elbise ve Ayakkabı Giyerken Nasıl Dua Edileceği - İmam Nevevi.mp3",
+      "sizeBytes": 968633
+    },
+    {
+      "id": "h_126",
+      "order": 126,
+      "title": "Elbise Giyerken Sağdan Başlamak",
+      "fileName": "126 Riyaz'üs Salihin - Elbise Giyerken Sağdan Başlamak - İmam Nevevi.mp3",
+      "sizeBytes": 215705
+    },
+    {
+      "id": "h_127",
+      "order": 127,
+      "title": "Uyku Adabı",
+      "fileName": "127 Riyaz'üs Salihin - Uyku Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 3048281
+    },
+    {
+      "id": "h_128",
+      "order": 128,
+      "title": "Oturma ve Yatma Adabı",
+      "fileName": "128 Riyaz'üs Salihin - Oturma ve Yatma Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 1656497
+    },
+    {
+      "id": "h_129",
+      "order": 129,
+      "title": "Toplantı ve Toplantı Yerinde Oturma Adabı",
+      "fileName": "129 Riyaz'üs Salihin - Toplantı ve Toplantı Yerinde Oturma Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 6671993
+    },
+    {
+      "id": "h_130",
+      "order": 130,
+      "title": "Rüya ve Edebi",
+      "fileName": "130 Riyaz'üs Salihin - Rüya ve Edebi - İmam Nevevi.mp3",
+      "sizeBytes": 3869273
+    },
+    {
+      "id": "h_131",
+      "order": 131,
+      "title": "Selam ve Selamı Yaymak",
+      "fileName": "131 Riyaz'üs Salihin - Selam ve Selamı Yaymak - İmam Nevevi.mp3",
+      "sizeBytes": 4344305
+    },
+    {
+      "id": "h_132",
+      "order": 132,
+      "title": "Selam Alıp Vermenin Şekli",
+      "fileName": "132 Riyaz'üs Salihin - Selam Alıp Vermenin Şekli - İmam Nevevi.mp3",
+      "sizeBytes": 2707073
+    },
+    {
+      "id": "h_133",
+      "order": 133,
+      "title": "Selamın Adabı",
+      "fileName": "133 Riyaz'üs Salihin - Selamın Adabı - İmam Nevevi.mp3",
+      "sizeBytes": 1034633
+    },
+    {
+      "id": "h_134",
+      "order": 134,
+      "title": "Selamı Tekrarlamak",
+      "fileName": "134 Riyaz'üs Salihin - Selamı Tekrarlamak - İmam Nevevi.mp3",
+      "sizeBytes": 986897
+    },
+    {
+      "id": "h_135",
+      "order": 135,
+      "title": "Evine Giren Kimsenin Selam Vermesi",
+      "fileName": "135 Riyaz'üs Salihin - Evine Giren Kimsenin Selam Vermesi - İmam Nevevi.mp3",
+      "sizeBytes": 534665
+    },
+    {
+      "id": "h_136",
+      "order": 136,
+      "title": "Çocuklara Selam Verilmesi",
+      "fileName": "136 Riyaz'üs Salihin - Çocuklara Selam Verilmesi - İmam Nevevi.mp3",
+      "sizeBytes": 259913
+    },
+    {
+      "id": "h_137",
+      "order": 137,
+      "title": "Erkeğin Kadına Selam Vermesi",
+      "fileName": "137 Riyaz'üs Salihin - Erkeğin Kadına Selam Vermesi - İmam Nevevi.mp3",
+      "sizeBytes": 1281593
+    },
+    {
+      "id": "h_138",
+      "order": 138,
+      "title": "İnanmayanlara Selam Verip Selam Almak",
+      "fileName": "138 Riyaz'üs Salihin - İnanmayanlara Selam Verip Selam Almak - İmam Nevevi.mp3",
+      "sizeBytes": 947105
+    },
+    {
+      "id": "h_139",
+      "order": 139,
+      "title": "Ayrılırken Selam Vermek",
+      "fileName": "139 Riyaz'üs Salihin - Ayrılırken Selam Vermek - İmam Nevevi.mp3",
+      "sizeBytes": 424841
+    },
+    {
+      "id": "h_140",
+      "order": 140,
+      "title": "Evlere Girme Kaide ve Edepleri",
+      "fileName": "140 Riyaz'üs Salihin - Evlere Girme Kaide ve Edepleri - İmam Nevevi.mp3",
+      "sizeBytes": 2028593
+    },
+    {
+      "id": "h_141",
+      "order": 141,
+      "title": "Evlere Girmek İçin İzin İsteyenin Kim o Sorusuna Adıyla Cevap Verilmesi",
+      "fileName": "141 Riyaz'üs Salihin - Evlere Girmek İçin İzin İsteyenin Kim o Sorusuna Adıyla Cevap Verilmesi.mp3",
+      "sizeBytes": 1981289
+    },
+    {
+      "id": "h_142",
+      "order": 142,
+      "title": "Aksırana Yerhamukellah Denmesi Gerektiği",
+      "fileName": "142 Riyaz'üs Salihin - Aksırana Yerhamukellah Denmesi Gerektiği - İmam Nevevi.mp3",
+      "sizeBytes": 3014561
+    },
+    {
+      "id": "h_143",
+      "order": 143,
+      "title": "Karşılaşınca Tokalaşmak",
+      "fileName": "143 Riyaz'üs Salihin - Karşılaşınca Tokalaşmak - İmam Nevevi.mp3",
+      "sizeBytes": 3325337
+    },
+    {
+      "id": "h_144",
+      "order": 144,
+      "title": "Hasta Ziyareti ve Cenaze Ugurlamak",
+      "fileName": "144 Riyaz'üs Salihin - Hasta Ziyareti ve Cenaze Ugurlamak - İmam Nevevi.mp3",
+      "sizeBytes": 4103201
+    },
+    {
+      "id": "h_145",
+      "order": 145,
+      "title": "Hastaya Dua Etmek",
+      "fileName": "145 Riyaz'üs Salihin - Hastaya Dua Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 5069177
+    },
+    {
+      "id": "h_146",
+      "order": 146,
+      "title": "Hastanın Halini Yakınlarından Sormak",
+      "fileName": "146 Riyaz'üs Salihin - Hastanın Halini Yakınlarından Sormak - İmam Nevevi.mp3",
+      "sizeBytes": 531257
+    },
+    {
+      "id": "h_147",
+      "order": 147,
+      "title": "Öleceğini Anlayınca Okunacak Dua",
+      "fileName": "147 Riyaz'üs Salihin - Öleceğini Anlayınca Okunacak Dua - İmam Nevevi.mp3",
+      "sizeBytes": 828041
+    },
+    {
+      "id": "h_148",
+      "order": 148,
+      "title": "Hastaya ve Ölümü Yakın Olana İyi Davranmak",
+      "fileName": "148 Riyaz'üs Salihin - Hastaya ve Ölümü Yakın Olana İyi Davranmak - İmam Nevevi.mp3",
+      "sizeBytes": 987761
+    },
+    {
+      "id": "h_149",
+      "order": 149,
+      "title": "Hastanın Hastalığının Şiddetini Anlatması",
+      "fileName": "149 Riyaz'üs Salihin - Hastanın Hastalığının Şiddetini Anlatması - İmam Nevevi.mp3",
+      "sizeBytes": 1358657
+    },
+    {
+      "id": "h_150",
+      "order": 150,
+      "title": "Ölmek Üzere Olan Birine Kelime i Tehvidi Telkin Etmek",
+      "fileName": "150 Riyaz'üs Salihin - Ölmek Üzere Olan Birine Kelime i Tehvidi Telkin Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 657881
+    },
+    {
+      "id": "h_151",
+      "order": 151,
+      "title": "Ölünün Gözleri Kapandıktan Sonra Söylenmesi Gereken",
+      "fileName": "151 Riyaz'üs Salihin - Ölünün Gözleri Kapandıktan Sonra Söylenmesi Gereken - İmam Nevevi.mp3",
+      "sizeBytes": 1005833
+    },
+    {
+      "id": "h_152",
+      "order": 152,
+      "title": "Ölünün Başında Söylenecek Söz",
+      "fileName": "152 Riyaz'üs Salihin - Ölünün Başında Söylenecek Söz - İmam Nevevi.mp3",
+      "sizeBytes": 3719249
+    },
+    {
+      "id": "h_153",
+      "order": 153,
+      "title": "Ölüye Ağlarken Bagırıp Çagırmamak",
+      "fileName": "153 Riyaz'üs Salihin - Ölüye Ağlarken Bagırıp Çagırmamak - İmam Nevevi.mp3",
+      "sizeBytes": 2275457
+    },
+    {
+      "id": "h_154",
+      "order": 154,
+      "title": "Ölünün Halini Gizlemek",
+      "fileName": "154 Riyaz'üs Salihin - Ölünün Halini Gizlemek - İmam Nevevi.mp3",
+      "sizeBytes": 463241
+    },
+    {
+      "id": "h_155",
+      "order": 155,
+      "title": "Cenaze Namazı",
+      "fileName": "155 Riyaz'üs Salihin - Cenaze Namazı - İmam Nevevi.mp3",
+      "sizeBytes": 1274873
+    },
+    {
+      "id": "h_156",
+      "order": 156,
+      "title": "Cenaze Namazında Safların Durumu",
+      "fileName": "156 Riyaz'üs Salihin - Cenaze Namazında Safların Durumu - İmam Nevevi.mp3",
+      "sizeBytes": 1236425
+    },
+    {
+      "id": "h_157",
+      "order": 157,
+      "title": "Cenaze Namazında Okunacak Dualar",
+      "fileName": "157 Riyaz'üs Salihin - Cenaze Namazında Okunacak Dualar - İmam Nevevi.mp3",
+      "sizeBytes": 3915497
+    },
+    {
+      "id": "h_158",
+      "order": 158,
+      "title": "Cenazeyi Hızlıca Taşımak",
+      "fileName": "158 Riyaz'üs Salihin - Cenazeyi Hızlıca Taşımak - İmam Nevevi.mp3",
+      "sizeBytes": 1193657
+    },
+    {
+      "id": "h_159",
+      "order": 159,
+      "title": "Cenazenin Borcunu Hemen Ödemek",
+      "fileName": "159 Riyaz'üs Salihin - Cenazenin Borcunu Hemen Ödemek - İmam Nevevi.mp3",
+      "sizeBytes": 820937
+    },
+    {
+      "id": "h_160",
+      "order": 160,
+      "title": "Kabir Başında Öğüt Vermek",
+      "fileName": "160 Riyaz'üs Salihin - Kabir Başında Öğüt Vermek - İmam Nevevi.mp3",
+      "sizeBytes": 908897
+    },
+    {
+      "id": "h_161",
+      "order": 161,
+      "title": "Definden Sonra Kabir Başında Dua Etmek",
+      "fileName": "161 Riyaz'üs Salihin - Definden Sonra Kabir Başında Dua Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 914777
+    },
+    {
+      "id": "h_162",
+      "order": 162,
+      "title": "Ölü İçin Sadaka Verip Dua Etmek",
+      "fileName": "162 Riyaz'üs Salihin - Ölü İçin Sadaka Verip Dua Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 1239953
+    },
+    {
+      "id": "h_163",
+      "order": 163,
+      "title": "Müslüman Ölüleri Hayırla Anmak",
+      "fileName": "163 Riyaz'üs Salihin - Müslüman Ölüleri Hayırla Anmak - İmam Nevevi.mp3",
+      "sizeBytes": 2047073
+    },
+    {
+      "id": "h_164",
+      "order": 164,
+      "title": "Küçük Çocukları Ölenin Kazanacakları Sevap",
+      "fileName": "164 Riyaz'üs Salihin - Küçük Çocukları Ölenin Kazanacakları Sevap - İmam Nevevi.mp3",
+      "sizeBytes": 1695449
+    },
+    {
+      "id": "h_165",
+      "order": 165,
+      "title": "Zalim ve Azaba Ugrayanların Yakınlarından Geçerken Korkup Ağlayıp Allah'a",
+      "fileName": "165 Riyaz'üs Salihin - Zalim ve Azaba Ugrayanların Yakınlarından Geçerken Korkup Ağlayıp Allah'a.mp3",
+      "sizeBytes": 868457
+    },
+    {
+      "id": "h_166",
+      "order": 166,
+      "title": "Yolculuğa Perşembe Günü ve Erken Çıkma Gereği",
+      "fileName": "166 Riyaz'üs Salihin - Yolculuğa Perşembe Günü ve Erken Çıkma Gereği - İmam Nevevi.mp3",
+      "sizeBytes": 1079081
+    },
+    {
+      "id": "h_167",
+      "order": 167,
+      "title": "Yalnız Yolculuk Yapmamak",
+      "fileName": "167 Riyaz'üs Salihin - Yalnız Yolculuk Yapmamak - İmam Nevevi.mp3",
+      "sizeBytes": 1463177
+    },
+    {
+      "id": "h_168",
+      "order": 168,
+      "title": "Yolculukta Yürümek ve Konaklamak",
+      "fileName": "168 Riyaz'üs Salihin - Yolculukta Yürümek ve Konaklamak - İmam Nevevi.mp3",
+      "sizeBytes": 3434873
+    },
+    {
+      "id": "h_169",
+      "order": 169,
+      "title": "Yolculuk Arkadaşına Yardım Etmek",
+      "fileName": "169 Riyaz'üs Salihin - Yolculuk Arkadaşına Yardım Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 1939505
+    },
+    {
+      "id": "h_170",
+      "order": 170,
+      "title": "Yolculukta Okunacak Dualar",
+      "fileName": "170 Riyaz'üs Salihin - Yolculukta Okunacak Dualar - İmam Nevevi.mp3",
+      "sizeBytes": 3123185
+    },
+    {
+      "id": "h_171",
+      "order": 171,
+      "title": "Yolculukta Tesbih ve Tekbir Getirmek",
+      "fileName": "171 Riyaz'üs Salihin - Yolculukta Tesbih ve Tekbir Getirmek - İmam Nevevi.mp3",
+      "sizeBytes": 2364257
+    },
+    {
+      "id": "h_172",
+      "order": 172,
+      "title": "Yolculukta Dua Etmek",
+      "fileName": "172 Riyaz'üs Salihin - Yolculukta Dua Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 351185
+    },
+    {
+      "id": "h_173",
+      "order": 173,
+      "title": "Korku Anında Dua Etmek",
+      "fileName": "173 Riyaz'üs Salihin - Korku Anında Dua Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 513377
+    },
+    {
+      "id": "h_174",
+      "order": 174,
+      "title": "Konaklama Yerinde Yapılacak Dua",
+      "fileName": "174 Riyaz'üs Salihin - Konaklama Yerinde Yapılacak Dua - İmam Nevevi.mp3",
+      "sizeBytes": 1274441
+    },
+    {
+      "id": "h_175",
+      "order": 175,
+      "title": "Yolculuktan Çabuk Dönmek",
+      "fileName": "175 Riyaz'üs Salihin - Yolculuktan Çabuk Dönmek - İmam Nevevi.mp3",
+      "sizeBytes": 429473
+    },
+    {
+      "id": "h_176",
+      "order": 176,
+      "title": "Yolculuktan Eve Gündüz Dönmek",
+      "fileName": "176 Riyaz'üs Salihin - Yolculuktan Eve Gündüz Dönmek - İmam Nevevi.mp3",
+      "sizeBytes": 807857
+    },
+    {
+      "id": "h_177",
+      "order": 177,
+      "title": "Yolcunun Dönüşte Ne Söyleyeceği",
+      "fileName": "177 Riyaz'üs Salihin - Yolcunun Dönüşte Ne Söyleyeceği - İmam Nevevi.mp3",
+      "sizeBytes": 600929
+    },
+    {
+      "id": "h_178",
+      "order": 178,
+      "title": "Yoldan Dönüşte Mescide Uğramak",
+      "fileName": "178 Riyaz'üs Salihin - Yoldan Dönüşte Mescide Uğramak - İmam Nevevi.mp3",
+      "sizeBytes": 335945
+    },
+    {
+      "id": "h_179",
+      "order": 179,
+      "title": "Kadının Tek Başına Yolculuk Yapmaması",
+      "fileName": "179 Riyaz'üs Salihin - Kadının Tek Başına Yolculuk Yapmaması - İmam Nevevi.mp3",
+      "sizeBytes": 1145993
+    },
+    {
+      "id": "h_180",
+      "order": 180,
+      "title": "Kuran Okumanın Fazileti",
+      "fileName": "180 Riyaz'üs Salihin - Kuran Okumanın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 4864121
+    },
+    {
+      "id": "h_181",
+      "order": 181,
+      "title": "Kuranı Sık Sık Tekrarlayıp Unutmamak",
+      "fileName": "181 Riyaz'üs Salihin - Kuranı Sık Sık Tekrarlayıp Unutmamak - İmam Nevevi.mp3",
+      "sizeBytes": 909257
+    },
+    {
+      "id": "h_182",
+      "order": 182,
+      "title": "Sesi Güzel Olandan Kuran Okumasını İstemek ve Onu Dinlemenin Müstehap Oluşu",
+      "fileName": "182 Riyaz'üs Salihin - Sesi Güzel Olandan Kuran Okumasını İstemek ve Onu Dinlemenin Müstehap Oluşu.mp3",
+      "sizeBytes": 2579129
+    },
+    {
+      "id": "h_183",
+      "order": 183,
+      "title": "Belirli Ayet ve Sureleri Okumaya Teşvik Etmek",
+      "fileName": "183 Riyaz'üs Salihin - Belirli Ayet ve Sureleri Okumaya Teşvik Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 9692561
+    },
+    {
+      "id": "h_184",
+      "order": 184,
+      "title": "Kuran Okuyup Müzakere Yapmak İçin Toplanmak",
+      "fileName": "184 Riyaz'üs Salihin - Kuran Okuyup Müzakere Yapmak İçin Toplanmak - İmam Nevevi.mp3",
+      "sizeBytes": 636857
+    },
+    {
+      "id": "h_185",
+      "order": 185,
+      "title": "Güzelce Abdest Almanın Fazileti",
+      "fileName": "185 Riyaz'üs Salihin - Güzelce Abdest Almanın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 6423161
+    },
+    {
+      "id": "h_186",
+      "order": 186,
+      "title": "Ezanın Fazileti",
+      "fileName": "186 Riyaz'üs Salihin - Ezanın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 4516409
+    },
+    {
+      "id": "h_187",
+      "order": 187,
+      "title": "Namazın Fazileti",
+      "fileName": "187 Riyaz'üs Salihin - Namazın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 2818145
+    },
+    {
+      "id": "h_188",
+      "order": 188,
+      "title": "Sabah ve İkindi Namazının Fazileti",
+      "fileName": "188 Riyaz'üs Salihin - Sabah ve İkindi Namazının Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 2503913
+    },
+    {
+      "id": "h_189",
+      "order": 189,
+      "title": "Mescidlere Gitmenin Fazileti",
+      "fileName": "189 Riyaz'üs Salihin - Mescidlere Gitmenin Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 4509953
+    },
+    {
+      "id": "h_190",
+      "order": 190,
+      "title": "Namaz İçim Beklemenin Fazileti",
+      "fileName": "190 Riyaz'üs Salihin - Namaz İçim Beklemenin Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 1270457
+    },
+    {
+      "id": "h_191",
+      "order": 191,
+      "title": "Cemaatle Namaz Kılmanın Fazileti",
+      "fileName": "191 Riyaz'üs Salihin - Cemaatle Namaz Kılmanın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 4538873
+    },
+    {
+      "id": "h_192",
+      "order": 192,
+      "title": "Sabah ve Yatsı Namazında Cemaate Devamın Önemi",
+      "fileName": "192 Riyaz'üs Salihin - Sabah ve Yatsı Namazında Cemaate Devamın Önemi - İmam Nevevi.mp3",
+      "sizeBytes": 1601105
+    },
+    {
+      "id": "h_193",
+      "order": 193,
+      "title": "Farz Namazlarını Terketmenin Yasaklanması",
+      "fileName": "193 Riyaz'üs Salihin - Farz Namazlarını Terketmenin Yasaklanması - İmam Nevevi.mp3",
+      "sizeBytes": 5133593
+    },
+    {
+      "id": "h_194",
+      "order": 194,
+      "title": "Namazda Saf Düzeni",
+      "fileName": "194 Riyaz'üs Salihin - Namazda Saf Düzeni - İmam Nevevi.mp3",
+      "sizeBytes": 7365017
+    },
+    {
+      "id": "h_195",
+      "order": 195,
+      "title": "Farz Namazlarının Başında ve Sonunda Kılınan Sünnetler ve Fazileti",
+      "fileName": "195 Riyaz'üs Salihin - Farz Namazlarının Başında ve Sonunda Kılınan Sünnetler ve Fazileti.mp3",
+      "sizeBytes": 1422473
+    },
+    {
+      "id": "h_196",
+      "order": 196,
+      "title": "SAbah Namazının Sünnetinin Önemi",
+      "fileName": "196 Riyaz'üs Salihin - SAbah Namazının Sünnetinin Önemi - İmam Nevevi.mp3",
+      "sizeBytes": 2213129
+    },
+    {
+      "id": "h_197",
+      "order": 197,
+      "title": "Sabah Namazının Sünnetinin Nasıl Kılınacağı ve Ne Okunacağı",
+      "fileName": "197 Riyaz'üs Salihin - Sabah Namazının Sünnetinin Nasıl Kılınacağı ve Ne Okunacağı - İmam Nevevi.mp3",
+      "sizeBytes": 3112937
+    },
+    {
+      "id": "h_198",
+      "order": 198,
+      "title": "Sabah Namazının Sünnetinden Sonra Uzanmak",
+      "fileName": "198 Riyaz'üs Salihin - Sabah Namazının Sünnetinden Sonra Uzanmak - İmam Nevevi.mp3",
+      "sizeBytes": 1170737
+    },
+    {
+      "id": "h_199",
+      "order": 199,
+      "title": "Öğle Namazının Sünneti",
+      "fileName": "199 Riyaz'üs Salihin - Öğle Namazının Sünneti - İmam Nevevi.mp3",
+      "sizeBytes": 1942553
+    },
+    {
+      "id": "h_200",
+      "order": 200,
+      "title": "İkindi Namazının Sünneti",
+      "fileName": "200 Riyaz'üs Salihin - İkindi Namazının Sünneti - İmam Nevevi.mp3",
+      "sizeBytes": 1039169
+    },
+    {
+      "id": "h_201",
+      "order": 201,
+      "title": "Akşam Namazının Öncesi ve Sonrası Kılanan Sünnet Namazları",
+      "fileName": "201 Riyaz'üs Salihin - Akşam Namazının Öncesi ve Sonrası Kılanan Sünnet Namazları - İmam Nevevi.mp3",
+      "sizeBytes": 2012897
+    },
+    {
+      "id": "h_202",
+      "order": 202,
+      "title": "Yatsı Namazının Sünneti",
+      "fileName": "202 Riyaz'üs Salihin - Yatsı Namazının Sünneti - İmam Nevevi.mp3",
+      "sizeBytes": 459305
+    },
+    {
+      "id": "h_203",
+      "order": 203,
+      "title": "Cuma Namazının Sünneti",
+      "fileName": "203 Riyaz'üs Salihin - Cuma Namazının Sünneti -  İmam Nevevi.mp3",
+      "sizeBytes": 630689
+    },
+    {
+      "id": "h_204",
+      "order": 204,
+      "title": "Nafile Namazları Evde Kılmak",
+      "fileName": "204 Riyaz'üs Salihin - Nafile Namazları Evde Kılmak - İmam Nevevi.mp3",
+      "sizeBytes": 1912937
+    },
+    {
+      "id": "h_205",
+      "order": 205,
+      "title": "Vitir Namazı",
+      "fileName": "205 Riyaz'üs Salihin - Vitir Namazı - İmam Nevevi.mp3",
+      "sizeBytes": 2670953
+    },
+    {
+      "id": "h_206",
+      "order": 206,
+      "title": "Kuşluk Namazının Fazileti",
+      "fileName": "206 Riyaz'üs Salihin - Kuşluk Namazının Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 1565201
+    },
+    {
+      "id": "h_207",
+      "order": 207,
+      "title": "Kuşluk Namazının Vakti",
+      "fileName": "207 Riyaz'üs Salihin - Kuşluk Namazının Vakti - İmam Nevevi.mp3",
+      "sizeBytes": 576425
+    },
+    {
+      "id": "h_208",
+      "order": 208,
+      "title": "Tahiyyetül Mescid Namazı",
+      "fileName": "208 Riyaz'üs Salihin - Tahiyyetül Mescid Namazı - İmam Nevevi.mp3",
+      "sizeBytes": 569849
+    },
+    {
+      "id": "h_209",
+      "order": 209,
+      "title": "Abdestten Sonra Kılanan İki Rekat Namaz",
+      "fileName": "209 Riyaz'üs Salihin - Abdestten Sonra Kılanan İki Rekat Namaz - İmam Nevevi.mp3",
+      "sizeBytes": 674225
+    },
+    {
+      "id": "h_210",
+      "order": 210,
+      "title": "Cuma Namazının Fazileti",
+      "fileName": "210 Riyaz'üs Salihin - Cuma Namazının Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 6050417
+    },
+    {
+      "id": "h_211",
+      "order": 211,
+      "title": "Şükür Secdesi",
+      "fileName": "211 Riyaz'üs Salihin - Şükür Secdesi - İmam Nevevi.mp3",
+      "sizeBytes": 1303841
+    },
+    {
+      "id": "h_212",
+      "order": 212,
+      "title": "Gece Namazının Fazileti",
+      "fileName": "212 Riyaz'üs Salihin - Gece Namazının Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 13248473
+    },
+    {
+      "id": "h_213",
+      "order": 213,
+      "title": "Ramazanda Teravih Kılmak",
+      "fileName": "213 Riyaz'üs Salihin - Ramazanda Teravih Kılmak - İmam Nevevi.mp3",
+      "sizeBytes": 836009
+    },
+    {
+      "id": "h_214",
+      "order": 214,
+      "title": "Kadir Gecesini Değerlendirmek",
+      "fileName": "214 Riyaz'üs Salihin - Kadir Gecesini Değerlendirmek - İmam Nevevi.mp3",
+      "sizeBytes": 3438305
+    },
+    {
+      "id": "h_215",
+      "order": 215,
+      "title": "Misvak Kullanmak",
+      "fileName": "215 Riyaz'üs Salihin - Misvak Kullanmak - İmam Nevevi.mp3",
+      "sizeBytes": 3613121
+    },
+    {
+      "id": "h_216",
+      "order": 216,
+      "title": "Zekatla İlgili Ayet ve Hadisler",
+      "fileName": "216 Riyaz'üs Salihin - Zekatla İlgili Ayet ve Hadisler - İmam Nevevi.mp3",
+      "sizeBytes": 11348993
+    },
+    {
+      "id": "h_217",
+      "order": 217,
+      "title": "Ramazan Orucu",
+      "fileName": "217 Riyaz'üs Salihin - Ramazan Orucu - İmam Nevevi.mp3",
+      "sizeBytes": 6857489
+    },
+    {
+      "id": "h_218",
+      "order": 218,
+      "title": "Ramazanda Cömert Davranmak ve İbadetlere Çok Vakit Ayırmak",
+      "fileName": "218 Riyaz'üs Salihin - Ramazanda Cömert Davranmak ve İbadetlere Çok Vakit Ayırmak - İmam Nevevi.mp3",
+      "sizeBytes": 1064345
+    },
+    {
+      "id": "h_219",
+      "order": 219,
+      "title": "Şaban Ayı Orucu",
+      "fileName": "219 Riyaz'üs Salihin - Şaban Ayı Orucu - İmam Nevevi.mp3",
+      "sizeBytes": 1496657
+    },
+    {
+      "id": "h_220",
+      "order": 220,
+      "title": "Hilal Görüldüğünde Okunacak Dua",
+      "fileName": "220 Riyaz'üs Salihin - Hilal Görüldüğünde Okunacak Dua - İmam Nevevi.mp3",
+      "sizeBytes": 630785
+    },
+    {
+      "id": "h_221",
+      "order": 221,
+      "title": "Sahurun Geciktirilmesinin Uygun Olacağı",
+      "fileName": "221 Riyaz'üs Salihin - Sahurun Geciktirilmesinin Uygun Olacağı - İmam Nevevi.mp3",
+      "sizeBytes": 1594385
+    },
+    {
+      "id": "h_222",
+      "order": 222,
+      "title": "İftarı Yapmak İçin Acele Etmek",
+      "fileName": "222 Riyaz'üs Salihin - İftarı Yapmak İçin Acele Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 3738305
+    },
+    {
+      "id": "h_223",
+      "order": 223,
+      "title": "Oruçlunun Dilini Koruması",
+      "fileName": "223 Riyaz'üs Salihin - Oruçlunun Dilini Koruması - İmam Nevevi.mp3",
+      "sizeBytes": 814937
+    },
+    {
+      "id": "h_224",
+      "order": 224,
+      "title": "Oruçla İlgili Bazı Meseleler",
+      "fileName": "224 Riyaz'üs Salihin - Oruçla İlgili Bazı Meseleler - İmam Nevevi.mp3",
+      "sizeBytes": 1352105
+    },
+    {
+      "id": "h_225",
+      "order": 225,
+      "title": "Muharrem Şaban ve Haram Aylarda Oruç",
+      "fileName": "225 Riyaz'üs Salihin - Muharrem Şaban ve Haram Aylarda Oruç - İmam Nevevi.mp3",
+      "sizeBytes": 2353937
+    },
+    {
+      "id": "h_226",
+      "order": 226,
+      "title": "Zilhicce Ayında Tutulan Oruç",
+      "fileName": "226 Riyaz'üs Salihin - Zilhicce Ayında Tutulan Oruç - İmam Nevevi.mp3",
+      "sizeBytes": 707897
+    },
+    {
+      "id": "h_227",
+      "order": 227,
+      "title": "Arefe Günü ve Muharrem Ayı 9 10 gün oruçları",
+      "fileName": "227 Riyaz'üs Salihin - Arefe Günü ve Muharrem Ayı 9 10 gün oruçları - İmam Nevevi.mp3",
+      "sizeBytes": 1238753
+    },
+    {
+      "id": "h_228",
+      "order": 228,
+      "title": "Şevval Ayında 6 Gün Oruç Tutmak",
+      "fileName": "228 Riyaz'üs Salihin - Şevval Ayında 6 Gün Oruç Tutmak - İmam Nevevi.mp3",
+      "sizeBytes": 455009
+    },
+    {
+      "id": "h_229",
+      "order": 229,
+      "title": "Pazartesi Perşembe Orucu",
+      "fileName": "229 Riyaz'üs Salihin - Pazartesi Perşembe Orucu - İmam Nevevi.mp3",
+      "sizeBytes": 943937
+    },
+    {
+      "id": "h_230",
+      "order": 230,
+      "title": "Her Aydan 3 Gün Oruç Tutmak",
+      "fileName": "230 Riyaz'üs Salihin - Her Aydan 3 Gün Oruç Tutmak - İmam Nevevi.mp3",
+      "sizeBytes": 2378489
+    },
+    {
+      "id": "h_231",
+      "order": 231,
+      "title": "Oruçluyu İftar Ettirmek",
+      "fileName": "231 Riyaz'üs Salihin - Oruçluyu İftar Ettirmek - İmam Nevevi.mp3",
+      "sizeBytes": 1586801
+    },
+    {
+      "id": "h_232",
+      "order": 232,
+      "title": "İtikaf'ın Fazileti",
+      "fileName": "232 Riyaz'üs Salihin - İtikaf'ın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 887105
+    },
+    {
+      "id": "h_233",
+      "order": 233,
+      "title": "Hac İle Alakalı Meseleler",
+      "fileName": "233 Riyaz'üs Salihin - Hac İle Alakalı Meseleler - İmam Nevevi.mp3",
+      "sizeBytes": 6695225
+    },
+    {
+      "id": "h_234",
+      "order": 234,
+      "title": "Cihadın Fazileti",
+      "fileName": "234 Riyaz'üs Salihin - Cihadın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 1336577
+    },
+    {
+      "id": "h_235",
+      "order": 235,
+      "title": "Savaş Dışında Ölüp Şehid Sayılanlar",
+      "fileName": "235 Riyaz'üs Salihin - Savaş Dışında Ölüp Şehid Sayılanlar - İmam Nevevi.mp3",
+      "sizeBytes": 3030449
+    },
+    {
+      "id": "h_236",
+      "order": 236,
+      "title": "Köleyi Hürriyetine Kavuşturmanın Fazileti",
+      "fileName": "236 Riyaz'üs Salihin - Köleyi Hürriyetine Kavuşturmanın Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 1319345
+    },
+    {
+      "id": "h_237",
+      "order": 237,
+      "title": "Kölelere İylilik Etmek",
+      "fileName": "237 Riyaz'üs Salihin - Kölelere İylilik Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 1927145
+    },
+    {
+      "id": "h_238",
+      "order": 238,
+      "title": "Riyazus Salihin - Sahih Hadis",
+      "fileName": "238 Riyazus Salihin - Sahih Hadis.mp3",
+      "sizeBytes": 110797
+    },
+    {
+      "id": "h_239",
+      "order": 239,
+      "title": "Kargaşa ve Fitne Döneminde İbadet Etmek",
+      "fileName": "239 Riyaz'üs Salihin - Kargaşa ve Fitne Döneminde İbadet Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 446225
+    },
+    {
+      "id": "h_240",
+      "order": 240,
+      "title": "Cömert Olmak Borcu Güzelce Ödemek Borculuyu Sıkmamak",
+      "fileName": "240 Riyaz'üs Salihin - Cömert Olmak Borcu Güzelce Ödemek Borculuyu Sıkmamak - İmam Nevevi.mp3",
+      "sizeBytes": 6269081
+    },
+    {
+      "id": "h_241",
+      "order": 241,
+      "title": "İlmin Üstünlüğü",
+      "fileName": "241 Riyaz'üs Salihin - İlmin Üstünlüğü - İmam Nevevi.mp3",
+      "sizeBytes": 9835121
+    },
+    {
+      "id": "h_242",
+      "order": 242,
+      "title": "Allaha Hamd ve Şükretmek",
+      "fileName": "242 Riyaz'üs Salihin - Allaha Hamd ve Şükretmek - İmam Nevevi.mp3",
+      "sizeBytes": 2937737
+    },
+    {
+      "id": "h_243",
+      "order": 243,
+      "title": "Peygambere Selam ve Salat Getirmek",
+      "fileName": "243 Riyaz'üs Salihin - Peygambere Selam ve Salat Getirmek - İmam Nevevi.mp3",
+      "sizeBytes": 7462265
+    },
+    {
+      "id": "h_244",
+      "order": 244,
+      "title": "Allahı Zikretmenin Fazileti ve İnsanları Zikre Teşvik Etmek",
+      "fileName": "244 Riyaz'üs Salihin - Allahı Zikretmenin Fazileti ve İnsanları Zikre Teşvik Etmek - İmam Nevevi.mp3",
+      "sizeBytes": 32709761
+    },
+    {
+      "id": "h_245",
+      "order": 245,
+      "title": "Allahı Her Daim Hatırlamak",
+      "fileName": "245 Riyaz'üs Salihin - Allahı Her Daim Hatırlamak - İmam Nevevi.mp3",
+      "sizeBytes": 1849193
+    },
+    {
+      "id": "h_246",
+      "order": 246,
+      "title": "Yatarken ve Uyurken Edilecek Dua",
+      "fileName": "246 Riyaz'üs Salihin - Yatarken ve Uyurken Edilecek Dua - İmam Nevevi.mp3",
+      "sizeBytes": 884177
+    },
+    {
+      "id": "h_247",
+      "order": 247,
+      "title": "Allah Anılan Toplantıların Fazileti",
+      "fileName": "247 Riyaz'üs Salihin - Allah Anılan Toplantıların Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 8641433
+    },
+    {
+      "id": "h_248",
+      "order": 248,
+      "title": "Sabah Akşam Allahı Hatırlamak",
+      "fileName": "248 Riyaz'üs Salihin - Sabah Akşam Allahı Hatırlamak - İmam Nevevi.mp3",
+      "sizeBytes": 7324121
+    },
+    {
+      "id": "h_249",
+      "order": 249,
+      "title": "Yatağa Girince Okunacak Dualar",
+      "fileName": "249 Riyaz'üs Salihin - Yatağa Girince Okunacak Dualar - İmam Nevevi.mp3",
+      "sizeBytes": 5742449
+    },
+    {
+      "id": "h_250",
+      "order": 250,
+      "title": "Rasullullah SAV 'in Hayatından Dualar",
+      "fileName": "250 Riyaz'üs Salihin - Rasullullah SAV 'in Hayatından Dualar - İmam Nevevi.mp3",
+      "sizeBytes": 20391569
+    },
+    {
+      "id": "h_251",
+      "order": 251,
+      "title": "Yanında Olmayan Birine Dua etmenin Fazileti",
+      "fileName": "251 Riyaz'üs Salihin - Yanında Olmayan Birine Dua etmenin Fazileti - İmam Nevevi.mp3",
+      "sizeBytes": 1518257
+    },
+    {
+      "id": "h_252",
+      "order": 252,
+      "title": "Dua ile İlgili Bazı Meseleler",
+      "fileName": "252 Riyaz'üs Salihin - Dua ile İlgili Bazı Meseleler - İmam Nevevi.mp3",
+      "sizeBytes": 3934841
+    },
+    {
+      "id": "h_253",
+      "order": 253,
+      "title": "Veliler Ve Kerametleri",
+      "fileName": "253 Riyaz'üs Salihin - Veliler Ve Kerametleri - İmam Nevevi.mp3",
+      "sizeBytes": 18236537
+    },
+    {
+      "id": "h_254",
+      "order": 254,
+      "title": "Sakınılması Gereken Şeyler",
+      "fileName": "254 Riyaz'üs Salihin - Sakınılması Gereken Şeyler - İmam Nevevi.mp3",
+      "sizeBytes": 10115513
+    },
+    {
+      "id": "h_255",
+      "order": 255,
+      "title": "Gıybet Dinleme Yasağı",
+      "fileName": "255 Riyaz'üs Salihin - Gıybet Dinleme Yasağı - İmam Nevevi.mp3",
+      "sizeBytes": 2984441
+    },
+    {
+      "id": "h_256",
+      "order": 256,
+      "title": "Gıybetin Mübah Olduğu Haller",
+      "fileName": "256 Riyaz'üs Salihin - Gıybetin Mübah Olduğu Haller - İmam Nevevi.mp3",
+      "sizeBytes": 2847161
+    },
+    {
+      "id": "h_257",
+      "order": 257,
+      "title": "İnsanlar Arasında Söz Taşımanın Yasak Oluşu",
+      "fileName": "257 Riyaz'üs Salihin - İnsanlar Arasında Söz Taşımanın Yasak Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 1738769
+    },
+    {
+      "id": "h_258",
+      "order": 258,
+      "title": "İdarecilere Söz Taşıma Yasağı",
+      "fileName": "258 Riyaz'üs Salihin - İdarecilere Söz Taşıma Yasağı - İmam Nevevi.mp3",
+      "sizeBytes": 592097
+    },
+    {
+      "id": "h_259",
+      "order": 259,
+      "title": "Münafıklığın Kötülenmesi",
+      "fileName": "259 Riyaz'üs Salihin - Münafıklığın Kötülenmesi - İmam Nevevi.mp3",
+      "sizeBytes": 2175185
+    },
+    {
+      "id": "h_260",
+      "order": 260,
+      "title": "Yalan Söylemenin Haram Oluşu",
+      "fileName": "260 Riyaz'üs Salihin - Yalan Söylemenin Haram Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 10973873
+    },
+    {
+      "id": "h_261",
+      "order": 261,
+      "title": "Yalan Söylemenin Caiz Olduğu Haller",
+      "fileName": "261 Riyaz'üs Salihin - Yalan Söylemenin Caiz Olduğu Haller - İmam Nevevi.mp3",
+      "sizeBytes": 914705
+    },
+    {
+      "id": "h_262",
+      "order": 262,
+      "title": "Söylediğin Sözlerde Sağlam Kaynağa Dayanmak",
+      "fileName": "262 Riyaz'üs Salihin - Söylediğin Sözlerde Sağlam Kaynağa Dayanmak - İmam Nevevi.mp3",
+      "sizeBytes": 1653761
+    },
+    {
+      "id": "h_263",
+      "order": 263,
+      "title": "Yalancı Şahitliğin Şiddetle Yasak Oluşu",
+      "fileName": "263 Riyaz'üs Salihin - Yalancı Şahitliğin Şiddetle Yasak Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 1518665
+    },
+    {
+      "id": "h_264",
+      "order": 264,
+      "title": "İnsana ve Hayvana Lanet Etmenin Yasak Oluşu",
+      "fileName": "264 Riyaz'üs Salihin - İnsana ve Hayvana Lanet Etmenin Yasak Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 4055657
+    },
+    {
+      "id": "h_265",
+      "order": 265,
+      "title": "İsim Vermeksizin Günahkarlara Lanet Etmenin Caiz Oluşu",
+      "fileName": "265 Riyaz'üs Salihin - İsim Vermeksizin Günahkarlara Lanet Etmenin Caiz Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 477665
+    },
+    {
+      "id": "h_266",
+      "order": 266,
+      "title": "Müslümana Haksız Yerde Sövmenin Haram Oluşu",
+      "fileName": "266 Riyaz'üs Salihin - Müslümana Haksız Yerde Sövmenin Haram Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 2727185
+    },
+    {
+      "id": "h_267",
+      "order": 267,
+      "title": "Dini Bir Fayda Olmaksızın Ölülere Sövmenin Haram Oluşu",
+      "fileName": "267 Riyaz'üs Salihin - Dini Bir Fayda Olmaksızın Ölülere Sövmenin Haram Oluşu - İmam Nevevi.mp3",
+      "sizeBytes": 491633
+    },
+    {
+      "id": "h_268",
+      "order": 268,
+      "title": "Müslümanlara Eziyet Etmemek ve İncitmemek",
+      "fileName": "268 Riyaz'üs Salihin - Müslümanlara Eziyet Etmemek ve İncitmemek - İmam Nevevi.mp3",
+      "sizeBytes": 1345433
+    },
+    {
+      "id": "h_269",
+      "order": 269,
+      "title": "Müslümanlara Bugz Etme Sırt Çevirmenin Yasaklığı",
+      "fileName": "269 Riyaz'üs Salihin - Müslümanlara Bugz Etme Sırt Çevirmenin Yasaklığı - İmam Nevevi.mp3",
+      "sizeBytes": 2144777
+    },
+    {
+      "id": "h_270",
+      "order": 270,
+      "title": "Riyaz'üs Salihin- BİR KİMSENİN SAHİP OLDUĞU DİNİ VE DÜNYEVİ NİMETLERİN ELİNDEN ÇIKMASINI İSTEMEN",
+      "fileName": "270 Riyaz'üs Salihin- BİR KİMSENİN SAHİP OLDUĞU DİNİ VE DÜNYEVİ NİMETLERİN ELİNDEN ÇIKMASINI İSTEMEN.mp3",
+      "sizeBytes": 913481
+    },
+    {
+      "id": "h_271",
+      "order": 271,
+      "title": "Riyaz'üs Salihin- GİZLİ ŞEYLERİ ARAŞTIRMANIN VE DUYULMASI İSTENMEYEN ŞEYLERİ DUYMAYA ÇALIŞMANIN",
+      "fileName": "271 Riyaz'üs Salihin- GİZLİ ŞEYLERİ ARAŞTIRMANIN VE DUYULMASI İSTENMEYEN ŞEYLERİ DUYMAYA ÇALIŞMANIN.mp3",
+      "sizeBytes": 3007961
+    },
+    {
+      "id": "h_272",
+      "order": 272,
+      "title": "ZARURET OLMADIKÇA KÖTÜ ZANDA BULUNMAMAK",
+      "fileName": "272 Riyaz'üs Salihin -  ZARURET OLMADIKÇA KÖTÜ ZANDA BULUNMAMAK.mp3",
+      "sizeBytes": 612953
+    },
+    {
+      "id": "h_273",
+      "order": 273,
+      "title": "MÜSLÜMANI KÜÇÜK GÖRME VE AŞAĞILAMANIN YASAK OLUŞU",
+      "fileName": "273 Riyaz'üs Salihin - MÜSLÜMANI KÜÇÜK GÖRME VE AŞAĞILAMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 2431817
+    },
+    {
+      "id": "h_274",
+      "order": 274,
+      "title": "MÜSLÜMANIN FELAKETİNE SEVİNMEMEK",
+      "fileName": "274 Riyaz'üs Salihin - MÜSLÜMANIN FELAKETİNE SEVİNMEMEK.mp3",
+      "sizeBytes": 747761
+    },
+    {
+      "id": "h_275",
+      "order": 275,
+      "title": "NESB'E DİL UZATMANIN HARAM OLUŞU",
+      "fileName": "275 Riyaz'üs Salihin - NESB'E DİL UZATMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 802745
+    },
+    {
+      "id": "h_276",
+      "order": 276,
+      "title": "HİLE VE ALDATMANIN HARAM OLUŞU",
+      "fileName": "276 Riyaz'üs Salihin - HİLE VE ALDATMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 2718617
+    },
+    {
+      "id": "h_277",
+      "order": 277,
+      "title": "SÖZDEN CAYMA VE AHDİ BOZMANIN YASAKLIĞI",
+      "fileName": "277 Riyaz'üs Salihin - SÖZDEN CAYMA VE AHDİ BOZMANIN YASAKLIĞI.mp3",
+      "sizeBytes": 2636009
+    },
+    {
+      "id": "h_278",
+      "order": 278,
+      "title": "BAĞIŞ VE YAPILAN ŞEYLERİN VE İYİLİKLERİN BAŞA KAKMA YASAĞI",
+      "fileName": "278 Riyaz'üs Salihin - BAĞIŞ VE YAPILAN ŞEYLERİN VE İYİLİKLERİN BAŞA KAKMA YASAĞI.mp3",
+      "sizeBytes": 1701761
+    },
+    {
+      "id": "h_279",
+      "order": 279,
+      "title": "ÖVÜNMEK VE HAKSIZ YERE TAŞKINLIK YAPMANIN YASAKLIĞI",
+      "fileName": "279 Riyaz'üs Salihin - ÖVÜNMEK VE HAKSIZ YERE TAŞKINLIK YAPMANIN YASAKLIĞI.mp3",
+      "sizeBytes": 1385873
+    },
+    {
+      "id": "h_280",
+      "order": 280,
+      "title": "ÜÇ GÜNDEN FAZLA MÜSLÜMANLARLA İLGİYİ KESMENİN YASAK OLUŞU",
+      "fileName": "280 Riyaz'üs Salihin - ÜÇ GÜNDEN FAZLA MÜSLÜMANLARLA İLGİYİ KESMENİN YASAK OLUŞU.mp3",
+      "sizeBytes": 3815177
+    },
+    {
+      "id": "h_281",
+      "order": 281,
+      "title": "FISILDAŞMA YASAĞI",
+      "fileName": "281 Riyaz'üs Salihin - FISILDAŞMA YASAĞI.mp3",
+      "sizeBytes": 1938761
+    },
+    {
+      "id": "h_282",
+      "order": 282,
+      "title": "LÜZUMSUZ VE ŞİDDETLİ CEZALANDIRMANIN YASAK OLUŞU",
+      "fileName": "282 Riyaz'üs Salihin - LÜZUMSUZ VE ŞİDDETLİ CEZALANDIRMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 6038921
+    },
+    {
+      "id": "h_283",
+      "order": 283,
+      "title": "CANLILARI YAKMANIN HARAM OLUŞU",
+      "fileName": "283 Riyaz'üs Salihin - CANLILARI YAKMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 1537673
+    },
+    {
+      "id": "h_284",
+      "order": 284,
+      "title": "ZENGİNİN BORCUNU GECİKTİRMESİNİN HARAM OLDUĞU",
+      "fileName": "284 Riyaz'üs Salihin - ZENGİNİN BORCUNU GECİKTİRMESİNİN HARAM OLDUĞU.mp3",
+      "sizeBytes": 873257
+    },
+    {
+      "id": "h_285",
+      "order": 285,
+      "title": "BAĞISTAN DÖNMENİN MEKRUH OLUŞU",
+      "fileName": "285 Riyaz'üs Salihin - BAĞISTAN DÖNMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 1315697
+    },
+    {
+      "id": "h_286",
+      "order": 286,
+      "title": "YETİM MALI YEMENİN HARAM OLUŞU",
+      "fileName": "286 Riyaz'üs Salihin - YETİM MALI YEMENİN HARAM OLUŞU.mp3",
+      "sizeBytes": 1862417
+    },
+    {
+      "id": "h_287",
+      "order": 287,
+      "title": "FAİZİN HARAM OLUŞU",
+      "fileName": "287 Riyaz'üs Salihin - FAİZİN HARAM OLUŞU.mp3",
+      "sizeBytes": 1863137
+    },
+    {
+      "id": "h_288",
+      "order": 288,
+      "title": "GÖSTERİŞİN RİYA HARAMLIGI",
+      "fileName": "288 Riyaz'üs Salihin - GÖSTERİŞİN RİYA HARAMLIGI.mp3",
+      "sizeBytes": 5805401
+    },
+    {
+      "id": "h_289",
+      "order": 289,
+      "title": "RİYA OLMADIĞI HALDE RİYA SANILAN ŞEYLER",
+      "fileName": "289 Riyaz'üs Salihin - RİYA OLMADIĞI HALDE RİYA SANILAN ŞEYLER.mp3",
+      "sizeBytes": 483209
+    },
+    {
+      "id": "h_290",
+      "order": 290,
+      "title": "YABANCI KADIN VE GENÇ ÇOCUKLARA SEHVETLE BAKMANIN YASAK OLUSU",
+      "fileName": "290 Riyaz'üs Salihin -  YABANCI KADIN VE GENÇ ÇOCUKLARA SEHVETLE BAKMANIN YASAK OLUSU.mp3",
+      "sizeBytes": 6104998
+    },
+    {
+      "id": "h_291",
+      "order": 291,
+      "title": "YABANCI BIR KADINLA BAŞBAŞA KALMA YASAĞI",
+      "fileName": "291 Riyaz'üs Salihin - YABANCI BIR KADINLA BAŞBAŞA KALMA YASAĞI.mp3",
+      "sizeBytes": 1973465
+    },
+    {
+      "id": "h_292",
+      "order": 292,
+      "title": "KADINLARIN ERKEKLERE, ERKEKLERİN KADINLARA BENZEME YASAĞI",
+      "fileName": "292 Riyaz'üs Salihin - KADINLARIN ERKEKLERE, ERKEKLERİN KADINLARA BENZEME YASAĞI.mp3",
+      "sizeBytes": 1844273
+    },
+    {
+      "id": "h_293",
+      "order": 293,
+      "title": "ŞEYTAN VE KAFİRLERİN DAVRANIŞLARINA BENZEMEME YASAĞI",
+      "fileName": "293 Riyaz'üs Salihin - ŞEYTAN VE KAFİRLERİN DAVRANIŞLARINA BENZEMEME YASAĞI.mp3",
+      "sizeBytes": 1116497
+    },
+    {
+      "id": "h_294",
+      "order": 294,
+      "title": "ERKEK VE KADINLARIN SAÇ BOYAMASINDA SİYAH RENKTEN SAKINMALARI GEREKTİĞİ",
+      "fileName": "294 Riyaz'üs Salihin - ERKEK VE KADINLARIN SAÇ BOYAMASINDA SİYAH RENKTEN SAKINMALARI GEREKTİĞİ.mp3",
+      "sizeBytes": 710777
+    },
+    {
+      "id": "h_295",
+      "order": 295,
+      "title": "BAŞIN BİR KISMININ TRAŞ EDİLİP BİR KISMININ UZUNCA BIRAKILMA YASAĞI",
+      "fileName": "295 Riyaz'üs Salihin - BAŞIN BİR KISMININ TRAŞ EDİLİP BİR KISMININ UZUNCA BIRAKILMA YASAĞI.mp3",
+      "sizeBytes": 1704761
+    },
+    {
+      "id": "h_296",
+      "order": 296,
+      "title": "İĞRETİ SAÇ TAKMA VE DÖVME YAPTIRMA, DİŞLERİNİ SÜSLÜ GÖRÜNSÜN DİYE",
+      "fileName": "296 Riyaz'üs Salihin İĞRETİ SAÇ TAKMA VE DÖVME YAPTIRMA, DİŞLERİNİ SÜSLÜ GÖRÜNSÜN DİYE.mp3",
+      "sizeBytes": 3244817
+    },
+    {
+      "id": "h_297",
+      "order": 297,
+      "title": "SAÇ VE SAKALDAKI BEYAZLASAN KILLARI KOPARMA YASAGI",
+      "fileName": "297 Riyaz'üs Salihin -  SAÇ VE SAKALDAKI BEYAZLASAN KILLARI KOPARMA YASAGI.mp3",
+      "sizeBytes": 1091149
+    },
+    {
+      "id": "h_298",
+      "order": 298,
+      "title": "ÖZÜRSÜZ SAĞ ELİYLE TAHARETLENMENİN MEKRUH",
+      "fileName": "298 Riyaz'üs Salihin - ÖZÜRSÜZ SAĞ ELİYLE TAHARETLENMENİN MEKRUH.mp3",
+      "sizeBytes": 506921
+    },
+    {
+      "id": "h_299",
+      "order": 299,
+      "title": "TEK AYAKKABI İLE GEZMENİN MEKRUH OLDUĞU",
+      "fileName": "299 Riyaz'üs Salihin - TEK AYAKKABI İLE GEZMENİN MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 908945
+    },
+    {
+      "id": "h_300",
+      "order": 300,
+      "title": "UYKUYA YATARKEN YANGINA SEBEP OLABİLECEK ŞEYLERİ AÇIK BIRAKMA YASAĞI",
+      "fileName": "300 Riyaz'üs Salihin - UYKUYA YATARKEN YANGINA SEBEP OLABİLECEK ŞEYLERİ AÇIK BIRAKMA YASAĞI.mp3",
+      "sizeBytes": 1578017
+    },
+    {
+      "id": "h_301",
+      "order": 301,
+      "title": "İŞ VE SÖZDE FAYDASIZ YÜKLER YÜKLEMENİN YASAKLIĞI",
+      "fileName": "301 Riyaz'üs Salihin - İŞ VE SÖZDE FAYDASIZ YÜKLER YÜKLEMENİN YASAKLIĞI.mp3",
+      "sizeBytes": 1283753
+    },
+    {
+      "id": "h_302",
+      "order": 302,
+      "title": "ÖLÜLER ARKASINDAN FERYAD EDEREK AĞLAMANIN YASAKLIĞI",
+      "fileName": "302 Riyaz'üs Salihin - ÖLÜLER ARKASINDAN FERYAD EDEREK AĞLAMANIN YASAKLIĞI.mp3",
+      "sizeBytes": 5629193
+    },
+    {
+      "id": "h_303",
+      "order": 303,
+      "title": "FALCILARA VE GAYBTAN HABER VERDİKLERİNİ İDDİA EDENLERE İNANMANIN HARAM OLUŞU",
+      "fileName": "303 Riyaz'üs Salihin - FALCILARA VE GAYBTAN HABER VERDİKLERİNİ İDDİA EDENLERE İNANMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 3816065
+    },
+    {
+      "id": "h_304",
+      "order": 304,
+      "title": "UĞURSUZLUĞA İNANMANIN HARAM OLUŞU",
+      "fileName": "304 Riyaz'üs Salihin - UĞURSUZLUĞA İNANMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 1774337
+    },
+    {
+      "id": "h_305",
+      "order": 305,
+      "title": "CANLI RESMİ YAPMA VE BULUNDURMA YASAĞI",
+      "fileName": "305 Riyaz'üs Salihin - CANLI RESMİ YAPMA VE BULUNDURMA YASAĞI.mp3",
+      "sizeBytes": 5162417
+    },
+    {
+      "id": "h_306",
+      "order": 306,
+      "title": "AV, ÇOBAN VE ZİRAAT KÖPEĞİ DIŞINDA KÖPEK EDİNMENİN YASAKLIĞI",
+      "fileName": "306 Riyaz'üs Salihin - AV, ÇOBAN VE ZİRAAT KÖPEĞİ DIŞINDA KÖPEK EDİNMENİN YASAKLIĞI.mp3",
+      "sizeBytes": 927401
+    },
+    {
+      "id": "h_307",
+      "order": 307,
+      "title": "HAYVANLARA ÇAN TAKMANIN MEKRUH OLUŞU",
+      "fileName": "307 Riyaz'üs Salihin - HAYVANLARA ÇAN TAKMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 630089
+    },
+    {
+      "id": "h_308",
+      "order": 308,
+      "title": "PİSLİK YİYEN HAYVANLARA BİNMENİN YASAK OLUŞU",
+      "fileName": "308 Riyaz'üs Salihin - PİSLİK YİYEN HAYVANLARA BİNMENİN YASAK OLUŞU.mp3",
+      "sizeBytes": 304169
+    },
+    {
+      "id": "h_309",
+      "order": 309,
+      "title": "MESCİDLERE TÜKÜRMENİN YASAK OLUŞU",
+      "fileName": "309 Riyaz'üs Salihin - MESCİDLERE TÜKÜRMENİN YASAK OLUŞU.mp3",
+      "sizeBytes": 1069649
+    },
+    {
+      "id": "h_310",
+      "order": 310,
+      "title": "MESCİDDE GÜRÜLTÜ YAPMANIN KERAHETİ",
+      "fileName": "310 Riyaz'üs Salihin - MESCİDDE GÜRÜLTÜ YAPMANIN KERAHETİ.mp3",
+      "sizeBytes": 2277449
+    },
+    {
+      "id": "h_311",
+      "order": 311,
+      "title": "KÖTÜ KOKULARLA MESCİDE GELME YASAĞI",
+      "fileName": "311 Riyaz'üs Salihin - KÖTÜ KOKULARLA MESCİDE GELME YASAĞI.mp3",
+      "sizeBytes": 1892489
+    },
+    {
+      "id": "h_312",
+      "order": 312,
+      "title": "HUTBE ESNASINDA DİZLERİ DİKİP OTURMANIN MEKRUH OLUŞU",
+      "fileName": "312 Riyaz'üs Salihin - HUTBE ESNASINDA DİZLERİ DİKİP OTURMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 357065
+    },
+    {
+      "id": "h_313",
+      "order": 313,
+      "title": "KURBAN KESMEK İSTEYENİN ZİLHİCCE'NİN İLK ON GÜNÜ GİRDİĞİNDE HACILARA BENZEM",
+      "fileName": "313 Riyaz'üs Salihin - KURBAN KESMEK İSTEYENİN ZİLHİCCE'NİN İLK ON GÜNÜ GİRDİĞİNDE HACILARA BENZEM.mp3",
+      "sizeBytes": 538721
+    },
+    {
+      "id": "h_314",
+      "order": 314,
+      "title": "ÜZERİNE YEMİN EDİLMESİ YASAK OLAN ŞEYLERDEN PEYGAMBER, KABE, MELEKLER, GÖKYÜZ",
+      "fileName": "314 Riyaz'üs Salihin - ÜZERİNE YEMİN EDİLMESİ YASAK OLAN ŞEYLERDEN PEYGAMBER, KABE, MELEKLER, GÖKYÜZ.mp3",
+      "sizeBytes": 2385425
+    },
+    {
+      "id": "h_315",
+      "order": 315,
+      "title": "BİLEREK YALAN YERE YEMİNİN BÜYÜK GÜNAH OLUŞU",
+      "fileName": "315 Riyaz'üs Salihin - BİLEREK YALAN YERE YEMİNİN BÜYÜK GÜNAH OLUŞU.mp3",
+      "sizeBytes": 2539985
+    },
+    {
+      "id": "h_316",
+      "order": 316,
+      "title": "YEMİNİ BOZAN KİMSENİN KEFFARETİNİ VERMESİ GEREKTİĞİ",
+      "fileName": "316 Riyaz'üs Salihin - YEMİNİ BOZAN KİMSENİN KEFFARETİNİ VERMESİ GEREKTİĞİ.mp3",
+      "sizeBytes": 1662257
+    },
+    {
+      "id": "h_317",
+      "order": 317,
+      "title": "SÖZ ARASINDA YEMİN MAKSADI OLMAKSIZIN SÖYLENEN SÖZLERİN YEMİN SAYILMAYACAĞI",
+      "fileName": "317 Riyaz'üs Salihin - SÖZ ARASINDA YEMİN MAKSADI OLMAKSIZIN SÖYLENEN SÖZLERİN YEMİN SAYILMAYACAĞI.mp3",
+      "sizeBytes": 818897
+    },
+    {
+      "id": "h_318",
+      "order": 318,
+      "title": "DOĞRU BİLE OLSA ALIŞVERİŞTE YEMİN ETMENİN MEKRUH OLDUĞU",
+      "fileName": "318 Riyaz'üs Salihin - DOĞRU BİLE OLSA ALIŞVERİŞTE YEMİN ETMENİN MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 735737
+    },
+    {
+      "id": "h_319",
+      "order": 319,
+      "title": "ALLAH RIZASI İÇİN CENNETTEN BAŞKA BİR ŞEY İSTEMEMEK ALLAH İÇİN BİRŞEY İSTEYEN",
+      "fileName": "319 Riyaz'üs Salihin - ALLAH RIZASI İÇİN CENNETTEN BAŞKA BİR ŞEY İSTEMEMEK ALLAH İÇİN BİRŞEY İSTEYEN.mp3",
+      "sizeBytes": 953033
+    },
+    {
+      "id": "h_320",
+      "order": 320,
+      "title": "DEVLET BAŞKANI VEYA İŞBAŞINDAKİLERE PADİŞAHLARIN PADİŞAHI DEMENİN HARAM OLUŞU",
+      "fileName": "320 Riyaz'üs Salihin - DEVLET BAŞKANI VEYA İŞBAŞINDAKİLERE PADİŞAHLARIN PADİŞAHI DEMENİN HARAM OLUŞU.mp3",
+      "sizeBytes": 640721
+    },
+    {
+      "id": "h_321",
+      "order": 321,
+      "title": "GÜNAHKAR, BİD'ATÇI VE ZALİM KİMSELERE EFENDİ VE BEY İFADELERİYLE HİTAP ETMEN",
+      "fileName": "321 Riyaz'üs Salihin - GÜNAHKAR, BİD'ATÇI VE ZALİM KİMSELERE EFENDİ VE BEY İFADELERİYLE HİTAP ETMEN.mp3",
+      "sizeBytes": 472457
+    },
+    {
+      "id": "h_322",
+      "order": 322,
+      "title": "HASTALIKLARA SÖVMENİN MEKRUH OLUŞU",
+      "fileName": "322 Riyaz'üs Salihin - HASTALIKLARA SÖVMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 720473
+    },
+    {
+      "id": "h_323",
+      "order": 323,
+      "title": "RÜZGARA SÖVMENİN YASAK OLUŞU VE RÜZGAR ESERKEN NE SÖYLENECEĞİ",
+      "fileName": "323 Riyaz'üs Salihin - RÜZGARA SÖVMENİN YASAK OLUŞU VE RÜZGAR ESERKEN NE SÖYLENECEĞİ.mp3",
+      "sizeBytes": 2013689
+    },
+    {
+      "id": "h_324",
+      "order": 324,
+      "title": "HOROZA SÖVMENİN MEKRUH OLUŞU",
+      "fileName": "324 Riyaz'üs Salihin - HOROZA SÖVMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 345257
+    },
+    {
+      "id": "h_325",
+      "order": 325,
+      "title": "BİR KİMSENİN ŞU YILDIZ SAYESİNDE YAĞMURA KAVUŞTUK DEMESİNİN YASAK OLDUĞU",
+      "fileName": "325 Riyaz'üs Salihin - BİR KİMSENİN ŞU YILDIZ SAYESİNDE YAĞMURA KAVUŞTUK DEMESİNİN YASAK OLDUĞU.mp3",
+      "sizeBytes": 1205441
+    },
+    {
+      "id": "h_326",
+      "order": 326,
+      "title": "MÜSLÜMANA KAFİR DEMENIN HARAM OLUŞU",
+      "fileName": "326 Riyaz'üs Salihin - MÜSLÜMANA KAFİR DEMENIN HARAM OLUŞU.mp3",
+      "sizeBytes": 782177
+    },
+    {
+      "id": "h_327",
+      "order": 327,
+      "title": "KÖTÜ SÖZ VE FENA LAKIRDININ YASAK OLUŞU",
+      "fileName": "327 Riyaz'üs Salihin - KÖTÜ SÖZ VE FENA LAKIRDININ YASAK OLUŞU.mp3",
+      "sizeBytes": 795473
+    },
+    {
+      "id": "h_328",
+      "order": 328,
+      "title": "KONUŞMADA EDEBİYAT YAPMANIN MEKRUH OLUŞU",
+      "fileName": "328 Riyaz'üs Salihin - KONUŞMADA EDEBİYAT YAPMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 1397993
+    },
+    {
+      "id": "h_329",
+      "order": 329,
+      "title": "NEFSİM MURDAR OLDU DEMENİN MEKRUH OLUŞU",
+      "fileName": "329 Riyaz'üs Salihin - NEFSİM MURDAR OLDU DEMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 403865
+    },
+    {
+      "id": "h_330",
+      "order": 330,
+      "title": "ÜZÜME KERM DEMENİN MEKRUH OLUŞU",
+      "fileName": "330 Riyaz'üs Salihin - ÜZÜME KERM DEMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 863297
+    },
+    {
+      "id": "h_331",
+      "order": 331,
+      "title": "Riyazus Salihin - Sahih Hadis",
+      "fileName": "331 Riyazus Salihin - Sahih Hadis .mp3",
+      "sizeBytes": 247597
+    },
+    {
+      "id": "h_332",
+      "order": 332,
+      "title": "Riyazus Salihin - Sahih Hadis",
+      "fileName": "332 Riyazus Salihin - Sahih Hadis .mp3",
+      "sizeBytes": 83341
+    },
+    {
+      "id": "h_333",
+      "order": 333,
+      "title": "ALLAH VE FALANCA DİLERSE DEMENIN DE MEKRUH OLDUĞU",
+      "fileName": "333 Riyaz'üs Salihin - ALLAH VE FALANCA DİLERSE DEMENIN DE MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 451529
+    },
+    {
+      "id": "h_334",
+      "order": 334,
+      "title": "YATSIDAN SONRA ALLAH’IN RIZASI OLMAYAN KONUŞMALARIN MEKRUH OLDUĞU",
+      "fileName": "334 Riyaz'üs Salihin - YATSIDAN SONRA ALLAH’IN RIZASI OLMAYAN KONUŞMALARIN MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 1362065
+    },
+    {
+      "id": "h_335",
+      "order": 335,
+      "title": "KADININ KOCASININ ÇAĞRISINA UYMA ZORUNLULUĞU",
+      "fileName": "335 Riyaz'üs Salihin - KADININ KOCASININ ÇAĞRISINA UYMA ZORUNLULUĞU.mp3",
+      "sizeBytes": 555881
+    },
+    {
+      "id": "h_336",
+      "order": 336,
+      "title": "KADININ KOCASININ İZNİ OLMAKSIZIN NAFİLE ORUÇ TUTMASININ HARAM OLUŞU",
+      "fileName": "336 Riyaz'üs Salihin - KADININ KOCASININ İZNİ OLMAKSIZIN NAFİLE ORUÇ TUTMASININ HARAM OLUŞU.mp3",
+      "sizeBytes": 524081
+    },
+    {
+      "id": "h_337",
+      "order": 337,
+      "title": "İMAMA UYANIN İMAMDAN ÖNCE BAŞINI SECDE VE RÜKUDAN KALDIRMASININ HARAM OLUŞU",
+      "fileName": "337 Riyaz'üs Salihin - İMAMA UYANIN İMAMDAN ÖNCE BAŞINI SECDE VE RÜKUDAN KALDIRMASININ HARAM OLUŞU.mp3",
+      "sizeBytes": 509393
+    },
+    {
+      "id": "h_338",
+      "order": 338,
+      "title": "NAMAZDA ELİ BÖĞÜRE KOYMANIN MEKRUH OLUŞU",
+      "fileName": "338 Riyaz'üs Salihin - NAMAZDA ELİ BÖĞÜRE KOYMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 300761
+    },
+    {
+      "id": "h_339",
+      "order": 339,
+      "title": "NAMAZ KILMANIN MEKRUH OLDUĞU DURUMLAR",
+      "fileName": "339 Riyaz'üs Salihin - NAMAZ KILMANIN MEKRUH OLDUĞU DURUMLAR.mp3",
+      "sizeBytes": 343937
+    },
+    {
+      "id": "h_340",
+      "order": 340,
+      "title": "NAMAZDA GÖZLERİ GÖĞE DİKMENİN YASAK OLUŞU",
+      "fileName": "340 Riyaz'üs Salihin - NAMAZDA GÖZLERİ GÖĞE DİKMENİN YASAK OLUŞU.mp3",
+      "sizeBytes": 489401
+    },
+    {
+      "id": "h_341",
+      "order": 341,
+      "title": "NAMAZDA BAŞI SAĞA SOLA ÇEVİRMENİN MEKRUH OLUŞU",
+      "fileName": "341 Riyaz'üs Salihin - NAMAZDA BAŞI SAĞA SOLA ÇEVİRMENİN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 830249
+    },
+    {
+      "id": "h_342",
+      "order": 342,
+      "title": "KABİRLERE DOĞRU NAMAZ KILMANIN YASAK OLUŞU",
+      "fileName": "342 Riyaz'üs Salihin - KABİRLERE DOĞRU NAMAZ KILMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 364769
+    },
+    {
+      "id": "h_343",
+      "order": 343,
+      "title": "NAMAZ KILAN KİMSENİN ÖNÜNDEN GEÇMENIN HARAM OLUŞU",
+      "fileName": "343 Riyaz'üs Salihin - NAMAZ KILAN KİMSENİN ÖNÜNDEN GEÇMENIN HARAM OLUŞU.mp3",
+      "sizeBytes": 612353
+    },
+    {
+      "id": "h_344",
+      "order": 344,
+      "title": "MÜEZZİN KAMETE BAŞLADIĞINDA NAFİLE KILMANIN MEKRUH OLUŞU",
+      "fileName": "344 Riyaz'üs Salihin - MÜEZZİN KAMETE BAŞLADIĞINDA NAFİLE KILMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 372977
+    },
+    {
+      "id": "h_345",
+      "order": 345,
+      "title": "SADECE CUMA GÜNÜNÜ ORUCA VE CUMA GECESİNİ NAMAZA AYIRMANIN MEKRUH OLUŞU",
+      "fileName": "345 Riyaz'üs Salihin - SADECE CUMA GÜNÜNÜ ORUCA VE CUMA GECESİNİ NAMAZA AYIRMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 1687697
+    },
+    {
+      "id": "h_346",
+      "order": 346,
+      "title": "İFTAR ETMEDEN ORUCU BİRBİRİNE EKLEMENİN HARAM OLUŞU",
+      "fileName": "346 Riyaz'üs Salihin - İFTAR ETMEDEN ORUCU BİRBİRİNE EKLEMENİN HARAM OLUŞU.mp3",
+      "sizeBytes": 799793
+    },
+    {
+      "id": "h_347",
+      "order": 347,
+      "title": "KABİR ÜZERİNE OTURMANIN HARAM OLUŞU",
+      "fileName": "347 Riyaz'üs Salihin - KABİR ÜZERİNE OTURMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 432473
+    },
+    {
+      "id": "h_348",
+      "order": 348,
+      "title": "KABRİ KİREÇLEMEK VE ÜZERİNE BİNA YAPMANIN HARAM OLUŞU",
+      "fileName": "348 Riyaz'üs Salihin - KABRİ KİREÇLEMEK VE ÜZERİNE BİNA YAPMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 471281
+    },
+    {
+      "id": "h_349",
+      "order": 349,
+      "title": "KÖLENİN EFENDİSİNDEN KAÇMASININ AĞIR GÜNAH OLUŞU",
+      "fileName": "349 Riyaz'üs Salihin - KÖLENİN EFENDİSİNDEN KAÇMASININ AĞIR GÜNAH OLUŞU.mp3",
+      "sizeBytes": 814313
+    },
+    {
+      "id": "h_350",
+      "order": 350,
+      "title": "ŞER’İ CEZALARDA İLTİMAS VE ŞEFAATTE BULUNMANIN HARAM OLUŞU",
+      "fileName": "350 Riyaz'üs Salihin - ŞER’İ CEZALARDA İLTİMAS VE ŞEFAATTE BULUNMANIN HARAM OLUŞU.mp3",
+      "sizeBytes": 2018129
+    },
+    {
+      "id": "h_351",
+      "order": 351,
+      "title": "YOL GÖLGELİK VE SU BAŞLARINA ABDEST BOZMANIN YASAK OLUŞU",
+      "fileName": "351 Riyaz'üs Salihin - YOL GÖLGELİK VE SU BAŞLARINA ABDEST BOZMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 827369
+    },
+    {
+      "id": "h_352",
+      "order": 352,
+      "title": "DURGUN SUYA ABDEST BOZMANIN YASAK OLUŞ",
+      "fileName": "352 Riyaz'üs Salihin - DURGUN SUYA ABDEST BOZMANIN YASAK OLUŞ.mp3",
+      "sizeBytes": 277769
+    },
+    {
+      "id": "h_353",
+      "order": 353,
+      "title": "BABANIN MAL BAĞIŞLAMADA ÇOCUKLARI ARASINDA AYIRIM YAPMASININ MEKRUH OLDUĞU",
+      "fileName": "353 Riyaz'üs Salihin - BABANIN MAL BAĞIŞLAMADA ÇOCUKLARI ARASINDA AYIRIM YAPMASININ MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 1924241
+    },
+    {
+      "id": "h_354",
+      "order": 354,
+      "title": "YAS TUTMANIN YASAK OLUŞU",
+      "fileName": "354 Riyaz'üs Salihin - YAS TUTMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 1430825
+    },
+    {
+      "id": "h_355",
+      "order": 355,
+      "title": "ŞEHİRLİNİN KÖYLÜYE SİMSARLIK ETMESİNİN VE SATIŞ ÜZERİNE SATIŞ YAPMANIN YASAK",
+      "fileName": "355 Riyaz'üs Salihin - ŞEHİRLİNİN KÖYLÜYE SİMSARLIK ETMESİNİN VE SATIŞ ÜZERİNE SATIŞ YAPMANIN YASAK.mp3",
+      "sizeBytes": 3285329
+    },
+    {
+      "id": "h_356",
+      "order": 356,
+      "title": "İSLAMIN EMRİ DIŞINDA MAL HARCAMANIN YASAK OLUŞU",
+      "fileName": "356 Riyaz'üs Salihin - İSLAMIN EMRİ DIŞINDA MAL HARCAMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 2169353
+    },
+    {
+      "id": "h_357",
+      "order": 357,
+      "title": "SİLAHLA ŞAKALAŞMANIN YASAK OLUŞU",
+      "fileName": "357 Riyaz'üs Salihin - SİLAHLA ŞAKALAŞMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 1127993
+    },
+    {
+      "id": "h_358",
+      "order": 358,
+      "title": "EZAN OKUNDUKTAN SONRA MESCİDDEN ÇIKMANIN MEKRUH OLUŞU",
+      "fileName": "358 Riyaz'üs Salihin - EZAN OKUNDUKTAN SONRA MESCİDDEN ÇIKMANIN MEKRUH OLUŞU.mp3",
+      "sizeBytes": 565529
+    },
+    {
+      "id": "h_359",
+      "order": 359,
+      "title": "GÜZEL KOKUYU REDDETMENİN MEKRUH OLDUĞU",
+      "fileName": "359 Riyaz'üs Salihin - GÜZEL KOKUYU REDDETMENİN MEKRUH OLDUĞU.mp3",
+      "sizeBytes": 614081
+    },
+    {
+      "id": "h_360",
+      "order": 360,
+      "title": "BÖBÜRLENMEYECEK KİŞİYİ YÜZÜNE KARŞI ÖVMENİN CAİZ OLDUĞU",
+      "fileName": "360 Riyaz'üs Salihin - BÖBÜRLENMEYECEK KİŞİYİ YÜZÜNE KARŞI ÖVMENİN CAİZ OLDUĞU.mp3",
+      "sizeBytes": 1741313
+    },
+    {
+      "id": "h_361",
+      "order": 361,
+      "title": "BULAŞICI HASTALIK OLAN YERDEN KAÇMANIN VE BÖYLE BİR YERE GİRMENİN MEKRUH OLU",
+      "fileName": "361 Riyaz'üs Salihin - BULAŞICI HASTALIK OLAN YERDEN KAÇMANIN VE BÖYLE BİR YERE GİRMENİN MEKRUH OLU.mp3",
+      "sizeBytes": 3607337
+    },
+    {
+      "id": "h_362",
+      "order": 362,
+      "title": "SİHİR VE BÜYÜNÜN ÇOK BÜYÜK GÜNAHLARDAN OLDUĞU",
+      "fileName": "362 Riyaz'üs Salihin - SİHİR VE BÜYÜNÜN ÇOK BÜYÜK GÜNAHLARDAN OLDUĞU.mp3",
+      "sizeBytes": 2041457
+    },
+    {
+      "id": "h_363",
+      "order": 363,
+      "title": "DÜŞMAN ELİNE GEÇİP HAKARET EDİLME KORKUSUNDAN DOLAYI KUR’AN I KERİM İLE KAFİ",
+      "fileName": "363 Riyaz'üs Salihin - DÜŞMAN ELİNE GEÇİP HAKARET EDİLME KORKUSUNDAN DOLAYI KUR’AN I KERİM İLE KAFİ.mp3",
+      "sizeBytes": 404777
+    },
+    {
+      "id": "h_364",
+      "order": 364,
+      "title": "ALTIN VE GÜMÜŞ KAP KULLANMANIN YASAK OLUŞU",
+      "fileName": "364 Riyaz'üs Salihin - ALTIN VE GÜMÜŞ KAP KULLANMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 1510073
+    },
+    {
+      "id": "h_365",
+      "order": 365,
+      "title": "KADINLARA HAS OLAN SARI RENGE BOYANMIŞ ELBİSEYİ ERKEĞİN GİYMESİNİN HARAM",
+      "fileName": "365 Riyaz'üs Salihin - KADINLARA HAS OLAN SARI RENGE BOYANMIŞ ELBİSEYİ ERKEĞİN GİYMESİNİN HARAM.mp3",
+      "sizeBytes": 872681
+    },
+    {
+      "id": "h_366",
+      "order": 366,
+      "title": "GÜN BOYU KONUŞMADAN SUSUP DURMANIN YASAK OLUŞU",
+      "fileName": "366 Riyaz'üs Salihin - GÜN BOYU KONUŞMADAN SUSUP DURMANIN YASAK OLUŞU.mp3",
+      "sizeBytes": 1137257
+    },
+    {
+      "id": "h_367",
+      "order": 367,
+      "title": "KİŞİNİN KENDİ BABASINDAN BAŞKASINA BABALIK İDDİASINDA BULUNMASININ HARAM",
+      "fileName": "367 Riyaz'üs Salihin - KİŞİNİN KENDİ BABASINDAN BAŞKASINA BABALIK İDDİASINDA BULUNMASININ HARAM.mp3",
+      "sizeBytes": 3232289
+    },
+    {
+      "id": "h_368",
+      "order": 368,
+      "title": "ALLAH VE RASÛLÜNÜN YASAKLADIKLARINDAN KAÇINMAK",
+      "fileName": "368 Riyaz'üs Salihin - ALLAH VE RASÛLÜNÜN YASAKLADIKLARINDAN KAÇINMAK.mp3",
+      "sizeBytes": 1249625
+    },
+    {
+      "id": "h_369",
+      "order": 369,
+      "title": "YASAKLARI İŞLEYEN KİMSENİN NE YAPMASI GEREKTİĞİ",
+      "fileName": "369 Riyaz'üs Salihin - YASAKLARI İŞLEYEN KİMSENİN NE YAPMASI GEREKTİĞİ.mp3",
+      "sizeBytes": 1981289
+    },
+    {
+      "id": "h_370",
+      "order": 370,
+      "title": "BELLİ BİR KONUYU KAPSAMAYIP HOŞ CAZİP VE İLGİNÇ HADİSLER",
+      "fileName": "370 Riyaz'üs Salihin - BELLİ BİR KONUYU KAPSAMAYIP HOŞ CAZİP VE İLGİNÇ HADİSLER.mp3",
+      "sizeBytes": 25608666
+    },
+    {
+      "id": "h_371",
+      "order": 371,
+      "title": "İSTİĞFAR VE TEVBE",
+      "fileName": "371 Riyaz'üs Salihin - İSTİĞFAR VE TEVBE.mp3",
+      "sizeBytes": 10192362
+    },
+    {
+      "id": "h_372",
+      "order": 372,
+      "title": "ALLAH’IN MÜ’MİNLERE CENNETTE HAZIRLADIĞI NİMETLER",
+      "fileName": "372 Riyaz'üs Salihin - ALLAH’IN MÜ’MİNLERE CENNETTE HAZIRLADIĞI NİMETLER.mp3",
+      "sizeBytes": 17892666
+    }
+  ]
+}

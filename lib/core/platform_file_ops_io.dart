@@ -45,3 +45,32 @@ Future<void> deleteLocalFile(String path) async {
 }
 
 ImageProvider localFileImageProvider(String path) => FileImage(File(path));
+
+/// İndirilmiş medya baytlarını (Kuran/Hadis ses dosyaları gibi büyük
+/// dosyalar) diske yazar ve oynatılabilir dosya yolunu döner. Dosya zaten
+/// varsa tekrar yazmaz. Web'de karşılığı yoktur — bkz. [platform_file_ops_stub.dart].
+Future<String?> saveMediaBytes(
+  String category,
+  String fileName,
+  Uint8List bytes,
+) async {
+  final appDir = await getApplicationDocumentsDirectory();
+  final categoryDir = Directory('${appDir.path}/mediaCache/$category');
+  if (!await categoryDir.exists()) {
+    await categoryDir.create(recursive: true);
+  }
+  final file = File('${categoryDir.path}/$fileName');
+  if (!await file.exists()) {
+    await file.writeAsBytes(bytes, flush: true);
+  }
+  return file.path;
+}
+
+/// [saveMediaBytes] ile diske yazılmış bir dosyayı siler (varsa).
+Future<void> deleteMediaBytes(String category, String fileName) async {
+  final appDir = await getApplicationDocumentsDirectory();
+  final file = File('${appDir.path}/mediaCache/$category/$fileName');
+  if (await file.exists()) {
+    await file.delete();
+  }
+}

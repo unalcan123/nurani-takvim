@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'date_format.dart';
 import 'selected_date_provider.dart';
 
-/// Ana Sayfa, Günlük İçerik ve Namaz Vakitleri sayfaları arasında ortak
-/// kullanılan gün gezinme çubuğu (‹ Önceki Gün | tarih | Sonraki Gün ›).
+/// Ana Sayfa ve Günlük İçerik sayfaları arasında ortak kullanılan gün gezinme
+/// çubuğu (‹ Önceki Gün | tarih | Sonraki Gün ›).
 /// `selectedDateProvider`'ı doğrudan okuyup yazar, böylece tüm sayfalar aynı
 /// günü senkron gösterir.
 class DateNavigatorBar extends ConsumerWidget {

@@ -75,6 +75,8 @@ flutter:
     - assets/data/tarihte_bugun.json
     - assets/data/ezan_sesleri.json
     - assets/data/ezan_library_manifest.json
+    - assets/data/hadith_library_manifest.json
+    - assets/data/surah_list.json
     - assets/images/kabe/
     - assets/images/all/
     - assets/images/islam/

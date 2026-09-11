@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme.dart';
 import '../../daily_content/presentation/daily_content_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
+import '../../media/presentation/media_hub_page.dart';
 import '../../settings/presentation/qibla_page.dart';
 import 'dashboard_home_page.dart';
 import 'nav_items.dart';
-import 'prayer_times_page.dart';
 import 'settings_hub_page.dart';
 
 /// Seçili sekme. `AppShell` yeniden oluşturulsa bile (ör. konum seçimi
@@ -23,7 +23,6 @@ class AppShell extends ConsumerWidget {
   static const _pages = [
     DashboardHomePage(),
     DailyContentPage(),
-    PrayerTimesPage(),
     FavoritesPage(),
     SettingsHubPage(),
   ];
@@ -107,6 +106,18 @@ class _NavDrawer extends StatelessWidget {
               );
             }),
             const Divider(),
+            ListTile(
+              leading: const Icon(Icons.headphones_outlined),
+              title: const Text('Dinle'),
+              subtitle: const Text('Kuran, Hadis, Kabe Canlı TV'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MediaHubPage()),
+                );
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.navigation_outlined),
               title: const Text('Kıble Yönü'),

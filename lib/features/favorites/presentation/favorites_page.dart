@@ -3,8 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dashboard/presentation/app_shell.dart';
 import '../../daily_content/presentation/content_card.dart';
+import '../../hadith/data/hadith_audio_cache.dart';
+import '../../hadith/data/hadith_audio_library.dart';
+import '../../media/player/full_player_sheet.dart';
+import '../../media/player/media_player_controller.dart';
 import '../data/favorites_repository.dart';
 import '../data/models.dart';
+
+const _hadithAudioRefPrefix = 'hadith_audio:';
+
+Future<void> _openHadithAudioFavorite(
+  BuildContext context,
+  WidgetRef ref,
+  String refId,
+) async {
+  final entryId = refId.substring(_hadithAudioRefPrefix.length);
+  final manifest = await HadithAudioLibraryService().loadManifest();
+  final entry = manifest.byId(entryId);
+  if (entry == null) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bu hadis kaydı artık listede yok.')),
+      );
+    }
+    return;
+  }
+  final cachedPath = await HadithAudioCache().cachedFilePath(entry);
+  final source = cachedPath != null
+      ? Uri.file(cachedPath)
+      : Uri.parse(Uri.encodeFull('${manifest.baseUrl}${entry.fileName}'));
+  await ref.read(mediaPlayerControllerProvider).playTrack(
+        MediaTrack(
+          id: entry.id,
+          title: entry.title,
+          subtitle: manifest.narrator,
+          source: source,
+        ),
+      );
+  if (context.mounted) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const FullPlayerSheet(),
+    );
+  }
+}
 
 IconData _iconFor(FavoriteType type) => switch (type) {
       FavoriteType.ayet => Icons.menu_book_outlined,
@@ -39,7 +82,9 @@ class FavoritesPage extends ConsumerWidget {
           (f) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: ContentCard(
-              icon: _iconFor(f.type),
+              icon: f.refId.startsWith(_hadithAudioRefPrefix)
+                  ? Icons.play_circle_outline
+                  : _iconFor(f.type),
               title: f.title,
               body: f.body,
               sourceLine: f.sourceLine,
@@ -47,6 +92,9 @@ class FavoritesPage extends ConsumerWidget {
               isSampleData: false,
               favoriteType: f.type,
               favoriteRefId: f.refId,
+              onTap: f.refId.startsWith(_hadithAudioRefPrefix)
+                  ? () => _openHadithAudioFavorite(context, ref, f.refId)
+                  : null,
             ),
           ),
         ),

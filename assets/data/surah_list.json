@@ -1,0 +1,689 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sureNo": 1,
+      "arabicName": "الفاتحة",
+      "turkishName": "Fâtiha",
+      "ayahCount": 7
+    },
+    {
+      "sureNo": 2,
+      "arabicName": "البقرة",
+      "turkishName": "Bakara",
+      "ayahCount": 286
+    },
+    {
+      "sureNo": 3,
+      "arabicName": "آل عمران",
+      "turkishName": "Âl-i İmrân",
+      "ayahCount": 200
+    },
+    {
+      "sureNo": 4,
+      "arabicName": "النساء",
+      "turkishName": "Nisâ",
+      "ayahCount": 176
+    },
+    {
+      "sureNo": 5,
+      "arabicName": "المائدة",
+      "turkishName": "Mâide",
+      "ayahCount": 120
+    },
+    {
+      "sureNo": 6,
+      "arabicName": "الأنعام",
+      "turkishName": "En'âm",
+      "ayahCount": 165
+    },
+    {
+      "sureNo": 7,
+      "arabicName": "الأعراف",
+      "turkishName": "A'râf",
+      "ayahCount": 206
+    },
+    {
+      "sureNo": 8,
+      "arabicName": "الأنفال",
+      "turkishName": "Enfâl",
+      "ayahCount": 75
+    },
+    {
+      "sureNo": 9,
+      "arabicName": "التوبة",
+      "turkishName": "Tevbe",
+      "ayahCount": 129
+    },
+    {
+      "sureNo": 10,
+      "arabicName": "يونس",
+      "turkishName": "Yûnus",
+      "ayahCount": 109
+    },
+    {
+      "sureNo": 11,
+      "arabicName": "هود",
+      "turkishName": "Hûd",
+      "ayahCount": 123
+    },
+    {
+      "sureNo": 12,
+      "arabicName": "يوسف",
+      "turkishName": "Yûsuf",
+      "ayahCount": 111
+    },
+    {
+      "sureNo": 13,
+      "arabicName": "الرعد",
+      "turkishName": "Ra'd",
+      "ayahCount": 43
+    },
+    {
+      "sureNo": 14,
+      "arabicName": "ابراهيم",
+      "turkishName": "İbrâhîm",
+      "ayahCount": 52
+    },
+    {
+      "sureNo": 15,
+      "arabicName": "الحجر",
+      "turkishName": "Hicr",
+      "ayahCount": 99
+    },
+    {
+      "sureNo": 16,
+      "arabicName": "النحل",
+      "turkishName": "Nahl",
+      "ayahCount": 128
+    },
+    {
+      "sureNo": 17,
+      "arabicName": "الإسراء",
+      "turkishName": "İsrâ",
+      "ayahCount": 111
+    },
+    {
+      "sureNo": 18,
+      "arabicName": "الكهف",
+      "turkishName": "Kehf",
+      "ayahCount": 110
+    },
+    {
+      "sureNo": 19,
+      "arabicName": "مريم",
+      "turkishName": "Meryem",
+      "ayahCount": 98
+    },
+    {
+      "sureNo": 20,
+      "arabicName": "طه",
+      "turkishName": "Tâhâ",
+      "ayahCount": 135
+    },
+    {
+      "sureNo": 21,
+      "arabicName": "الأنبياء",
+      "turkishName": "Enbiyâ",
+      "ayahCount": 112
+    },
+    {
+      "sureNo": 22,
+      "arabicName": "الحج",
+      "turkishName": "Hac",
+      "ayahCount": 78
+    },
+    {
+      "sureNo": 23,
+      "arabicName": "المؤمنون",
+      "turkishName": "Mü'minûn",
+      "ayahCount": 118
+    },
+    {
+      "sureNo": 24,
+      "arabicName": "النور",
+      "turkishName": "Nûr",
+      "ayahCount": 64
+    },
+    {
+      "sureNo": 25,
+      "arabicName": "الفرقان",
+      "turkishName": "Furkân",
+      "ayahCount": 77
+    },
+    {
+      "sureNo": 26,
+      "arabicName": "الشعراء",
+      "turkishName": "Şuarâ",
+      "ayahCount": 227
+    },
+    {
+      "sureNo": 27,
+      "arabicName": "النمل",
+      "turkishName": "Neml",
+      "ayahCount": 93
+    },
+    {
+      "sureNo": 28,
+      "arabicName": "القصص",
+      "turkishName": "Kasas",
+      "ayahCount": 88
+    },
+    {
+      "sureNo": 29,
+      "arabicName": "العنكبوت",
+      "turkishName": "Ankebût",
+      "ayahCount": 69
+    },
+    {
+      "sureNo": 30,
+      "arabicName": "الروم",
+      "turkishName": "Rûm",
+      "ayahCount": 60
+    },
+    {
+      "sureNo": 31,
+      "arabicName": "لقمان",
+      "turkishName": "Lokmân",
+      "ayahCount": 34
+    },
+    {
+      "sureNo": 32,
+      "arabicName": "السجدة",
+      "turkishName": "Secde",
+      "ayahCount": 30
+    },
+    {
+      "sureNo": 33,
+      "arabicName": "الأحزاب",
+      "turkishName": "Ahzâb",
+      "ayahCount": 73
+    },
+    {
+      "sureNo": 34,
+      "arabicName": "سبإ",
+      "turkishName": "Sebe'",
+      "ayahCount": 54
+    },
+    {
+      "sureNo": 35,
+      "arabicName": "فاطر",
+      "turkishName": "Fâtır",
+      "ayahCount": 45
+    },
+    {
+      "sureNo": 36,
+      "arabicName": "يس",
+      "turkishName": "Yâsîn",
+      "ayahCount": 83
+    },
+    {
+      "sureNo": 37,
+      "arabicName": "الصافات",
+      "turkishName": "Sâffât",
+      "ayahCount": 182
+    },
+    {
+      "sureNo": 38,
+      "arabicName": "ص",
+      "turkishName": "Sâd",
+      "ayahCount": 88
+    },
+    {
+      "sureNo": 39,
+      "arabicName": "الزمر",
+      "turkishName": "Zümer",
+      "ayahCount": 75
+    },
+    {
+      "sureNo": 40,
+      "arabicName": "غافر",
+      "turkishName": "Mü'min",
+      "ayahCount": 85
+    },
+    {
+      "sureNo": 41,
+      "arabicName": "فصلت",
+      "turkishName": "Fussilet",
+      "ayahCount": 54
+    },
+    {
+      "sureNo": 42,
+      "arabicName": "الشورى",
+      "turkishName": "Şûrâ",
+      "ayahCount": 53
+    },
+    {
+      "sureNo": 43,
+      "arabicName": "الزخرف",
+      "turkishName": "Zuhruf",
+      "ayahCount": 89
+    },
+    {
+      "sureNo": 44,
+      "arabicName": "الدخان",
+      "turkishName": "Duhân",
+      "ayahCount": 59
+    },
+    {
+      "sureNo": 45,
+      "arabicName": "الجاثية",
+      "turkishName": "Câsiye",
+      "ayahCount": 37
+    },
+    {
+      "sureNo": 46,
+      "arabicName": "الأحقاف",
+      "turkishName": "Ahkâf",
+      "ayahCount": 35
+    },
+    {
+      "sureNo": 47,
+      "arabicName": "محمد",
+      "turkishName": "Muhammed",
+      "ayahCount": 38
+    },
+    {
+      "sureNo": 48,
+      "arabicName": "الفتح",
+      "turkishName": "Fetih",
+      "ayahCount": 29
+    },
+    {
+      "sureNo": 49,
+      "arabicName": "الحجرات",
+      "turkishName": "Hucurât",
+      "ayahCount": 18
+    },
+    {
+      "sureNo": 50,
+      "arabicName": "ق",
+      "turkishName": "Kâf",
+      "ayahCount": 45
+    },
+    {
+      "sureNo": 51,
+      "arabicName": "الذاريات",
+      "turkishName": "Zâriyât",
+      "ayahCount": 60
+    },
+    {
+      "sureNo": 52,
+      "arabicName": "الطور",
+      "turkishName": "Tûr",
+      "ayahCount": 49
+    },
+    {
+      "sureNo": 53,
+      "arabicName": "النجم",
+      "turkishName": "Necm",
+      "ayahCount": 62
+    },
+    {
+      "sureNo": 54,
+      "arabicName": "القمر",
+      "turkishName": "Kamer",
+      "ayahCount": 55
+    },
+    {
+      "sureNo": 55,
+      "arabicName": "الرحمن",
+      "turkishName": "Rahmân",
+      "ayahCount": 78
+    },
+    {
+      "sureNo": 56,
+      "arabicName": "الواقعة",
+      "turkishName": "Vâkıa",
+      "ayahCount": 96
+    },
+    {
+      "sureNo": 57,
+      "arabicName": "الحديد",
+      "turkishName": "Hadîd",
+      "ayahCount": 29
+    },
+    {
+      "sureNo": 58,
+      "arabicName": "المجادلة",
+      "turkishName": "Mücâdele",
+      "ayahCount": 22
+    },
+    {
+      "sureNo": 59,
+      "arabicName": "الحشر",
+      "turkishName": "Haşr",
+      "ayahCount": 24
+    },
+    {
+      "sureNo": 60,
+      "arabicName": "الممتحنة",
+      "turkishName": "Mümtehine",
+      "ayahCount": 13
+    },
+    {
+      "sureNo": 61,
+      "arabicName": "الصف",
+      "turkishName": "Saf",
+      "ayahCount": 14
+    },
+    {
+      "sureNo": 62,
+      "arabicName": "الجمعة",
+      "turkishName": "Cuma",
+      "ayahCount": 11
+    },
+    {
+      "sureNo": 63,
+      "arabicName": "المنافقون",
+      "turkishName": "Münâfikûn",
+      "ayahCount": 11
+    },
+    {
+      "sureNo": 64,
+      "arabicName": "التغابن",
+      "turkishName": "Tegâbün",
+      "ayahCount": 18
+    },
+    {
+      "sureNo": 65,
+      "arabicName": "الطلاق",
+      "turkishName": "Talâk",
+      "ayahCount": 12
+    },
+    {
+      "sureNo": 66,
+      "arabicName": "التحريم",
+      "turkishName": "Tahrîm",
+      "ayahCount": 12
+    },
+    {
+      "sureNo": 67,
+      "arabicName": "الملك",
+      "turkishName": "Mülk",
+      "ayahCount": 30
+    },
+    {
+      "sureNo": 68,
+      "arabicName": "القلم",
+      "turkishName": "Kalem",
+      "ayahCount": 52
+    },
+    {
+      "sureNo": 69,
+      "arabicName": "الحاقة",
+      "turkishName": "Hâkka",
+      "ayahCount": 52
+    },
+    {
+      "sureNo": 70,
+      "arabicName": "المعارج",
+      "turkishName": "Meâric",
+      "ayahCount": 44
+    },
+    {
+      "sureNo": 71,
+      "arabicName": "نوح",
+      "turkishName": "Nûh",
+      "ayahCount": 28
+    },
+    {
+      "sureNo": 72,
+      "arabicName": "الجن",
+      "turkishName": "Cin",
+      "ayahCount": 28
+    },
+    {
+      "sureNo": 73,
+      "arabicName": "المزمل",
+      "turkishName": "Müzzemmil",
+      "ayahCount": 20
+    },
+    {
+      "sureNo": 74,
+      "arabicName": "المدثر",
+      "turkishName": "Müddessir",
+      "ayahCount": 56
+    },
+    {
+      "sureNo": 75,
+      "arabicName": "القيامة",
+      "turkishName": "Kıyâmet",
+      "ayahCount": 40
+    },
+    {
+      "sureNo": 76,
+      "arabicName": "الانسان",
+      "turkishName": "İnsân",
+      "ayahCount": 31
+    },
+    {
+      "sureNo": 77,
+      "arabicName": "المرسلات",
+      "turkishName": "Mürselât",
+      "ayahCount": 50
+    },
+    {
+      "sureNo": 78,
+      "arabicName": "النبإ",
+      "turkishName": "Nebe",
+      "ayahCount": 40
+    },
+    {
+      "sureNo": 79,
+      "arabicName": "النازعات",
+      "turkishName": "Naziât",
+      "ayahCount": 46
+    },
+    {
+      "sureNo": 80,
+      "arabicName": "عبس",
+      "turkishName": "Abese",
+      "ayahCount": 42
+    },
+    {
+      "sureNo": 81,
+      "arabicName": "التكوير",
+      "turkishName": "Tekvîr",
+      "ayahCount": 29
+    },
+    {
+      "sureNo": 82,
+      "arabicName": "الإنفطار",
+      "turkishName": "İnfitâr",
+      "ayahCount": 19
+    },
+    {
+      "sureNo": 83,
+      "arabicName": "المطففين",
+      "turkishName": "Mutaffifîn",
+      "ayahCount": 36
+    },
+    {
+      "sureNo": 84,
+      "arabicName": "الإنشقاق",
+      "turkishName": "İnşikâk",
+      "ayahCount": 25
+    },
+    {
+      "sureNo": 85,
+      "arabicName": "البروج",
+      "turkishName": "Burûc",
+      "ayahCount": 22
+    },
+    {
+      "sureNo": 86,
+      "arabicName": "الطارق",
+      "turkishName": "Târık",
+      "ayahCount": 17
+    },
+    {
+      "sureNo": 87,
+      "arabicName": "الأعلى",
+      "turkishName": "A'lâ",
+      "ayahCount": 19
+    },
+    {
+      "sureNo": 88,
+      "arabicName": "الغاشية",
+      "turkishName": "Gâşiye",
+      "ayahCount": 26
+    },
+    {
+      "sureNo": 89,
+      "arabicName": "الفجر",
+      "turkishName": "Fecr",
+      "ayahCount": 30
+    },
+    {
+      "sureNo": 90,
+      "arabicName": "البلد",
+      "turkishName": "Beled",
+      "ayahCount": 20
+    },
+    {
+      "sureNo": 91,
+      "arabicName": "الشمس",
+      "turkishName": "Şems",
+      "ayahCount": 15
+    },
+    {
+      "sureNo": 92,
+      "arabicName": "الليل",
+      "turkishName": "Leyl",
+      "ayahCount": 21
+    },
+    {
+      "sureNo": 93,
+      "arabicName": "الضحى",
+      "turkishName": "Duhâ",
+      "ayahCount": 11
+    },
+    {
+      "sureNo": 94,
+      "arabicName": "الشرح",
+      "turkishName": "İnşirâh",
+      "ayahCount": 8
+    },
+    {
+      "sureNo": 95,
+      "arabicName": "التين",
+      "turkishName": "Tîn",
+      "ayahCount": 8
+    },
+    {
+      "sureNo": 96,
+      "arabicName": "العلق",
+      "turkishName": "Alak",
+      "ayahCount": 19
+    },
+    {
+      "sureNo": 97,
+      "arabicName": "القدر",
+      "turkishName": "Kadir",
+      "ayahCount": 5
+    },
+    {
+      "sureNo": 98,
+      "arabicName": "البينة",
+      "turkishName": "Beyyine",
+      "ayahCount": 8
+    },
+    {
+      "sureNo": 99,
+      "arabicName": "الزلزلة",
+      "turkishName": "Zilzâl",
+      "ayahCount": 8
+    },
+    {
+      "sureNo": 100,
+      "arabicName": "العاديات",
+      "turkishName": "Âdiyât",
+      "ayahCount": 11
+    },
+    {
+      "sureNo": 101,
+      "arabicName": "القارعة",
+      "turkishName": "Kâria",
+      "ayahCount": 11
+    },
+    {
+      "sureNo": 102,
+      "arabicName": "التكاثر",
+      "turkishName": "Tekâsür",
+      "ayahCount": 8
+    },
+    {
+      "sureNo": 103,
+      "arabicName": "العصر",
+      "turkishName": "Asr",
+      "ayahCount": 3
+    },
+    {
+      "sureNo": 104,
+      "arabicName": "الهمزة",
+      "turkishName": "Hümeze",
+      "ayahCount": 9
+    },
+    {
+      "sureNo": 105,
+      "arabicName": "الفيل",
+      "turkishName": "Fîl",
+      "ayahCount": 5
+    },
+    {
+      "sureNo": 106,
+      "arabicName": "قريش",
+      "turkishName": "Kureyş",
+      "ayahCount": 4
+    },
+    {
+      "sureNo": 107,
+      "arabicName": "الماعون",
+      "turkishName": "Maûn",
+      "ayahCount": 7
+    },
+    {
+      "sureNo": 108,
+      "arabicName": "الكوثر",
+      "turkishName": "Kevser",
+      "ayahCount": 3
+    },
+    {
+      "sureNo": 109,
+      "arabicName": "الكافرون",
+      "turkishName": "Kâfirûn",
+      "ayahCount": 6
+    },
+    {
+      "sureNo": 110,
+      "arabicName": "النصر",
+      "turkishName": "Nasr",
+      "ayahCount": 3
+    },
+    {
+      "sureNo": 111,
+      "arabicName": "المسد",
+      "turkishName": "Tebbet",
+      "ayahCount": 5
+    },
+    {
+      "sureNo": 112,
+      "arabicName": "الإخلاص",
+      "turkishName": "İhlâs",
+      "ayahCount": 4
+    },
+    {
+      "sureNo": 113,
+      "arabicName": "الفلق",
+      "turkishName": "Felak",
+      "ayahCount": 5
+    },
+    {
+      "sureNo": 114,
+      "arabicName": "الناس",
+      "turkishName": "Nâs",
+      "ayahCount": 6
+    }
+  ]
+}
