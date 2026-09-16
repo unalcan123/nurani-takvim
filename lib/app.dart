@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/bg_music_service.dart';
+import 'core/responsive.dart';
 import 'core/prayer_alarm_coordinator.dart';
 import 'core/prayer_alarm_watcher.dart';
 import 'features/dashboard/presentation/app_shell.dart';
@@ -61,10 +62,24 @@ class _EzanAppState extends ConsumerState<EzanApp> {
       darkTheme: darkTheme,
       themeMode: themeMode,
       builder: (context, child) {
+        // Telefon genişliğinde (mantıksal en kısa kenar < 600) tüm alt
+        // sayfalar için varsayılan metin boyutlarına bir taban uygulanır —
+        // tablet/web görünümü bu koşulun dışında kaldığı için değişmez.
+        Widget content = child ?? const SizedBox.shrink();
+        if (isPhoneContext(context)) {
+          final ambientTheme = Theme.of(context);
+          content = Theme(
+            data: ambientTheme.copyWith(
+              textTheme: phoneTextTheme(ambientTheme.textTheme),
+              primaryTextTheme: phoneTextTheme(ambientTheme.primaryTextTheme),
+            ),
+            child: content,
+          );
+        }
         // ✅ Tüm sayfaların üstüne mute butonu ekle
         return Stack(
           children: [
-            child ?? const SizedBox.shrink(),
+            content,
             // ✅ Müzik açıksa mute butonu göster — her yerde görünür
             if (settings.bgMusicEnabled)
               Positioned(

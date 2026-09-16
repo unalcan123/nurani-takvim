@@ -147,6 +147,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
           Positioned(
             top: 20,
             left: 20,
+            right: 20,
             child: SafeArea(
               child: Container(
                 padding:
@@ -156,7 +157,12 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: Colors.white24),
                 ),
-                child: Row(
+                // A phone-width screen can't fit the title + 3 icon buttons
+                // + seconds label on one line — scroll horizontally instead
+                // of overflowing.
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.auto_stories, color: Colors.white),
@@ -216,6 +222,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
                       ),
                     ),
                   ],
+                  ),
                 ),
               ),
             ),

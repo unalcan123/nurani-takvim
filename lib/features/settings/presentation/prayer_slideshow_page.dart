@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/responsive.dart';
 import '../../times/presentation/slayt_widget.dart';
 /// ✅ Hem yatay hem dikey serbest
 Future<void> allowAllOrientations() async {
@@ -356,7 +357,7 @@ class _TimeChip extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text(label, style: TextStyle(color: Colors.white70, fontSize: phoneFont(context, 12, 14))),
           const SizedBox(height: 2),
           Text(time, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         ],

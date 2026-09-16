@@ -57,7 +57,10 @@ class DateNavigatorBar extends ConsumerWidget {
                       if (!isToday)
                         TextButton(
                           onPressed: () => ref.read(selectedDateProvider.notifier).state = todayDateOnly(),
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 24)),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: const Size(64, 48),
+                          ),
                           child: const Text('Bugüne dön'),
                         ),
                     ],

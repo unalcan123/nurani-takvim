@@ -51,6 +51,13 @@ class _HadithLibraryPageState extends ConsumerState<HadithLibraryPage> {
 
   Future<void> _play(HadithAudioManifest manifest, HadithAudioEntry entry) async {
     final controller = ref.read(mediaPlayerControllerProvider);
+    // Go home immediately on a single tap — resolving the cached path
+    // previously ran before navigating, which made the tap feel
+    // unresponsive (and tempted a second tap) while it was still working.
+    // Playback now starts in the background instead of blocking the
+    // transition.
+    ref.read(dashboardSelectedTabProvider.notifier).state = 0;
+    Navigator.of(context).popUntil((route) => route.isFirst);
     final cachedPath = await _cache.cachedFilePath(entry);
     // Henüz indirilmemişse doğrudan archive.org'dan akışla çal.
     final source = cachedPath != null
@@ -64,9 +71,6 @@ class _HadithLibraryPageState extends ConsumerState<HadithLibraryPage> {
         source: source,
       ),
     );
-    if (!mounted) return;
-    ref.read(dashboardSelectedTabProvider.notifier).state = 0;
-    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Future<void> _download(HadithAudioManifest manifest, HadithAudioEntry entry) async {

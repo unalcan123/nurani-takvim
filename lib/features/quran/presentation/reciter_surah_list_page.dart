@@ -69,11 +69,15 @@ class _ReciterSurahListPageState extends ConsumerState<ReciterSurahListPage> {
   /// bitince otomatik geçiş bu hafızın tüm sûreleri arasında çalışır.
   Future<void> _play(List<SurahInfo> surahs, int index) async {
     final controller = ref.read(mediaPlayerControllerProvider);
-    final tracks = await Future.wait(surahs.map(_buildTrack));
-    await controller.playPlaylist(tracks, startIndex: index);
-    if (!mounted) return;
+    // Go home immediately on a single tap — building the track list can
+    // involve a cache lookup and previously ran before navigating, which
+    // made the tap feel unresponsive (and tempted a second tap) while it
+    // was still working. Playback now starts in the background instead of
+    // blocking the transition.
     ref.read(dashboardSelectedTabProvider.notifier).state = 0;
     Navigator.of(context).popUntil((route) => route.isFirst);
+    final tracks = await Future.wait(surahs.map(_buildTrack));
+    await controller.playPlaylist(tracks, startIndex: index);
   }
 
   Future<void> _download(SurahInfo surah) async {

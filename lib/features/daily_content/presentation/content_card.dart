@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/responsive.dart';
 import '../../../theme.dart';
 import '../../favorites/data/favorites_repository.dart';
 import '../../favorites/data/models.dart';
@@ -153,7 +154,7 @@ class _Badge extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: phoneFont(context, 11, 14), color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

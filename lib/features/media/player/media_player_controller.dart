@@ -169,11 +169,12 @@ class MediaPlayerController {
     await player.seek(position);
   }
 
+  /// Stops playback but deliberately keeps [currentTrack]/the playlist —
+  /// the home screen's mini player is meant to keep showing the user's
+  /// last-selected track (so it can be resumed with one tap) rather than
+  /// disappearing the moment playback stops.
   Future<void> stop() async {
     if (_disposed) return;
-    currentTrack.value = null;
-    _playlist = const [];
-    _currentIndex = -1;
     await player.stop();
     await _ref.read(bgMusicServiceProvider).resumeAfterAlarm();
   }

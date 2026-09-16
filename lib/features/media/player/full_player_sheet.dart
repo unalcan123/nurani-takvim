@@ -123,42 +123,44 @@ class FullPlayerSheet extends ConsumerWidget {
                   stream: controller.playerStateStream,
                   builder: (context, snapshot) {
                     final playing = snapshot.data?.playing ?? false;
+                    // Each button gets an equal flex slice (rather than
+                    // relying on its own intrinsic width via spaceEvenly)
+                    // so 5 buttons can never overflow a narrow phone width.
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        IconButton(
+                        Expanded(child: IconButton(
                           iconSize: 32,
                           tooltip: 'Önceki Sûre',
                           icon: const Icon(Icons.skip_previous),
                           onPressed: controller.hasPrevious
                               ? controller.playPreviousSurah
                               : null,
-                        ),
-                        IconButton(
+                        )),
+                        Expanded(child: IconButton(
                           iconSize: 36,
                           tooltip: '10 saniye geri',
                           icon: const Icon(Icons.replay_10),
                           onPressed: controller.seekBackward10Seconds,
-                        ),
-                        IconButton.filled(
+                        )),
+                        Expanded(child: IconButton.filled(
                           iconSize: 44,
                           icon: Icon(playing ? Icons.pause : Icons.play_arrow),
                           onPressed: () =>
                               playing ? controller.pause() : controller.resume(),
-                        ),
-                        IconButton(
+                        )),
+                        Expanded(child: IconButton(
                           iconSize: 36,
                           tooltip: '10 saniye ileri',
                           icon: const Icon(Icons.forward_10),
                           onPressed: controller.seekForward10Seconds,
-                        ),
-                        IconButton(
+                        )),
+                        Expanded(child: IconButton(
                           iconSize: 32,
                           tooltip: 'Sonraki Sûre',
                           icon: const Icon(Icons.skip_next),
                           onPressed:
                               controller.hasNext ? controller.playNextSurah : null,
-                        ),
+                        )),
                       ],
                     );
                   },

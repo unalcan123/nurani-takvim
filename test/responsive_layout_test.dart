@@ -130,7 +130,8 @@ Future<void> showLayout(
 
 void main() {
   for (final size in [
-    const Size(320, 640), const Size(390, 844), const Size(600, 960),
+    const Size(320, 640), const Size(360, 780), const Size(390, 844),
+    const Size(430, 932), const Size(600, 960),
     const Size(800, 1280), const Size(1024, 768), const Size(1280, 800),
     const Size(1920, 1080), const Size(844, 390),
   ]) {
@@ -166,6 +167,50 @@ void main() {
       }
       await tester.pumpWidget(const SizedBox());
     });
+  }
+
+  // Landscape phone (e.g. a phone rotated sideways) at enlarged system text
+  // size — a distinct code path (Row-based layout, non-compact prayer
+  // strip) from the portrait ListView cases below.
+  for (final textScale in [1.0, 1.3, 2.0]) {
+    testWidgets('home fits landscape phone at textScale $textScale', (tester) async {
+      resize(tester, const Size(844, 390));
+      final env = await layoutEnvironment(tester);
+      await showLayout(tester, env.container, const AppShell(), textScale: textScale);
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('home-prayer-strip')), findsOneWidget);
+      expect(find.byKey(const ValueKey('home-countdown')), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
+  // Phone widths at normal and enlarged system text size: guards against
+  // horizontal/vertical overflow from the phone-readability floors (see
+  // core/responsive.dart) while respecting the platform TextScaler.
+  for (final size in [
+    const Size(320, 640), const Size(360, 780), const Size(390, 844), const Size(430, 932),
+  ]) {
+    for (final textScale in [1.0, 1.3, 2.0]) {
+      testWidgets('home fits at phone size $size with textScale $textScale', (tester) async {
+        resize(tester, size);
+        final env = await layoutEnvironment(tester);
+        await showLayout(tester, env.container, const AppShell(), textScale: textScale);
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const ValueKey('home-prayer-strip')), findsOneWidget);
+        // The countdown card is further down the phone ListView than the
+        // initial viewport/cache-extent reaches — scroll to it like a real
+        // user would before asserting it rendered without overflowing.
+        await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('home-countdown')),
+          300.0,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const ValueKey('home-countdown')), findsOneWidget);
+        await tester.pumpWidget(const SizedBox());
+      });
+    }
   }
 
   for (final size in [const Size(320, 640), const Size(800, 1280)]) {

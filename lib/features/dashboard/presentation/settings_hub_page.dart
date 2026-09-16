@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../core/responsive.dart';
 import '../../../theme.dart';
 import '../../locations/data/auto_location_service.dart';
 import '../../locations/data/location_providers.dart';
@@ -146,7 +147,7 @@ class _ComingSoonTile extends StatelessWidget {
       enabled: false,
       leading: Icon(icon),
       title: Text(title),
-      trailing: const Text('Yakında', style: TextStyle(fontSize: 12)),
+      trailing: Text('Yakında', style: TextStyle(fontSize: phoneFont(context, 12, 14))),
     );
   }
 }

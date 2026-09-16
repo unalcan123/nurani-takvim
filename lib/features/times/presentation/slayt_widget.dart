@@ -490,6 +490,8 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
                         );
                       },
                       child: Container(
+                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(8),
