@@ -1,22 +1,20 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:image/image.dart' as img;
 
 import '../../../core/platform_file_ops.dart';
+import '../../../core/responsive.dart';
 import '../data/alert_settings.dart';
 import '../data/image_categories.dart';
 import 'alert_settings_controller.dart';
+import 'photo_capture.dart';
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// Desteklenen kullanıcı fotoğrafı uzantıları. HEIC/HEIF (bazı iPhone
-/// kameralarının varsayılan formatı) kasıtlı olarak DAHİL EDİLMEZ — ne
-/// `package:image` (çözümleme) ne de web'deki doğrudan-base64 yolu bu
-/// formatı işleyebilir; sessizce atlamak yerine kullanıcıya açıkça
-/// bildirilir (bkz. `_addImagesGeneric`).
+/// kameralarının varsayılan galeri formatı) kasıtlı olarak DAHİL EDİLMEZ —
+/// `package:image` bu formatı çözümleyemez; sessizce atlamak yerine
+/// kullanıcıya açıkça bildirilir (bkz. [runAddPhotosFlow]).
 const List<String> supportedImageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
 bool isSupportedImageFileName(String fileName) {
@@ -24,36 +22,6 @@ bool isSupportedImageFileName(String fileName) {
   if (dot == -1) return false;
   final ext = fileName.substring(dot + 1).toLowerCase();
   return supportedImageExtensions.contains(ext);
-}
-
-/// ✅ GÖRSEL İŞLEME YARDIMCISI (TV İÇİN NORMALLEŞTİRME)
-class ImageTvFixer {
-  /// Görseli 1920x1080 (16:9) formatına merkezden kırparak (cover mantığı) ölçekler
-  static img.Image resizeCoverAndCrop(
-    img.Image src, {
-    int targetW = 1920,
-    int targetH = 1080,
-  }) {
-    final double srcAspect = src.width / src.height;
-    final double targetAspect = targetW / targetH;
-
-    img.Image resized;
-    if (srcAspect > targetAspect) {
-      resized = img.copyResize(src, height: targetH, interpolation: img.Interpolation.linear);
-    } else {
-      resized = img.copyResize(src, width: targetW, interpolation: img.Interpolation.linear);
-    }
-
-    int x = ((resized.width - targetW) ~/ 2).clamp(0, (resized.width - targetW).clamp(0, resized.width));
-    int y = ((resized.height - targetH) ~/ 2).clamp(0, (resized.height - targetH).clamp(0, resized.height));
-
-    return img.copyCrop(resized, x: x, y: y, width: targetW, height: targetH);
-  }
-
-  /// Görseli TV standartlarına getirir (EXIF yönünü düzelt + 16:9 cover)
-  static img.Image processForTv(img.Image input) {
-    return resizeCoverAndCrop(img.bakeOrientation(input));
-  }
 }
 
 class SlideSettingsPage extends ConsumerWidget {
@@ -69,7 +37,11 @@ class SlideSettingsPage extends ConsumerWidget {
     return 'userImages_$cat';
   }
 
-  Future<void> addUserImagesWeb(BuildContext context, WidgetRef ref) async {
+  /// Kategori seçtirir, ardından kamera/galeriden fotoğraf ekleme akışını
+  /// çalıştırır (EXIF düzeltme + önizleme + kaydetme). Web ve mobil aynı
+  /// [runAddPhotosFlow] hattını kullanır; yalnızca kaydetme hedefi farklıdır
+  /// (web: Hive/IndexedDB base64, mobil: uygulama belgeleri klasörü).
+  Future<void> addUserImages(BuildContext context, WidgetRef ref) async {
     final settings = ref.read(alertSettingsProvider);
     final fullMap = _getUserPhotoCategoryMap(settings);
 
@@ -92,34 +64,31 @@ class SlideSettingsPage extends ConsumerWidget {
         ),
       ),
     );
-    if (selectedKey == null) return;
+    if (selectedKey == null || !context.mounted) return;
 
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-      withData: true,
+    final summary = await runAddPhotosFlow(
+      context: context,
+      savePhoto: kIsWeb
+          ? (bytes) async {
+              final key = _webKey(selectedKey);
+              final List existing = (_webBox.get(key) as List?) ?? [];
+              existing.add(base64Encode(bytes));
+              await _webBox.put(key, existing);
+            }
+          : (bytes) async {
+              await saveUserImageBytes(_getInternalDir(selectedKey), bytes);
+            },
     );
-    if (result == null) return;
 
-    final key = _webKey(selectedKey);
-    final List existing = (_webBox.get(key) as List?) ?? [];
+    if (summary.attempted == 0) return;
 
-    var added = 0;
-    var skipped = 0;
-    for (final f in result.files) {
-      final bytes = f.bytes;
-      if (bytes == null || !isSupportedImageFileName(f.name)) {
-        skipped++;
-        continue;
-      }
-      existing.add(base64Encode(bytes));
-      added++;
+    if (kIsWeb) {
+      ref.read(alertSettingsProvider.notifier).touchLastUpdate();
+    } else {
+      ref.read(alertSettingsProvider.notifier).triggerRefresh();
     }
 
-    await _webBox.put(key, existing);
-    ref.read(alertSettingsProvider.notifier).touchLastUpdate();
-
-    if (context.mounted) _showAddResultSnackBar(context, added, skipped);
+    if (context.mounted) _showAddResultSnackBar(context, summary.added, summary.skipped);
   }
 
   /// Eklenen/atlanan fotoğraf sayısını kullanıcıya bildirir — desteklenmeyen
@@ -300,13 +269,8 @@ class SlideSettingsPage extends ConsumerWidget {
             title: 'Yeni Fotoğraf Ekle',
             subtitle: 'TV formatına uygun olarak ekler',
             onTap: () async {
-              if (kIsWeb) {
-                await addUserImagesWeb(context, ref);
-                if (context.mounted) Navigator.pop(context);
-              } else {
-                await _pickUserImageWithCategory(context, ref);
-                if (context.mounted) Navigator.pop(context);
-              }
+              await addUserImages(context, ref);
+              if (context.mounted) Navigator.pop(context);
             },
             cardColor: cardColor,
           ),
@@ -380,14 +344,6 @@ class SlideSettingsPage extends ConsumerWidget {
     );
   }
 
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-  }
-
   Future<void> _addNewCategory(BuildContext context, WidgetRef ref) async {
     final controller = TextEditingController();
     final name = await showDialog<String>(
@@ -416,82 +372,6 @@ class SlideSettingsPage extends ConsumerWidget {
 
     if (name != null && name.isNotEmpty) {
       await ref.read(alertSettingsProvider.notifier).addUserCategory(name);
-    }
-  }
-
-  Future<void> _pickUserImageWithCategory(BuildContext context, WidgetRef ref) async {
-    final settings = ref.read(alertSettingsProvider);
-    final fullMap = _getUserPhotoCategoryMap(settings);
-
-    final String? selectedKey = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Kategori Seçin"),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: MediaQuery.sizeOf(context).height * 0.55,
-          child: ListView(
-            shrinkWrap: true,
-            children: fullMap.entries
-                .map((e) => ListTile(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      title: Text(e.value),
-                      onTap: () => Navigator.pop(context, e.key),
-                    ))
-                .toList(),
-          ),
-        ),
-      ),
-    );
-
-    if (selectedKey == null) return;
-
-    if (!kIsWeb) {
-      await Permission.photos.request();
-      await Permission.storage.request();
-    }
-
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-      withData: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      final internalDir = _getInternalDir(selectedKey);
-
-      if (!context.mounted) return;
-      _showLoadingDialog(context);
-      var count = 0;
-      var skipped = 0;
-
-      for (var file in result.files) {
-        if (file.path == null || !isSupportedImageFileName(file.name)) {
-          skipped++;
-          continue;
-        }
-
-        final bytes = await readLocalFileBytes(file.path!);
-
-        final decoded = img.decodeImage(bytes);
-        if (decoded == null) {
-          skipped++;
-          continue;
-        }
-
-        final processed = ImageTvFixer.processForTv(decoded);
-
-        await saveUserImageBytes(internalDir, img.encodeJpg(processed, quality: 85));
-
-        count++;
-      }
-
-      if (context.mounted) {
-        Navigator.pop(context);
-        ref.read(alertSettingsProvider.notifier).triggerRefresh();
-        _showAddResultSnackBar(context, count, skipped);
-      }
     }
   }
 
@@ -546,29 +426,18 @@ class SlideSettingsPage extends ConsumerWidget {
       builder: (sheetContext) => StatefulBuilder(
         builder: (context, setSheetState) {
           Future<void> addImages() async {
-            final result = await FilePicker.platform.pickFiles(
-              type: FileType.image,
-              allowMultiple: true,
-              withData: true,
+            final summary = await runAddPhotosFlow(
+              context: context,
+              savePhoto: (bytes) async {
+                images.add(base64Encode(bytes));
+                await _webBox.put(key, images);
+              },
             );
-            if (result == null) return;
+            if (summary.attempted == 0) return;
 
-            var added = 0;
-            var skipped = 0;
-            for (final file in result.files) {
-              final bytes = file.bytes;
-              if (bytes == null || !isSupportedImageFileName(file.name)) {
-                skipped++;
-                continue;
-              }
-              images.add(base64Encode(bytes));
-              added++;
-            }
-
-            await _webBox.put(key, images);
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
-            if (context.mounted) _showAddResultSnackBar(context, added, skipped);
+            if (context.mounted) _showAddResultSnackBar(context, summary.added, summary.skipped);
           }
 
           Future<void> deleteAt(int index) async {
@@ -610,45 +479,18 @@ class SlideSettingsPage extends ConsumerWidget {
       builder: (sheetContext) => StatefulBuilder(
         builder: (context, setSheetState) {
           Future<void> addImages() async {
-            if (!kIsWeb) {
-              await Permission.photos.request();
-              await Permission.storage.request();
-            }
-
-            final result = await FilePicker.platform.pickFiles(
-              type: FileType.image,
-              allowMultiple: true,
-              withData: true,
+            final summary = await runAddPhotosFlow(
+              context: context,
+              savePhoto: (bytes) async {
+                final savedPath = await saveUserImageBytes(internalDir, bytes);
+                images.add(savedPath);
+              },
             );
-            if (result == null) return;
-
-            var added = 0;
-            var skipped = 0;
-            for (final file in result.files) {
-              if (file.path == null || !isSupportedImageFileName(file.name)) {
-                skipped++;
-                continue;
-              }
-
-              final bytes = await readLocalFileBytes(file.path!);
-              final decoded = img.decodeImage(bytes);
-              if (decoded == null) {
-                skipped++;
-                continue;
-              }
-
-              final processed = ImageTvFixer.processForTv(decoded);
-              final savedPath = await saveUserImageBytes(
-                internalDir,
-                img.encodeJpg(processed, quality: 85),
-              );
-              images.add(savedPath);
-              added++;
-            }
+            if (summary.attempted == 0) return;
 
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
-            if (context.mounted) _showAddResultSnackBar(context, added, skipped);
+            if (context.mounted) _showAddResultSnackBar(context, summary.added, summary.skipped);
           }
 
           Future<void> deleteAt(int index) async {
@@ -883,9 +725,9 @@ class _ActionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                    Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: phoneFont(context, 15, 16))),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                    Text(subtitle, style: TextStyle(color: Colors.grey.shade500, fontSize: phoneFont(context, 13, 14))),
                   ],
                 ),
               ),

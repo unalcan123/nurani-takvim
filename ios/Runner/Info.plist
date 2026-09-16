@@ -49,5 +49,11 @@
 	<string>Kıble yönünü belirlemek için konumunuza ihtiyaç vardır.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Kıble yönünü belirlemek için konumunuza ihtiyaç vardır.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Slayt fotoğrafı çekmek için kameraya ihtiyaç vardır.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Slayt fotoğrafı eklemek için fotoğraflarınıza ihtiyaç vardır.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>İşlenmiş slayt fotoğrafını kaydetmek için fotoğraflarınıza ihtiyaç vardır.</string>
 </dict>
 </plist>
