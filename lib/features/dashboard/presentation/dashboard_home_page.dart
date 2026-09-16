@@ -138,50 +138,71 @@ class _CityCard extends StatelessWidget {
       key: const ValueKey('home-city-card'),
       color: dashboardSurfaceCream(brightness),
       child: LayoutBuilder(builder: (context, c) {
-        // Tight (landscape phone) mode always uses the max size — the whole
-        // block gets rescaled to fit by the FittedBox below anyway, so
-        // there's no benefit to a smaller nominal size, only less headroom.
-        final size = tight ? 44.0
-            : (c.maxWidth * .095).clamp(isPhoneContext(context) ? 33.0 : 18.0, 44.0);
-        final gapScale = tight ? 0.35 : 1.0;
         final cityName = location?.ilce.ilceAdi ?? 'Şehir seçin';
+
+        if (tight) {
+          // A landscape phone gives this card only ~50-70 logical px of
+          // content height (see debug measurement in test/responsive_layout_test.dart)
+          // — far too little for the tablet/desktop formula below, whose
+          // *nominal* (pre-shrink) sizes only work because that formula
+          // relies on the outer FittedBox to scale everything down by a
+          // large, unpredictable factor. That approach also breaks when any
+          // one line wraps (its unscaled multi-line height inflates the
+          // whole column and shrinks every *other* line along with it) —
+          // exactly what made city/date text unreadably tiny here before.
+          // So this branch sets fixed, already-readable font sizes
+          // directly (city 20, date/hicri 15 — within the 18-22 / 14-16
+          // targets) with no icon and minimal gaps, and treats the outer
+          // FittedBox purely as a last-resort safety net for the rare
+          // 2-line city name.
+          return Center(child: FittedBox(fit: BoxFit.scaleDown,
+            child: SizedBox(width: c.maxWidth, child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(cityName, textAlign: TextAlign.center, maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: ink, fontSize: 20,
+                        height: 1.05, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 3),
+                Text('${gunAdlari[now.weekday - 1]}, ${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
+                    textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: ink, fontSize: 15, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 3),
+                Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
+                    : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: muted, fontSize: 15, fontWeight: FontWeight.w500)),
+                if (location == null)
+                  TextButton(onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const CountryPage())),
+                      child: const Text('Konum seç')),
+              ],
+            )),
+          ));
+        }
+
+        final size = (c.maxWidth * .095).clamp(isPhoneContext(context) ? 33.0 : 18.0, 44.0);
         return Center(child: FittedBox(fit: BoxFit.scaleDown,
           child: SizedBox(width: c.maxWidth, child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.mosque_outlined, color: dashboardAccentGold, size: size * (tight ? 0.5 : 1.05)),
-            SizedBox(height: (tight ? 3 : 8) * gapScale),
-            // The branding caption is the least essential line here — skip
-            // it on a landscape phone so the actually-useful city/date/hicri
-            // lines below get more of this card's very limited height.
-            if (!tight) ...[
-              Text('NURANÎ TAKVİM', style: TextStyle(color: muted,
-                  fontSize: size * .43, letterSpacing: 2.0, fontWeight: FontWeight.w700)),
-              SizedBox(height: size * .45 * gapScale),
-            ],
-            // A long city name (e.g. "ROTTERDAM") word-wraps into an ugly
-            // 2-line split when the card is this narrow; force it to a
-            // single line and let it shrink to fit instead.
-            SizedBox(width: c.maxWidth, child: FittedBox(fit: BoxFit.scaleDown,
-              child: Text(cityName, maxLines: 1, softWrap: false,
-                  style: TextStyle(color: ink, fontSize: size,
-                      height: 1.1, fontWeight: FontWeight.w800)))),
-            SizedBox(height: size * .4 * gapScale),
-            // Combine date + weekday onto one line on a landscape phone to
-            // save a full line of height.
-            if (tight)
-              Text('${gunAdlari[now.weekday - 1]}, ${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
-                  textAlign: TextAlign.center, style: TextStyle(color: ink,
-                      fontSize: size * .5, fontWeight: FontWeight.w600))
-            else ...[
-              Text('${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
-                  textAlign: TextAlign.center, style: TextStyle(color: ink,
-                      fontSize: size * .65, fontWeight: FontWeight.w600)),
-              SizedBox(height: 4 * gapScale),
-              Text(gunAdlari[now.weekday - 1], style: TextStyle(
-                  color: muted, fontSize: size * .57)),
-            ],
-            SizedBox(height: size * .35 * gapScale),
+            Icon(Icons.mosque_outlined, color: dashboardAccentGold, size: size * 1.05),
+            SizedBox(height: 8),
+            Text('NURANÎ TAKVİM', style: TextStyle(color: muted,
+                fontSize: size * .43, letterSpacing: 2.0, fontWeight: FontWeight.w700)),
+            SizedBox(height: size * .45),
+            Text(cityName, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: ink, fontSize: size,
+                    height: 1.1, fontWeight: FontWeight.w800)),
+            SizedBox(height: size * .4),
+            Text('${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
+                textAlign: TextAlign.center, style: TextStyle(color: ink,
+                    fontSize: size * .65, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(gunAdlari[now.weekday - 1], style: TextStyle(
+                color: muted, fontSize: size * .57)),
+            SizedBox(height: size * .35),
             Container(width: 44, height: 2, color: dashboardAccentGold),
-            SizedBox(height: size * .35 * gapScale),
+            SizedBox(height: size * .35),
             Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
                 : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
                 style: TextStyle(color: ink, fontSize: size * .57,

@@ -22,6 +22,15 @@ Future<String> saveUserImageBytes(String category, Uint8List bytes) async {
   return file.path;
 }
 
+/// Var olan bir kullanıcı fotoğrafını YERİNDE (aynı dosya yolunda) üzerine
+/// yazar — [saveUserImageBytes] gibi yeni bir dosya oluşturmaz. Döndürme/
+/// sığdır-doldur düzenlemesi kaydedildiğinde kullanılır; dosya yolu aynı
+/// kaldığı için slayt tarafındaki [localFileImageProvider] önbelleğinin de
+/// [ImageProvider.evict] ile temizlenmesi gerekir (çağıran taraf yapar).
+Future<void> overwriteUserImageBytes(String path, Uint8List bytes) async {
+  await File(path).writeAsBytes(bytes, flush: true);
+}
+
 Future<List<String>> listUserImagePaths(String category) async {
   final appDir = await getApplicationDocumentsDirectory();
   final categoryDir = Directory('${appDir.path}/userImages/$category');

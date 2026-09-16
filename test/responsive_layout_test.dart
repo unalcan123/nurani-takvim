@@ -169,6 +169,45 @@ void main() {
     });
   }
 
+  // Regression guard for a real bug: a nested FittedBox around the city
+  // name reported its *unscaled* natural height upward, inflating the
+  // whole city card's measured height and forcing the outer FittedBox to
+  // shrink the city/date/hicri text far below readability on short
+  // landscape phones. Assert the actual *rendered* (post-scale) font size
+  // of each line lands in the requested range at the two reported sizes.
+  for (final size in [const Size(690, 320), const Size(740, 360)]) {
+    testWidgets('home city card text is readable on a short landscape phone at $size', (tester) async {
+      resize(tester, size);
+      final env = await layoutEnvironment(tester);
+      await showLayout(tester, env.container, const AppShell());
+      expect(tester.takeException(), isNull);
+
+      double effectiveFontSize(Finder finder) {
+        final element = finder.evaluate().single;
+        final text = element.widget as Text;
+        final scale = element.renderObject!.getTransformTo(null).getMaxScaleOnAxis();
+        return text.style!.fontSize! * scale;
+      }
+
+      final cityCard = find.byKey(const ValueKey('home-city-card'));
+      final cityTexts = find.descendant(of: cityCard, matching: find.byType(Text));
+      expect(cityTexts, findsNWidgets(3));
+
+      final citySize = effectiveFontSize(cityTexts.at(0));
+      final dateSize = effectiveFontSize(cityTexts.at(1));
+      final hicriSize = effectiveFontSize(cityTexts.at(2));
+
+      expect(citySize, inInclusiveRange(18.0, 22.0),
+          reason: 'city name font size out of the requested 18-22px range');
+      expect(dateSize, inInclusiveRange(14.0, 16.0),
+          reason: 'date line font size out of the requested 14-16px range');
+      expect(hicriSize, inInclusiveRange(14.0, 16.0),
+          reason: 'hicri line font size out of the requested 14-16px range');
+
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
   // Landscape phone (e.g. a phone rotated sideways) at enlarged system text
   // size — a distinct code path (Row-based layout, non-compact prayer
   // strip) from the portrait ListView cases below.

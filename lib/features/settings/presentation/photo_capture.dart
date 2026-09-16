@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -86,11 +87,176 @@ Future<List<PickedPhoto>> pickPhotosFromGallery() async {
   return picked;
 }
 
+/// Galeriden TEK bir fotoğraf seçer — mevcut bir fotoğrafı "Değiştir" akışı
+/// için.
+Future<PickedPhoto?> pickSinglePhotoFromGallery() async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.image,
+    allowMultiple: false,
+    withData: true,
+  );
+  if (result == null || result.files.isEmpty) return null;
+  final f = result.files.first;
+  final bytes = f.bytes;
+  if (bytes == null) return null;
+  return PickedPhoto(name: f.name, bytes: bytes);
+}
+
 /// Önizleme ekranından dönen kullanıcı kararı.
 class PhotoEditDecision {
   final PhotoFitMode mode;
   final int quarterTurns;
   const PhotoEditDecision({required this.mode, required this.quarterTurns});
+}
+
+/// Önizleme/düzenleme diyaloglarının paylaştığı, taşmaya karşı dayanıklı
+/// yerleşim.
+///
+/// Önceki sürüm sabit bir `AspectRatio(16:9)` görsel kutusu + sabit
+/// yükseklikli kontrol satırları kullanıyordu; kısa yatay telefon
+/// ekranlarında (ör. 690×320, sistem çubukları düşüldükten sonra ~290px
+/// yükseklik) bu sabit talepler toplamda kullanılabilir yüksekliği aşıp
+/// "BOTTOM OVERFLOWED" hatasına yol açıyordu. Bunun yerine: görsel alanı
+/// `Expanded` ile kalan (ne kadarsa o kadar) yüksekliğe sığar — kendisi asla
+/// taşmaya neden olmaz — ve kontroller gerekirse dikey kaydırılabilir.
+/// Ekran çok kısaysa (yatay telefon) tam ekran sunulur; aksi halde mevcut
+/// kutulu diyalog görünümü (tablet/masaüstü) korunur.
+class _PhotoEditorFrame extends StatelessWidget {
+  final String title;
+  final Uint8List? previewBytes;
+  final bool rendering;
+  final VoidCallback onRotateLeft;
+  final VoidCallback onRotateRight;
+  final PhotoFitMode mode;
+  final ValueChanged<PhotoFitMode> onModeChanged;
+  final List<Widget> actionButtons;
+  final VoidCallback onClose;
+
+  const _PhotoEditorFrame({
+    required this.title,
+    required this.previewBytes,
+    required this.rendering,
+    required this.onRotateLeft,
+    required this.onRotateRight,
+    required this.mode,
+    required this.onModeChanged,
+    required this.actionButtons,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Kısa yatay telefon yüksekliğinde (sistem çubukları dahil) kutulu bir
+    // diyalog için yer yok — tam ekrana geç. Eşik, dikey telefonların en
+    // kısasını (640) ve tabletleri güvenle "sığar" tarafında bırakacak,
+    // yatay telefonları (320-430 yükseklik aralığı) "tam ekran" tarafına
+    // alacak şekilde seçildi.
+    final screen = MediaQuery.sizeOf(context);
+    final compact = screen.height < 480;
+
+    final preview = ClipRect(
+      child: ColoredBox(
+        color: tvBgDark,
+        child: previewBytes == null
+            ? const Center(child: CircularProgressIndicator())
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.memory(previewBytes!, fit: BoxFit.contain),
+                  if (rendering)
+                    const Center(child: CircularProgressIndicator(color: Colors.white70)),
+                ],
+              ),
+      ),
+    );
+
+    final controls = Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton.filledTonal(
+                tooltip: 'Sola döndür',
+                icon: const Icon(Icons.rotate_left),
+                onPressed: onRotateLeft,
+              ),
+              const SizedBox(width: 16),
+              IconButton.filledTonal(
+                tooltip: 'Sağa döndür',
+                icon: const Icon(Icons.rotate_right),
+                onPressed: onRotateRight,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<PhotoFitMode>(
+            segments: const [
+              ButtonSegment(
+                value: PhotoFitMode.contain,
+                label: Text('Tamamını Göster'),
+                icon: Icon(Icons.fit_screen_outlined),
+              ),
+              ButtonSegment(
+                value: PhotoFitMode.fill,
+                label: Text('Alanı Doldur'),
+                icon: Icon(Icons.crop),
+              ),
+            ],
+            selected: {mode},
+            onSelectionChanged: (s) => onModeChanged(s.first),
+          ),
+          const SizedBox(height: 16),
+          Row(children: actionButtons),
+        ],
+      ),
+    );
+
+    final body = SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              ),
+              IconButton(tooltip: 'Kapat', icon: const Icon(Icons.close), onPressed: onClose),
+            ],
+          ),
+          // Görsel alanı kalan yüksekliğe sığar — hiçbir zaman taşmaya
+          // sebep olmaz; ne kadar yer varsa fotoğraf o alana BoxFit.contain
+          // ile (yakınlaştırma/kırpma olmadan) sığdırılır.
+          Expanded(child: preview),
+          // Kontroller dar yükseklikte gerekirse kendi içinde kayar; dışa
+          // taşmaz.
+          Flexible(child: SingleChildScrollView(child: controls)),
+        ],
+      ),
+    );
+
+    if (compact) {
+      return Dialog.fullscreen(
+        child: Padding(padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), child: body),
+      );
+    }
+
+    final dialogHeight = math.min(640.0, screen.height * 0.85);
+    return Dialog(
+      insetPadding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(height: dialogHeight, child: body),
+        ),
+      ),
+    );
+  }
 }
 
 /// Kaydetmeden önce fotoğrafı slaytta görüneceği haliyle gösterir; sağa/sola
@@ -160,6 +326,9 @@ class _PhotoPreviewDialogState extends State<_PhotoPreviewDialog> {
     });
   }
 
+  // Döndürme, ekranın kendi yönünden (portrait/landscape) tamamen
+  // bağımsızdır — yalnızca bu düğmelerle değişir, cihaz döndürüldüğünde
+  // (build yeniden çalıştığında) _quarterTurns değeri aynen korunur.
   void _rotate(int delta) {
     setState(() => _quarterTurns = (_quarterTurns + delta) % 4);
     _renderPreview();
@@ -173,110 +342,173 @@ class _PhotoPreviewDialogState extends State<_PhotoPreviewDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.total > 1 ? 'Önizleme (${widget.index}/${widget.total})' : 'Önizleme',
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Vazgeç (bu fotoğrafı atla)',
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              // ✅ Slaytta gösterileceği gibi: sabit oranlı kutu, contain fit,
-              // slayt arka plan rengiyle (tvBgDark) doldurulur.
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ColoredBox(
-                  color: tvBgDark,
-                  child: _previewBytes == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.memory(_previewBytes!, fit: BoxFit.contain),
-                            if (_rendering)
-                              const Center(child: CircularProgressIndicator(color: Colors.white70)),
-                          ],
-                        ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton.filledTonal(
-                    tooltip: 'Sola döndür',
-                    icon: const Icon(Icons.rotate_left),
-                    onPressed: () => _rotate(3),
-                  ),
-                  const SizedBox(width: 16),
-                  IconButton.filledTonal(
-                    tooltip: 'Sağa döndür',
-                    icon: const Icon(Icons.rotate_right),
-                    onPressed: () => _rotate(1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SegmentedButton<PhotoFitMode>(
-                segments: const [
-                  ButtonSegment(
-                    value: PhotoFitMode.contain,
-                    label: Text('Tamamını Göster'),
-                    icon: Icon(Icons.fit_screen_outlined),
-                  ),
-                  ButtonSegment(
-                    value: PhotoFitMode.fill,
-                    label: Text('Alanı Doldur'),
-                    icon: Icon(Icons.crop),
-                  ),
-                ],
-                selected: {_mode},
-                onSelectionChanged: (s) => _setMode(s.first),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Atla'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => Navigator.pop(
-                        context,
-                        PhotoEditDecision(mode: _mode, quarterTurns: _quarterTurns),
-                      ),
-                      child: const Text('Kaydet'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return _PhotoEditorFrame(
+      title: widget.total > 1 ? 'Önizleme (${widget.index}/${widget.total})' : 'Önizleme',
+      previewBytes: _previewBytes,
+      rendering: _rendering,
+      onRotateLeft: () => _rotate(3),
+      onRotateRight: () => _rotate(1),
+      mode: _mode,
+      onModeChanged: _setMode,
+      onClose: () => Navigator.pop(context),
+      actionButtons: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Atla'),
           ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: FilledButton(
+            onPressed: () => Navigator.pop(
+              context,
+              PhotoEditDecision(mode: _mode, quarterTurns: _quarterTurns),
+            ),
+            child: const Text('Kaydet'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// [showExistingPhotoEditSheet] kullanıcının seçtiği eylem.
+enum ExistingPhotoAction { save, delete, replace }
+
+class ExistingPhotoEditResult {
+  final ExistingPhotoAction action;
+  final PhotoFitMode mode;
+  final int quarterTurns;
+  const ExistingPhotoEditResult({
+    required this.action,
+    required this.mode,
+    required this.quarterTurns,
+  });
+}
+
+/// Silme öncesi onay ister — daha önce hiç onay istenmiyordu.
+Future<bool> confirmDeletePhoto(BuildContext context) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Fotoğrafı Sil'),
+      content: const Text('Bu fotoğrafı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Vazgeç')),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: Colors.red),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Sil'),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
+/// "Fotoğraflarımı Düzenle" ızgarasında bir fotoğrafa dokununca açılır:
+/// büyük önizleme, sağa/sola döndürme, sığdır/doldur seçimi ve üç eylem
+/// (Sil — onaylı, Değiştir — yeniden ekleme akışını başlatır, Kaydet — bu
+/// dönüş/mod ayarını yerinde kaydeder). `null` dönerse kullanıcı vazgeçmiştir.
+Future<ExistingPhotoEditResult?> showExistingPhotoEditSheet(
+  BuildContext context, {
+  required img.Image oriented,
+}) {
+  return showDialog<ExistingPhotoEditResult>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => _ExistingPhotoEditDialog(oriented: oriented),
+  );
+}
+
+class _ExistingPhotoEditDialog extends StatefulWidget {
+  final img.Image oriented;
+  const _ExistingPhotoEditDialog({required this.oriented});
+
+  @override
+  State<_ExistingPhotoEditDialog> createState() => _ExistingPhotoEditDialogState();
+}
+
+class _ExistingPhotoEditDialogState extends State<_ExistingPhotoEditDialog> {
+  PhotoFitMode _mode = PhotoFitMode.contain;
+  int _quarterTurns = 0;
+  Uint8List? _previewBytes;
+  bool _rendering = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _renderPreview();
+  }
+
+  void _renderPreview() {
+    setState(() => _rendering = true);
+    final bytes = ImagePipeline.renderPreview(
+      widget.oriented,
+      mode: _mode,
+      quarterTurns: _quarterTurns,
+    );
+    if (!mounted) return;
+    setState(() {
+      _previewBytes = bytes;
+      _rendering = false;
+    });
+  }
+
+  void _rotate(int delta) {
+    setState(() => _quarterTurns = (_quarterTurns + delta) % 4);
+    _renderPreview();
+  }
+
+  void _setMode(PhotoFitMode mode) {
+    if (mode == _mode) return;
+    setState(() => _mode = mode);
+    _renderPreview();
+  }
+
+  Future<void> _delete() async {
+    final confirmed = await confirmDeletePhoto(context);
+    if (!confirmed || !mounted) return;
+    Navigator.pop(context, ExistingPhotoEditResult(
+      action: ExistingPhotoAction.delete, mode: _mode, quarterTurns: _quarterTurns));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _PhotoEditorFrame(
+      title: 'Fotoğrafı Düzenle',
+      previewBytes: _previewBytes,
+      rendering: _rendering,
+      onRotateLeft: () => _rotate(3),
+      onRotateRight: () => _rotate(1),
+      mode: _mode,
+      onModeChanged: _setMode,
+      onClose: () => Navigator.pop(context),
+      actionButtons: [
+        IconButton(
+          tooltip: 'Sil',
+          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+          onPressed: _delete,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context, ExistingPhotoEditResult(
+                action: ExistingPhotoAction.replace, mode: _mode, quarterTurns: _quarterTurns)),
+            child: const Text('Değiştir'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: FilledButton(
+            onPressed: () => Navigator.pop(context, ExistingPhotoEditResult(
+                action: ExistingPhotoAction.save, mode: _mode, quarterTurns: _quarterTurns)),
+            child: const Text('Kaydet'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -428,6 +660,74 @@ Future<PhotoAddSummary> runAddPhotosFlow({
     }
 
     return PhotoAddSummary(added: added, skipped: skipped, attempted: picked.length);
+  } finally {
+    _photoFlowInProgress = false;
+  }
+}
+
+/// "Fotoğrafı Değiştir" akışı: kamera/galeriden TEK bir yeni fotoğraf seçtirir,
+/// aynı EXIF-düzeltme + önizleme adımlarından geçirir ve işlenmiş JPEG
+/// baytlarını döner. Kullanıcı vazgeçerse veya dosya desteklenmiyorsa/bozuksa
+/// `null` döner (ilgili durumda bir SnackBar ile açıkça bildirilir).
+Future<Uint8List?> pickAndProcessSinglePhoto(BuildContext context) async {
+  if (_photoFlowInProgress) return null;
+  _photoFlowInProgress = true;
+
+  try {
+    final source = await showPhotoSourceSheet(context);
+    if (source == null || !context.mounted) return null;
+
+    final picked = source == 'camera'
+        ? await capturePhotoFromCamera()
+        : await pickSinglePhotoFromGallery();
+    if (picked == null) return null;
+
+    if (!isPickedFileSupported(picked.name)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Desteklenmeyen dosya formatı (yalnızca JPG, JPEG, PNG, WEBP '
+              'desteklenir — HEIC/HEIF desteklenmez).'),
+        ));
+      }
+      return null;
+    }
+
+    img.Image oriented;
+    try {
+      oriented = await ImagePipeline.decodeAndOrientAsync(picked.bytes);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Fotoğraf işlenemedi — dosya bozuk veya desteklenmeyen bir formatta.'),
+        ));
+      }
+      return null;
+    }
+
+    if (!context.mounted) return null;
+    final decision = await showPhotoPreviewDialog(context, oriented: oriented, fileName: picked.name);
+    if (decision == null || !context.mounted) return null;
+
+    final status = ValueNotifier<String>('Fotoğraf işleniyor...');
+    unawaited(ProcessingProgressDialog.show(context, status));
+    try {
+      final processed = await ImagePipeline.finalizeAsync(
+        oriented,
+        mode: decision.mode,
+        quarterTurns: decision.quarterTurns,
+      );
+      return processed.jpegBytes;
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fotoğraf kaydedilemedi. Lütfen tekrar deneyin.')),
+        );
+      }
+      return null;
+    } finally {
+      status.dispose();
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+    }
   } finally {
     _photoFlowInProgress = false;
   }

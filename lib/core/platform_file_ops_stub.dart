@@ -10,6 +10,10 @@ Future<String> saveUserImageBytes(String category, Uint8List bytes) {
   throw UnsupportedError('Local files are not available on this platform.');
 }
 
+Future<void> overwriteUserImageBytes(String path, Uint8List bytes) {
+  throw UnsupportedError('Local files are not available on this platform.');
+}
+
 Future<List<String>> listUserImagePaths(String category) async => [];
 
 Future<void> deleteLocalFile(String path) async {}

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
 
+import '../../../core/image_pipeline.dart';
 import '../../../core/platform_file_ops.dart';
 import '../../../core/responsive.dart';
 import '../data/alert_settings.dart';
@@ -440,9 +444,57 @@ class SlideSettingsPage extends ConsumerWidget {
             if (context.mounted) _showAddResultSnackBar(context, summary.added, summary.skipped);
           }
 
-          Future<void> deleteAt(int index) async {
+          Future<void> deleteAt(int index, {bool skipConfirm = false}) async {
+            if (!skipConfirm) {
+              final confirmed = await confirmDeletePhoto(context);
+              if (!confirmed) return;
+            }
             images.removeAt(index);
             await _webBox.put(key, images);
+            ref.read(alertSettingsProvider.notifier).triggerRefresh();
+            setSheetState(() {});
+          }
+
+          Future<void> editAt(int index) async {
+            img.Image oriented;
+            try {
+              oriented = await ImagePipeline.decodeAndOrientAsync(base64Decode(images[index]));
+            } catch (_) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Fotoğraf açılamadı — bozuk olabilir. Silip tekrar ekleyebilirsiniz.'),
+                ));
+              }
+              return;
+            }
+            if (!context.mounted) return;
+
+            final result = await showExistingPhotoEditSheet(context, oriented: oriented);
+            if (result == null) return;
+
+            switch (result.action) {
+              case ExistingPhotoAction.delete:
+                await deleteAt(index, skipConfirm: true);
+                return;
+              case ExistingPhotoAction.replace:
+                final newBytes = await pickAndProcessSinglePhoto(context);
+                if (newBytes == null) return;
+                images[index] = base64Encode(newBytes);
+                await _webBox.put(key, images);
+              case ExistingPhotoAction.save:
+                final status = ValueNotifier<String>('Kaydediliyor...');
+                if (context.mounted) unawaited(ProcessingProgressDialog.show(context, status));
+                try {
+                  final processed = await ImagePipeline.finalizeAsync(
+                    oriented, mode: result.mode, quarterTurns: result.quarterTurns);
+                  images[index] = base64Encode(processed.jpegBytes);
+                  await _webBox.put(key, images);
+                } finally {
+                  status.dispose();
+                  if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                }
+            }
+
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
           }
@@ -456,7 +508,8 @@ class SlideSettingsPage extends ConsumerWidget {
               errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined),
             ),
             onAdd: addImages,
-            onDelete: deleteAt,
+            onEdit: editAt,
+            onDelete: (index) => deleteAt(index),
           );
         },
       ),
@@ -470,7 +523,21 @@ class SlideSettingsPage extends ConsumerWidget {
     String categoryName,
   ) async {
     final internalDir = _getInternalDir(category);
-    final images = await listUserImagePaths(internalDir);
+    List<String> images;
+    try {
+      images = await listUserImagePaths(internalDir);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Fotoğraflar yüklenemedi. Lütfen tekrar deneyin.'),
+          action: SnackBarAction(
+            label: 'Yeniden Dene',
+            onPressed: () => _manageUserImagesMobile(context, ref, category, categoryName),
+          ),
+        ));
+      }
+      return;
+    }
 
     if (!context.mounted) return;
     await showModalBottomSheet(
@@ -493,9 +560,58 @@ class SlideSettingsPage extends ConsumerWidget {
             if (context.mounted) _showAddResultSnackBar(context, summary.added, summary.skipped);
           }
 
-          Future<void> deleteAt(int index) async {
+          Future<void> deleteAt(int index, {bool skipConfirm = false}) async {
+            if (!skipConfirm) {
+              final confirmed = await confirmDeletePhoto(context);
+              if (!confirmed) return;
+            }
             final path = images.removeAt(index);
             await deleteLocalFile(path);
+            ref.read(alertSettingsProvider.notifier).triggerRefresh();
+            setSheetState(() {});
+          }
+
+          Future<void> editAt(int index) async {
+            final path = images[index];
+            img.Image oriented;
+            try {
+              oriented = await ImagePipeline.decodeAndOrientAsync(await readLocalFileBytes(path));
+            } catch (_) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Fotoğraf açılamadı — bozuk olabilir. Silip tekrar ekleyebilirsiniz.'),
+                ));
+              }
+              return;
+            }
+            if (!context.mounted) return;
+
+            final result = await showExistingPhotoEditSheet(context, oriented: oriented);
+            if (result == null) return;
+
+            switch (result.action) {
+              case ExistingPhotoAction.delete:
+                await deleteAt(index, skipConfirm: true);
+                return;
+              case ExistingPhotoAction.replace:
+                final newBytes = await pickAndProcessSinglePhoto(context);
+                if (newBytes == null) return;
+                await overwriteUserImageBytes(path, newBytes);
+                await localFileImageProvider(path).evict();
+              case ExistingPhotoAction.save:
+                final status = ValueNotifier<String>('Kaydediliyor...');
+                if (context.mounted) unawaited(ProcessingProgressDialog.show(context, status));
+                try {
+                  final processed = await ImagePipeline.finalizeAsync(
+                    oriented, mode: result.mode, quarterTurns: result.quarterTurns);
+                  await overwriteUserImageBytes(path, processed.jpegBytes);
+                  await localFileImageProvider(path).evict();
+                } finally {
+                  status.dispose();
+                  if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                }
+            }
+
             ref.read(alertSettingsProvider.notifier).triggerRefresh();
             setSheetState(() {});
           }
@@ -509,7 +625,8 @@ class SlideSettingsPage extends ConsumerWidget {
               errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined),
             ),
             onAdd: addImages,
-            onDelete: deleteAt,
+            onEdit: editAt,
+            onDelete: (index) => deleteAt(index),
           );
         },
       ),
@@ -579,6 +696,7 @@ class _UserImageManagerSheet extends StatelessWidget {
   final int imageCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
   final Future<void> Function() onAdd;
+  final Future<void> Function(int index) onEdit;
   final Future<void> Function(int index) onDelete;
 
   const _UserImageManagerSheet({
@@ -586,6 +704,7 @@ class _UserImageManagerSheet extends StatelessWidget {
     required this.imageCount,
     required this.itemBuilder,
     required this.onAdd,
+    required this.onEdit,
     required this.onDelete,
   });
 
@@ -629,8 +748,16 @@ class _UserImageManagerSheet extends StatelessWidget {
             ),
             Expanded(
               child: imageCount == 0
-                  ? const Center(
-                      child: Icon(Icons.photo_library_outlined, size: 56, color: Colors.grey),
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.photo_library_outlined, size: 56, color: Colors.grey),
+                          const SizedBox(height: 12),
+                          Text('Fotoğraf eklemek için sağ üstteki + simgesine dokunun',
+                              style: TextStyle(color: Colors.grey.shade600)),
+                        ],
+                      ),
                     )
                   : GridView.builder(
                       controller: scrollController,
@@ -648,9 +775,12 @@ class _UserImageManagerSheet extends StatelessWidget {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              ColoredBox(
+                              Material(
                                 color: Colors.black12,
-                                child: itemBuilder(context, index),
+                                child: InkWell(
+                                  onTap: () => onEdit(index),
+                                  child: itemBuilder(context, index),
+                                ),
                               ),
                               Positioned(
                                 top: 6,
