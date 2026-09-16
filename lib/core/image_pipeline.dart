@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show ImageProvider;
 import 'package:image/image.dart' as img;
 
 import 'platform_file_ops.dart';
@@ -184,6 +185,33 @@ class ImagePipeline {
     }
     return img.copyResize(src, height: maxDimension, interpolation: img.Interpolation.linear);
   }
+}
+
+/// Bir referans dizesi (dosya yolu / `'base64:...'` / `'assets/...'`)
+/// başına TEK bir [ImageProvider] örneği tutar.
+///
+/// Bu, slaytın (özellikle web'de kullanıcı fotoğrafları — `MemoryImage`)
+/// saniyede bir titremesine neden olan gerçek hatayı önler: her `build()`
+/// çağrısında `base64Decode` ile YENİDEN oluşturulan bir `Uint8List`,
+/// `MemoryImage.==` referans eşitliği kullandığından (Uint8List içerik
+/// eşitliği yapmaz) her seferinde "farklı" bir görüntü sağlayıcı üretir.
+/// Flutter bunu gerçekten farklı sanıp yeniden çözümler — dashboard'daki
+/// geri sayımın her saniye üst widget'ı yeniden derlemesiyle birleşince bu,
+/// her saniye kısa bir yeniden-çizim/titremeye yol açar. Asset/dosya
+/// yolları zaten `String` bazlı değer eşitliğine sahip olduğundan
+/// (`AssetImage`/`FileImage`) etkilenmez — yalnızca base64 (kullanıcı
+/// fotoğrafları) etkilenir.
+///
+/// Çağıran taraf, fotoğraflar gerçekten yeniden yüklendiğinde (kategori
+/// değişimi veya kaydedilen bir düzenleme) [clear] çağırmalıdır — asla
+/// saniyelik/ilgisiz yeniden çizimlerde değil.
+class ImageProviderCache {
+  final Map<String, ImageProvider> _cache = {};
+
+  ImageProvider get(String key, ImageProvider Function() resolve) =>
+      _cache.putIfAbsent(key, resolve);
+
+  void clear() => _cache.clear();
 }
 
 class _FinalizeArgs {

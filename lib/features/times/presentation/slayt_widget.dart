@@ -188,6 +188,12 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     if (!mounted) return;
     setState(() => isLoading = true);
 
+    // Bu, yeni/düzenlenmiş fotoğrafların görünür olmasını GARANTİ EDEN tek
+    // yer olmalı — bkz. [_getImageProvider] dokümantasyonu. Saniyelik
+    // yeniden çizimlerde bu metod çağrılMAZ, yalnızca kategori değişiminde
+    // veya kaydedilen bir düzenlemede (`lastUpdate` artışı) çağrılır.
+    _imageProviderCache.clear();
+
     final cat = _getEffectiveCategory(category);
 
     if (cat == hakikatCategoryId) {
@@ -211,6 +217,26 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     }
 
     if (mounted) setState(() => isLoading = false);
+
+    // İlk sayfa (ve onun bir sonrakisi) hazır olsun ki otomatik oynatma
+    // ilk geçişinde de boş/siyah bir kare görünmesin.
+    if (cat != hakikatCategoryId) {
+      final images = _getAllImages(category);
+      for (final ref in images.take(2)) {
+        _precacheImageRef(ref);
+      }
+    }
+  }
+
+  /// [ref]'in görüntü sağlayıcısını (bkz. [_getImageProvider] — önbellekli,
+  /// kararlı kimlikli) önceden çözümletir. `context` henüz mount edilmemiş
+  /// veya widget artık ağaçta değilse sessizce yoksayar.
+  void _precacheImageRef(SlideImageRef ref) {
+    if (!mounted) return;
+    // AssetImage/MemoryImage/FileImage hepsi precacheImage ile uyumludur;
+    // hata (ör. bozuk dosya) burada sessizce yutulur — kullanıcıya asıl
+    // gösterim anında zaten errorBuilder ile bildirilir.
+    precacheImage(_getImageProvider(ref.ref), context).catchError((_) {});
   }
 
   Future<void> _loadHakikatSlides() async {
@@ -284,7 +310,39 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     }
   }
 
+  /// [ref] başına TEK bir [ImageProvider] örneği tutar. Bu, geri sayımın
+  /// saniyelik güncellemesinin (üst widget'ı — Dashboard — her saniye
+  /// yeniden derlemesi) bu widget'ın da `build()`'ini her saniye yeniden
+  /// çalıştırmasından kaynaklanan bir titremeyi (flicker) önlemek için
+  /// KRİTİKTİR:
+  ///
+  /// `base64:...` referansları için önceki kod her çağrıda
+  /// `base64Decode` çalıştırıp YENİ bir `Uint8List` ile YENİ bir
+  /// `MemoryImage` döndürüyordu. `MemoryImage.==` baytları REFERANS
+  /// eşitliğiyle karşılaştırır (`Uint8List` içerik eşitliği yapmaz) — bu
+  /// yüzden her saniye "farklı" bir görüntü sağlayıcı üretilmiş oluyordu.
+  /// Flutter bunu gerçekten farklı bir görüntü sanıp yeniden çözümlüyor,
+  /// bu da her saniye kısa bir boş/yeniden-çizim anına (titreme) yol
+  /// açıyordu. Asset/dosya yollarının aksine (bunlar zaten `String` bazlı
+  /// değer eşitliğine sahiptir) yalnızca base64 (kullanıcı fotoğrafları,
+  /// web) bundan etkileniyordu — "Benim Fotoğraflarım" dışındaki
+  /// kategorilerde sorun görünmemesinin nedeni budur.
+  ///
+  /// Önbellek (bkz. [ImageProviderCache], `core/image_pipeline.dart` —
+  /// bağımsız olarak birim testi yapılabilir) yalnızca [_loadAllImages]
+  /// her gerçekten yeniden yüklendiğinde (kategori değişimi veya
+  /// kaydedilen bir düzenleme — `lastUpdate` artışı) temizlenir;
+  /// saniyelik yeniden çizimlerde ASLA temizlenmez. Böylece düzenlenen
+  /// fotoğraflar bir sonraki yüklemede güncel içerikle görünür, ama iki
+  /// yükleme arasında aynı fotoğraf hep aynı sağlayıcı nesnesini
+  /// (dolayısıyla aynı çözümlenmiş görüntüyü) kullanır.
+  final ImageProviderCache _imageProviderCache = ImageProviderCache();
+
   ImageProvider _getImageProvider(String path) {
+    return _imageProviderCache.get(path, () => _resolveImageProvider(path));
+  }
+
+  ImageProvider _resolveImageProvider(String path) {
     final p = path.toLowerCase();
 
     if (p.startsWith('base64:')) {
@@ -431,6 +489,16 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
               onPageChanged: (i, reason) {
                 widget.onPageChanged?.call(i);
                 _saveLastPage(category, i);
+                // Sıradaki fotoğrafı şimdiden çözümle — kullanıcı/otomatik
+                // geçiş oraya varana kadar hazır olsun, boş/siyah kare
+                // görünmesin. Karışık modda (hakikat kartlarıyla iç içe)
+                // hangi index'in bir fotoğraf olacağı basit değil; sadece
+                // düz fotoğraf kategorilerinde (asıl hata raporunun konusu)
+                // önden yükleriz.
+                if (!isHakikat && !isKarisik && allImages.isNotEmpty) {
+                  final nextIndex = (i + 1) % allImages.length;
+                  _precacheImageRef(allImages[nextIndex]);
+                }
               },
             ),
           );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:tvaap_clean/core/image_pipeline.dart';
@@ -125,6 +126,69 @@ void main() {
       final bytes = Uint8List.fromList([1, 1, 1]);
       final decoded = decodeWebPhotoEntry({'data': base64Encode(bytes), 'mode': 'nonsense'});
       expect(decoded.mode, PhotoFitMode.contain);
+    });
+  });
+
+  group('ImageProviderCache — root-cause fix for the per-second slideshow flicker', () {
+    // Root cause: the slideshow's image provider for a base64 user photo
+    // used to be re-created (fresh Uint8List + MemoryImage) on every
+    // build(). MemoryImage.== compares `bytes` by reference (Uint8List has
+    // no content equality), so two decodes of the exact same base64 string
+    // are NOT equal. Flutter's Image widget uses `==` to decide whether to
+    // re-resolve/redecode, so every rebuild looked like "a different
+    // image" to it — and the dashboard rebuilds every second for the
+    // countdown, which is why only the (base64-backed) user-photos
+    // category flickered while asset-backed categories (AssetImage has
+    // proper String-based value equality) never did.
+    test('decoding the same base64 twice without caching yields non-equal providers (demonstrates the hazard)', () {
+      final b64 = base64Encode([1, 2, 3, 4]);
+      ImageProvider decodeFresh() => MemoryImage(Uint8List.fromList(base64Decode(b64)));
+      final a = decodeFresh();
+      final b = decodeFresh();
+      expect(a == b, isFalse);
+    });
+
+    test('returns the identical provider instance for the same key across repeated calls', () {
+      final cache = ImageProviderCache();
+      var resolveCalls = 0;
+      ImageProvider resolve() {
+        resolveCalls++;
+        return MemoryImage(Uint8List.fromList([1, 2, 3]));
+      }
+
+      final first = cache.get('photo-1', resolve);
+      final second = cache.get('photo-1', resolve);
+      final third = cache.get('photo-1', resolve);
+
+      expect(identical(first, second), isTrue);
+      expect(identical(second, third), isTrue);
+      expect(resolveCalls, 1, reason: 'resolve() must only run once per key until clear()');
+    });
+
+    test('different keys get independent, stable providers', () {
+      final cache = ImageProviderCache();
+      final a1 = cache.get('a', () => MemoryImage(Uint8List.fromList([1])));
+      final b1 = cache.get('b', () => MemoryImage(Uint8List.fromList([2])));
+      final a2 = cache.get('a', () => MemoryImage(Uint8List.fromList([9])));
+
+      expect(identical(a1, a2), isTrue);
+      expect(identical(a1, b1), isFalse);
+    });
+
+    test('clear() forces the next lookup to re-resolve — this is how an edited photo becomes visible', () {
+      final cache = ImageProviderCache();
+      var resolveCalls = 0;
+      ImageProvider resolve() {
+        resolveCalls++;
+        return MemoryImage(Uint8List.fromList([resolveCalls]));
+      }
+
+      final before = cache.get('photo-1', resolve);
+      cache.clear();
+      final after = cache.get('photo-1', resolve);
+
+      expect(identical(before, after), isFalse);
+      expect(resolveCalls, 2);
     });
   });
 }
