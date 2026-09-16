@@ -18,6 +18,10 @@ Future<List<String>> listUserImagePaths(String category) async => [];
 
 Future<void> deleteLocalFile(String path) async {}
 
+Future<void> writePhotoModeSidecar(String path, String mode) async {}
+
+Future<String?> readPhotoModeSidecar(String path) async => null;
+
 ImageProvider localFileImageProvider(String path) {
   throw UnsupportedError('Local files are not available on this platform.');
 }

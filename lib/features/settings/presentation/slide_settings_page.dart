@@ -12,7 +12,6 @@ import '../data/alert_settings.dart';
 import '../data/image_categories.dart';
 import 'alert_settings_controller.dart';
 import 'photo_capture.dart';
-import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// Desteklenen kullanıcı fotoğrafı uzantıları. HEIC/HEIF (bazı iPhone
@@ -27,6 +26,7 @@ bool isSupportedImageFileName(String fileName) {
   final ext = fileName.substring(dot + 1).toLowerCase();
   return supportedImageExtensions.contains(ext);
 }
+
 
 class SlideSettingsPage extends ConsumerWidget {
   const SlideSettingsPage({super.key});
@@ -73,14 +73,15 @@ class SlideSettingsPage extends ConsumerWidget {
     final summary = await runAddPhotosFlow(
       context: context,
       savePhoto: kIsWeb
-          ? (bytes) async {
+          ? (bytes, mode) async {
               final key = _webKey(selectedKey);
               final List existing = (_webBox.get(key) as List?) ?? [];
-              existing.add(base64Encode(bytes));
+              existing.add(encodeWebPhotoEntry(bytes, mode));
               await _webBox.put(key, existing);
             }
-          : (bytes) async {
-              await saveUserImageBytes(_getInternalDir(selectedKey), bytes);
+          : (bytes, mode) async {
+              final path = await saveUserImageBytes(_getInternalDir(selectedKey), bytes);
+              await writePhotoModeSidecar(path, mode.name);
             },
     );
 
@@ -422,7 +423,7 @@ class SlideSettingsPage extends ConsumerWidget {
     String categoryName,
   ) async {
     final key = _webKey(category);
-    final images = List<String>.from(((_webBox.get(key) as List?) ?? []).cast<String>());
+    final images = List<dynamic>.from((_webBox.get(key) as List?) ?? []);
 
     await showModalBottomSheet(
       context: context,
@@ -432,8 +433,8 @@ class SlideSettingsPage extends ConsumerWidget {
           Future<void> addImages() async {
             final summary = await runAddPhotosFlow(
               context: context,
-              savePhoto: (bytes) async {
-                images.add(base64Encode(bytes));
+              savePhoto: (bytes, mode) async {
+                images.add(encodeWebPhotoEntry(bytes, mode));
                 await _webBox.put(key, images);
               },
             );
@@ -456,9 +457,10 @@ class SlideSettingsPage extends ConsumerWidget {
           }
 
           Future<void> editAt(int index) async {
+            final entry = decodeWebPhotoEntry(images[index]);
             img.Image oriented;
             try {
-              oriented = await ImagePipeline.decodeAndOrientAsync(base64Decode(images[index]));
+              oriented = await ImagePipeline.decodeAndOrientAsync(entry.bytes);
             } catch (_) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -469,7 +471,8 @@ class SlideSettingsPage extends ConsumerWidget {
             }
             if (!context.mounted) return;
 
-            final result = await showExistingPhotoEditSheet(context, oriented: oriented);
+            final result = await showExistingPhotoEditSheet(
+              context, oriented: oriented, initialMode: entry.mode);
             if (result == null) return;
 
             switch (result.action) {
@@ -477,17 +480,17 @@ class SlideSettingsPage extends ConsumerWidget {
                 await deleteAt(index, skipConfirm: true);
                 return;
               case ExistingPhotoAction.replace:
-                final newBytes = await pickAndProcessSinglePhoto(context);
-                if (newBytes == null) return;
-                images[index] = base64Encode(newBytes);
+                final pick = await pickAndProcessSinglePhoto(context);
+                if (pick == null) return;
+                images[index] = encodeWebPhotoEntry(pick.bytes, pick.mode);
                 await _webBox.put(key, images);
               case ExistingPhotoAction.save:
                 final status = ValueNotifier<String>('Kaydediliyor...');
                 if (context.mounted) unawaited(ProcessingProgressDialog.show(context, status));
                 try {
                   final processed = await ImagePipeline.finalizeAsync(
-                    oriented, mode: result.mode, quarterTurns: result.quarterTurns);
-                  images[index] = base64Encode(processed.jpegBytes);
+                    oriented, quarterTurns: result.quarterTurns);
+                  images[index] = encodeWebPhotoEntry(processed.jpegBytes, result.mode);
                   await _webBox.put(key, images);
                 } finally {
                   status.dispose();
@@ -503,7 +506,7 @@ class SlideSettingsPage extends ConsumerWidget {
             title: categoryName,
             imageCount: images.length,
             itemBuilder: (context, index) => Image.memory(
-              base64Decode(images[index]),
+              decodeWebPhotoEntry(images[index]).bytes,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined),
             ),
@@ -548,8 +551,9 @@ class SlideSettingsPage extends ConsumerWidget {
           Future<void> addImages() async {
             final summary = await runAddPhotosFlow(
               context: context,
-              savePhoto: (bytes) async {
+              savePhoto: (bytes, mode) async {
                 final savedPath = await saveUserImageBytes(internalDir, bytes);
+                await writePhotoModeSidecar(savedPath, mode.name);
                 images.add(savedPath);
               },
             );
@@ -584,9 +588,11 @@ class SlideSettingsPage extends ConsumerWidget {
               }
               return;
             }
+            final initialMode = await readMobilePhotoMode(path);
             if (!context.mounted) return;
 
-            final result = await showExistingPhotoEditSheet(context, oriented: oriented);
+            final result = await showExistingPhotoEditSheet(
+              context, oriented: oriented, initialMode: initialMode);
             if (result == null) return;
 
             switch (result.action) {
@@ -594,17 +600,19 @@ class SlideSettingsPage extends ConsumerWidget {
                 await deleteAt(index, skipConfirm: true);
                 return;
               case ExistingPhotoAction.replace:
-                final newBytes = await pickAndProcessSinglePhoto(context);
-                if (newBytes == null) return;
-                await overwriteUserImageBytes(path, newBytes);
+                final pick = await pickAndProcessSinglePhoto(context);
+                if (pick == null) return;
+                await overwriteUserImageBytes(path, pick.bytes);
+                await writePhotoModeSidecar(path, pick.mode.name);
                 await localFileImageProvider(path).evict();
               case ExistingPhotoAction.save:
                 final status = ValueNotifier<String>('Kaydediliyor...');
                 if (context.mounted) unawaited(ProcessingProgressDialog.show(context, status));
                 try {
                   final processed = await ImagePipeline.finalizeAsync(
-                    oriented, mode: result.mode, quarterTurns: result.quarterTurns);
+                    oriented, quarterTurns: result.quarterTurns);
                   await overwriteUserImageBytes(path, processed.jpegBytes);
+                  await writePhotoModeSidecar(path, result.mode.name);
                   await localFileImageProvider(path).evict();
                 } finally {
                   status.dispose();

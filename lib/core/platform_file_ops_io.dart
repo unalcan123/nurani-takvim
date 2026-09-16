@@ -51,6 +51,33 @@ Future<void> deleteLocalFile(String path) async {
   if (await file.exists()) {
     await file.delete();
   }
+  // Fotoğrafla birlikte kaydedilmiş görüntüleme tercihi (bkz.
+  // [writePhotoModeSidecar]) varsa onu da temizle — yetim dosya bırakma.
+  final sidecar = File('$path.mode');
+  if (await sidecar.exists()) {
+    await sidecar.delete();
+  }
+}
+
+/// Bir kullanıcı fotoğrafının görüntüleme tercihini (ör. 'contain'/'fill')
+/// dosyanın yanına küçük bir metin dosyası olarak kaydeder. Görüntüleme
+/// tercihi salt bir meta veridir — piksel verisini asla etkilemez, bu
+/// yüzden fotoğraf dosyasının kendisinden AYRI tutulur.
+Future<void> writePhotoModeSidecar(String path, String mode) async {
+  await File('$path.mode').writeAsString(mode, flush: true);
+}
+
+/// [writePhotoModeSidecar] ile kaydedilmiş tercihi okur; yoksa `null` döner
+/// (çağıran taraf varsayılan olarak 'contain' kullanmalı — eski
+/// fotoğraflarda bu dosya hiç yoktur).
+Future<String?> readPhotoModeSidecar(String path) async {
+  final file = File('$path.mode');
+  if (!await file.exists()) return null;
+  try {
+    return await file.readAsString();
+  } catch (_) {
+    return null;
+  }
 }
 
 ImageProvider localFileImageProvider(String path) => FileImage(File(path));

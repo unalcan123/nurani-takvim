@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -53,49 +54,77 @@ void main() {
     });
   });
 
-  group('ImagePipeline finalize (contain vs fill)', () {
-    test('contain mode preserves full aspect ratio and never upscales small photos', () async {
+  group('ImagePipeline.finalizeAsync — never crops, regardless of aspect', () {
+    // `mode` (contain/"arka planla doldur") is purely a display-time
+    // preference now (see SlidePhoto) — finalizeAsync has no mode
+    // parameter at all and must never crop a single pixel out of the
+    // photo, for any aspect ratio.
+    test('preserves full aspect ratio and never upscales small photos', () async {
       final small = img.Image(width: 400, height: 300);
       img.fill(small, color: img.ColorRgb8(10, 20, 30));
-      final processed = await ImagePipeline.finalizeAsync(small, mode: PhotoFitMode.contain);
+      final processed = await ImagePipeline.finalizeAsync(small);
       expect(processed.width, 400);
       expect(processed.height, 300);
     });
 
-    test('contain mode downscales oversized photos without cropping (aspect preserved)', () async {
+    test('downscales oversized photos without cropping (aspect preserved)', () async {
       final big = img.Image(width: 4000, height: 2000); // 2:1
       img.fill(big, color: img.ColorRgb8(10, 20, 30));
-      final processed = await ImagePipeline.finalizeAsync(big, mode: PhotoFitMode.contain);
+      final processed = await ImagePipeline.finalizeAsync(big);
       expect(processed.width <= ImagePipeline.maxDimension, isTrue);
       expect(processed.height <= ImagePipeline.maxDimension, isTrue);
       // En boy oranı korunmalı (2:1)
       expect((processed.width / processed.height - 2.0).abs() < 0.02, isTrue);
     });
 
-    test('contain mode fully preserves a portrait (vertical) photo — no crop to a small box', () async {
+    test('fully preserves a portrait (vertical) photo — no crop to a 16:9 box', () async {
       final portrait = img.Image(width: 1200, height: 3000); // dikey, dar
       img.fill(portrait, color: img.ColorRgb8(10, 20, 30));
-      final processed = await ImagePipeline.finalizeAsync(portrait, mode: PhotoFitMode.contain);
+      final processed = await ImagePipeline.finalizeAsync(portrait);
       // Uzun kenar (height) maxDimension'a inmeli, oran korunmalı — kırpılmamalı.
       expect(processed.height, ImagePipeline.maxDimension);
       expect((processed.width / processed.height - 1200 / 3000).abs() < 0.01, isTrue);
     });
 
-    test('fill mode crops to exactly the 16:9 target canvas', () async {
-      final portrait = img.Image(width: 1200, height: 3000);
-      img.fill(portrait, color: img.ColorRgb8(10, 20, 30));
-      final processed = await ImagePipeline.finalizeAsync(portrait, mode: PhotoFitMode.fill);
-      expect(processed.width, ImagePipeline.fillTargetWidth);
-      expect(processed.height, ImagePipeline.fillTargetHeight);
+    test('a very wide panorama is preserved uncropped too', () async {
+      final wide = img.Image(width: 3000, height: 800); // ~3.75:1
+      img.fill(wide, color: img.ColorRgb8(10, 20, 30));
+      final processed = await ImagePipeline.finalizeAsync(wide);
+      expect(processed.width, ImagePipeline.maxDimension);
+      expect((processed.width / processed.height - 3000 / 800).abs() < 0.01, isTrue);
     });
 
     test('manual quarter-turn rotation is applied on top of EXIF orientation', () async {
       final image = img.Image(width: 300, height: 150);
       img.fill(image, color: img.ColorRgb8(10, 20, 30));
-      final processed = await ImagePipeline.finalizeAsync(image, mode: PhotoFitMode.contain, quarterTurns: 1);
+      final processed = await ImagePipeline.finalizeAsync(image, quarterTurns: 1);
       // 300x150 saat yönünde 90° dönünce 150x300 olmalı.
       expect(processed.width, 150);
       expect(processed.height, 300);
+    });
+  });
+
+  group('web photo entry encode/decode (per-photo display mode metadata)', () {
+    test('round-trips bytes and mode through encode/decode', () {
+      final bytes = Uint8List.fromList([1, 2, 3, 4, 5]);
+      final entry = encodeWebPhotoEntry(bytes, PhotoFitMode.fill);
+      final decoded = decodeWebPhotoEntry(entry);
+      expect(decoded.bytes, bytes);
+      expect(decoded.mode, PhotoFitMode.fill);
+    });
+
+    test('a legacy plain-base64-string entry decodes as contain (no destructive crop to recover)', () {
+      final bytes = Uint8List.fromList([9, 8, 7]);
+      final legacy = base64Encode(bytes);
+      final decoded = decodeWebPhotoEntry(legacy);
+      expect(decoded.bytes, bytes);
+      expect(decoded.mode, PhotoFitMode.contain);
+    });
+
+    test('an entry with an unrecognized mode string falls back to contain', () {
+      final bytes = Uint8List.fromList([1, 1, 1]);
+      final decoded = decodeWebPhotoEntry({'data': base64Encode(bytes), 'mode': 'nonsense'});
+      expect(decoded.mode, PhotoFitMode.contain);
     });
   });
 }

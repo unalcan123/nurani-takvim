@@ -9,6 +9,7 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/image_pipeline.dart';
+import '../../../core/slide_photo.dart';
 import '../../../theme.dart';
 import 'slide_settings_page.dart' show isSupportedImageFileName;
 
@@ -102,7 +103,9 @@ Future<PickedPhoto?> pickSinglePhotoFromGallery() async {
   return PickedPhoto(name: f.name, bytes: bytes);
 }
 
-/// Önizleme ekranından dönen kullanıcı kararı.
+/// Önizleme ekranından dönen kullanıcı kararı. [mode] yalnızca bir
+/// GÖRÜNTÜLEME tercihidir (bkz. [PhotoFitMode]) — kaydedilen piksel
+/// verisini etkilemez, ayrı bir alan olarak saklanır.
 class PhotoEditDecision {
   final PhotoFitMode mode;
   final int quarterTurns;
@@ -121,6 +124,9 @@ class PhotoEditDecision {
 /// taşmaya neden olmaz — ve kontroller gerekirse dikey kaydırılabilir.
 /// Ekran çok kısaysa (yatay telefon) tam ekran sunulur; aksi halde mevcut
 /// kutulu diyalog görünümü (tablet/masaüstü) korunur.
+///
+/// Görsel alanı [SlidePhoto] kullanır — slaytta gösterileceği TAM olarak
+/// aynı widget, aynı iki-katmanlı (contain / arka-planla-doldur) mantık.
 class _PhotoEditorFrame extends StatelessWidget {
   final String title;
   final Uint8List? previewBytes;
@@ -155,19 +161,19 @@ class _PhotoEditorFrame extends StatelessWidget {
     final compact = screen.height < 480;
 
     final preview = ClipRect(
-      child: ColoredBox(
-        color: tvBgDark,
-        child: previewBytes == null
-            ? const Center(child: CircularProgressIndicator())
-            : Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.memory(previewBytes!, fit: BoxFit.contain),
-                  if (rendering)
-                    const Center(child: CircularProgressIndicator(color: Colors.white70)),
-                ],
-              ),
-      ),
+      child: previewBytes == null
+          ? ColoredBox(color: tvBgDark, child: const Center(child: CircularProgressIndicator()))
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                // Slaytta gösterileceği TAM widget — mod değişince yalnızca
+                // arka plan katmanı eklenir/kalkar, ön plandaki fotoğrafın
+                // boyutu/konumu bu widget içinde birebir aynı kalır.
+                SlidePhoto(image: MemoryImage(previewBytes!), mode: mode, backgroundColor: tvBgDark),
+                if (rendering)
+                  const Center(child: CircularProgressIndicator(color: Colors.white70)),
+              ],
+            ),
     );
 
     final controls = Padding(
@@ -202,8 +208,8 @@ class _PhotoEditorFrame extends StatelessWidget {
               ),
               ButtonSegment(
                 value: PhotoFitMode.fill,
-                label: Text('Alanı Doldur'),
-                icon: Icon(Icons.crop),
+                label: Text('Arka Planla Doldur'),
+                icon: Icon(Icons.blur_on),
               ),
             ],
             selected: {mode},
@@ -260,7 +266,7 @@ class _PhotoEditorFrame extends StatelessWidget {
 }
 
 /// Kaydetmeden önce fotoğrafı slaytta görüneceği haliyle gösterir; sağa/sola
-/// 90° döndürme ve "Sığdır / Doldur" seçenekleri sunar.
+/// 90° döndürme ve "Tamamını Göster / Arka Planla Doldur" seçenekleri sunar.
 ///
 /// `null` dönerse kullanıcı bu fotoğrafı eklemekten vazgeçmiştir (atlandı).
 Future<PhotoEditDecision?> showPhotoPreviewDialog(
@@ -308,17 +314,16 @@ class _PhotoPreviewDialogState extends State<_PhotoPreviewDialog> {
   @override
   void initState() {
     super.initState();
-    _renderPreview();
+    _renderRotated();
   }
 
-  void _renderPreview() {
+  // Yalnızca döndürme piksel verisini değiştirir; bu yüzden yalnızca bu
+  // yeniden kodlamayı tetikler. Sığdır/doldur modu salt görüntüleme
+  // katmanında (bkz. build) uygulanır — mod değişimi anında, yeniden
+  // kodlama olmadan gerçekleşir.
+  void _renderRotated() {
     setState(() => _rendering = true);
-    // Küçük önizleme görseli hızlı kodlanır; senkron çağrı yeterlidir.
-    final bytes = ImagePipeline.renderPreview(
-      widget.oriented,
-      mode: _mode,
-      quarterTurns: _quarterTurns,
-    );
+    final bytes = ImagePipeline.renderRotatedBytes(widget.oriented, quarterTurns: _quarterTurns);
     if (!mounted) return;
     setState(() {
       _previewBytes = bytes;
@@ -331,14 +336,10 @@ class _PhotoPreviewDialogState extends State<_PhotoPreviewDialog> {
   // (build yeniden çalıştığında) _quarterTurns değeri aynen korunur.
   void _rotate(int delta) {
     setState(() => _quarterTurns = (_quarterTurns + delta) % 4);
-    _renderPreview();
+    _renderRotated();
   }
 
-  void _setMode(PhotoFitMode mode) {
-    if (mode == _mode) return;
-    setState(() => _mode = mode);
-    _renderPreview();
-  }
+  void _setMode(PhotoFitMode mode) => setState(() => _mode = mode);
 
   @override
   Widget build(BuildContext context) {
@@ -412,27 +413,31 @@ Future<bool> confirmDeletePhoto(BuildContext context) async {
 /// büyük önizleme, sağa/sola döndürme, sığdır/doldur seçimi ve üç eylem
 /// (Sil — onaylı, Değiştir — yeniden ekleme akışını başlatır, Kaydet — bu
 /// dönüş/mod ayarını yerinde kaydeder). `null` dönerse kullanıcı vazgeçmiştir.
+///
+/// [initialMode] fotoğrafın hâlihazırda kayıtlı görüntüleme tercihidir.
 Future<ExistingPhotoEditResult?> showExistingPhotoEditSheet(
   BuildContext context, {
   required img.Image oriented,
+  required PhotoFitMode initialMode,
 }) {
   return showDialog<ExistingPhotoEditResult>(
     context: context,
     barrierDismissible: false,
-    builder: (context) => _ExistingPhotoEditDialog(oriented: oriented),
+    builder: (context) => _ExistingPhotoEditDialog(oriented: oriented, initialMode: initialMode),
   );
 }
 
 class _ExistingPhotoEditDialog extends StatefulWidget {
   final img.Image oriented;
-  const _ExistingPhotoEditDialog({required this.oriented});
+  final PhotoFitMode initialMode;
+  const _ExistingPhotoEditDialog({required this.oriented, required this.initialMode});
 
   @override
   State<_ExistingPhotoEditDialog> createState() => _ExistingPhotoEditDialogState();
 }
 
 class _ExistingPhotoEditDialogState extends State<_ExistingPhotoEditDialog> {
-  PhotoFitMode _mode = PhotoFitMode.contain;
+  late PhotoFitMode _mode = widget.initialMode;
   int _quarterTurns = 0;
   Uint8List? _previewBytes;
   bool _rendering = false;
@@ -440,16 +445,12 @@ class _ExistingPhotoEditDialogState extends State<_ExistingPhotoEditDialog> {
   @override
   void initState() {
     super.initState();
-    _renderPreview();
+    _renderRotated();
   }
 
-  void _renderPreview() {
+  void _renderRotated() {
     setState(() => _rendering = true);
-    final bytes = ImagePipeline.renderPreview(
-      widget.oriented,
-      mode: _mode,
-      quarterTurns: _quarterTurns,
-    );
+    final bytes = ImagePipeline.renderRotatedBytes(widget.oriented, quarterTurns: _quarterTurns);
     if (!mounted) return;
     setState(() {
       _previewBytes = bytes;
@@ -459,14 +460,10 @@ class _ExistingPhotoEditDialogState extends State<_ExistingPhotoEditDialog> {
 
   void _rotate(int delta) {
     setState(() => _quarterTurns = (_quarterTurns + delta) % 4);
-    _renderPreview();
+    _renderRotated();
   }
 
-  void _setMode(PhotoFitMode mode) {
-    if (mode == _mode) return;
-    setState(() => _mode = mode);
-    _renderPreview();
-  }
+  void _setMode(PhotoFitMode mode) => setState(() => _mode = mode);
 
   Future<void> _delete() async {
     final confirmed = await confirmDeletePhoto(context);
@@ -572,7 +569,9 @@ class PhotoAddSummary {
   const PhotoAddSummary({required this.added, required this.skipped, required this.attempted});
 }
 
-typedef SavePhotoBytes = Future<void> Function(Uint8List jpegBytes);
+/// Fotoğraf kaydedilirken çağrılır: işlenmiş JPEG baytları + kullanıcının
+/// seçtiği görüntüleme modu (ayrıca metadata olarak saklanmalıdır).
+typedef SavePhotoBytes = Future<void> Function(Uint8List jpegBytes, PhotoFitMode mode);
 
 /// Uygulama genelinde tek seferde tek bir ekleme akışının çalışmasını
 /// garanti eder (çift kaydı önler).
@@ -646,10 +645,9 @@ Future<PhotoAddSummary> runAddPhotosFlow({
       try {
         final processed = await ImagePipeline.finalizeAsync(
           oriented,
-          mode: decision.mode,
           quarterTurns: decision.quarterTurns,
         );
-        await savePhoto(processed.jpegBytes);
+        await savePhoto(processed.jpegBytes, decision.mode);
         added++;
       } catch (_) {
         skipped++;
@@ -665,11 +663,20 @@ Future<PhotoAddSummary> runAddPhotosFlow({
   }
 }
 
+/// [pickAndProcessSinglePhoto] sonucu: işlenmiş JPEG baytları + kullanıcının
+/// seçtiği görüntüleme modu.
+class ProcessedPhotoPick {
+  final Uint8List bytes;
+  final PhotoFitMode mode;
+  const ProcessedPhotoPick({required this.bytes, required this.mode});
+}
+
 /// "Fotoğrafı Değiştir" akışı: kamera/galeriden TEK bir yeni fotoğraf seçtirir,
 /// aynı EXIF-düzeltme + önizleme adımlarından geçirir ve işlenmiş JPEG
-/// baytlarını döner. Kullanıcı vazgeçerse veya dosya desteklenmiyorsa/bozuksa
-/// `null` döner (ilgili durumda bir SnackBar ile açıkça bildirilir).
-Future<Uint8List?> pickAndProcessSinglePhoto(BuildContext context) async {
+/// baytları + seçilen modu döner. Kullanıcı vazgeçerse veya dosya
+/// desteklenmiyorsa/bozuksa `null` döner (ilgili durumda bir SnackBar ile
+/// açıkça bildirilir).
+Future<ProcessedPhotoPick?> pickAndProcessSinglePhoto(BuildContext context) async {
   if (_photoFlowInProgress) return null;
   _photoFlowInProgress = true;
 
@@ -713,10 +720,9 @@ Future<Uint8List?> pickAndProcessSinglePhoto(BuildContext context) async {
     try {
       final processed = await ImagePipeline.finalizeAsync(
         oriented,
-        mode: decision.mode,
         quarterTurns: decision.quarterTurns,
       );
-      return processed.jpegBytes;
+      return ProcessedPhotoPick(bytes: processed.jpegBytes, mode: decision.mode);
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

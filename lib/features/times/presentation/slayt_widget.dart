@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
-import 'dart:typed_data'; // ✅ gerekli
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -9,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/image_pipeline.dart';
 import '../../../core/platform_file_ops.dart';
 import '../../../core/audio_manager.dart';
+import '../../../core/slide_photo.dart';
 import '../../../theme.dart';
 import '../../settings/data/image_categories.dart';
 import '../../settings/presentation/alert_settings_controller.dart';
@@ -75,8 +75,8 @@ class SlaytWidget extends ConsumerStatefulWidget {
 }
 
 class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
-  List<String> assetImages = [];
-  List<String> userImages = [];
+  List<SlideImageRef> assetImages = [];
+  List<SlideImageRef> userImages = [];
   List<SlideItem> hakikatSlides = [];
   bool isLoading = true;
 
@@ -107,42 +107,19 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     return 'userImages_$cat';
   }
 
-  /// ✅ WEB: Kaydet (bytes -> base64 list)
-  Future<void> addUserImagesWeb(String category) async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-      withData: true,
-    );
-    if (result == null) return;
-
-    final key = _webKey(category);
-    final box = _webBox;
-    if (box == null) return;
-    final List existing = (box.get(key) as List?) ?? [];
-
-    for (final f in result.files) {
-      final bytes = f.bytes;
-      if (bytes == null) continue;
-      existing.add(base64Encode(bytes));
-    }
-
-    await box.put(key, existing);
-
-    // ✅ slaytı güncelle
-    await _loadUserImages(category);
-
-    // ✅ başka widget'lar da dinliyorsa tetikle (opsiyonel ama iyi)
-    ref.read(alertSettingsProvider.notifier).triggerRefresh();
-  }
-
-  /// ✅ WEB: Oku
-  Future<List<String>> _loadUserImagesWeb(String category) async {
+  /// ✅ WEB: Oku — her kayıt hem baytları hem de kayıtlı görüntüleme
+  /// tercihini (bkz. [decodeWebPhotoEntry]) taşır.
+  Future<List<SlideImageRef>> _loadUserImagesWeb(String category) async {
     final box = _webBox;
     if (box == null) return [];
     final key = _webKey(category);
     final List list = (box.get(key) as List?) ?? [];
-    return list.map((e) => 'base64:$e').cast<String>().toList();
+    final refs = <SlideImageRef>[];
+    for (final raw in list) {
+      final entry = decodeWebPhotoEntry(raw);
+      refs.add(SlideImageRef('base64:${base64Encode(entry.bytes)}', entry.mode));
+    }
+    return refs;
   }
 
   String _pageKey(String category) {
@@ -166,7 +143,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     await sp.setInt(_pageKey(category), index);
   }
 
-  List<String> _getAllImages(String category) {
+  List<SlideImageRef> _getAllImages(String category) {
     final cat = _getEffectiveCategory(category);
     if (cat == hakikatCategoryId) return []; // hakikat slides use hakikatSlides list
     if (cat == userPhotosCategoryId) return userImages;
@@ -261,6 +238,10 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
       // iki kez listelenmez.
       final assetFolders = <String>['assets/images/$cat/'];
 
+      // Asset görselleri özenle küratörlüğü yapılmış, uygulamayla birlikte
+      // dağıtılan görsellerdir — her zaman tam gösterim (contain) ile
+      // sunulur; kullanıcının fotoğraf bazlı sığdır/doldur tercihi yalnızca
+      // kendi eklediği fotoğraflar için anlamlıdır.
       final images = assetPaths.where((key) {
         final k = key.toLowerCase();
         final okFolder = cat == 'all' ? k.startsWith('assets/images/') : assetFolders.any(k.contains);
@@ -269,7 +250,7 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
             k.endsWith('.png') ||
             k.endsWith('.webp');
         return okFolder && okExt;
-      }).toList();
+      }).map((path) => SlideImageRef(path, PhotoFitMode.contain)).toList();
 
       if (mounted) setState(() => assetImages = images);
     } catch (e) {
@@ -292,8 +273,12 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
 
       final cat = _getEffectiveCategory(category);
       final imageFiles = await listUserImagePaths(cat);
+      final refs = <SlideImageRef>[];
+      for (final path in imageFiles) {
+        refs.add(SlideImageRef(path, await readMobilePhotoMode(path)));
+      }
 
-      if (mounted) setState(() => userImages = imageFiles);
+      if (mounted) setState(() => userImages = refs);
     } catch (e) {
       debugPrint("Kullanıcı resimleri yükleme hatası: $e");
     }
@@ -359,13 +344,14 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
     }
   }
 
-  Widget _buildImageSlide(String imagePath, double height) {
+  Widget _buildImageSlide(SlideImageRef imageRef, double height) {
     return ClipRect(
       child: SizedBox(
         width: double.infinity,
         height: height,
-        child: _SmartFittedImage(
-          provider: _getImageProvider(imagePath),
+        child: SlidePhoto(
+          image: _getImageProvider(imageRef.ref),
+          mode: imageRef.mode,
           backgroundColor: widget.backgroundColor,
         ),
       ),
@@ -512,28 +498,6 @@ class _SlaytWidgetState extends ConsumerState<SlaytWidget> {
       },
     );
   }
-}
-
-/// Always preserve the whole image, including any text embedded at its edges.
-class _SmartFittedImage extends StatelessWidget {
-  const _SmartFittedImage({required this.provider, required this.backgroundColor});
-  final ImageProvider provider;
-  final Color backgroundColor;
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: backgroundColor,
-    child: Image(
-      image: provider,
-      width: double.infinity,
-      height: double.infinity,
-      fit: BoxFit.contain,
-      alignment: Alignment.center,
-      filterQuality: FilterQuality.high,
-      errorBuilder: (_, __, ___) => const Center(
-        child: Icon(Icons.image_not_supported_outlined, color: Colors.grey)),
-    ),
-  );
 }
 
 // ─────────────────────────────────────────────────────────
