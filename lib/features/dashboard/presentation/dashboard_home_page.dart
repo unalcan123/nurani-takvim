@@ -50,8 +50,9 @@ class DashboardHomePage extends ConsumerWidget {
         final phoneLandscape = phone && landscape;
         final stripHeightBase = (constraints.maxHeight * .155).clamp(76.0, 154.0);
         final stripHeight = phoneLandscape ? stripHeightBase * 0.68 : stripHeightBase;
-        final city = _CityCard(location: selected, today: today, now: now, tight: phoneLandscape);
-        final countdown = _CountdownCard(today: today, next: next, now: now, unavailable: unavailable, tight: phone);
+        final city = _CityCard(location: selected, today: today, now: now, tight: phone);
+        final countdown = _CountdownCard(today: today, next: next, now: now, unavailable: unavailable, tight: phone,
+            maxAspect: phone && !landscape ? 1.45 : 1.15);
         // Portrait phones are narrow enough that a single 6-column row
         // crushes each prayer name/time; split into a 3x2 grid there. A
         // landscape phone already has enough width for one row, but still
@@ -91,13 +92,10 @@ class DashboardHomePage extends ConsumerWidget {
           );
         }
         // Phone/portrait fallback keeps the same content and drawer access.
-        // The city card gets extra height headroom on phone so its
-        // phone-floor font sizes (see _CityCard) render at full size
-        // instead of being shrunk back down by its FittedBox. The countdown
-        // card uses its tight layout on phone, so a shorter box still keeps
-        // the digits readable.
+        // The city and countdown cards use their tight layouts on phone, so
+        // shorter boxes still keep their text readable.
         return ListView(padding: EdgeInsets.all(gap), children: [
-          SizedBox(height: phone ? 285 : 215, child: city),
+          SizedBox(height: phone ? 112 : 215, child: city),
           SizedBox(height: gap),
           SizedBox(height: constraints.maxWidth * .72, child: slide),
           SizedBox(height: gap),
@@ -219,7 +217,11 @@ class _CityCard extends StatelessWidget {
 }
 
 class _CountdownCard extends StatelessWidget {
-  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false});
+  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false, this.maxAspect = 1.15});
+
+  /// Widest content width relative to the card's height. The digits fill this
+  /// width, so a higher value enlarges them in a short, wide card.
+  final double maxAspect;
   final Vakit? today;
   final ({String name, DateTime time})? next;
   final DateTime now;
@@ -244,7 +246,7 @@ class _CountdownCard extends StatelessWidget {
       borderColor: dashboardAccentGold.withValues(alpha: .45),
       child: LayoutBuilder(builder: (context, bounds) {
         final c = BoxConstraints.tightFor(
-          width: math.min(bounds.maxWidth, bounds.maxHeight * 1.15),
+          width: math.min(bounds.maxWidth, bounds.maxHeight * maxAspect),
           height: math.max(bounds.maxHeight, tight ? 200.0 : 300.0),
         );
         final titleSize = (c.maxWidth * (tight ? .12 : .1)).clamp(18.0, 42.0);
