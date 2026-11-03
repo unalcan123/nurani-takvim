@@ -25,7 +25,9 @@ Future<void> loadScreenshotFonts() async {
 }
 
 void main() {
-  for (final size in [const Size(1280, 800), const Size(1920, 1080)]) {
+  // 1024x600 and 960x600 are the common 7-inch tablet viewports.
+  for (final size in [const Size(960, 600), const Size(1024, 600),
+      const Size(1280, 800), const Size(1920, 1080)]) {
     testWidgets('home visual bounds and stable digits at $size', (tester) async {
       resize(tester, size);
       await tester.runAsync(loadScreenshotFonts);
@@ -55,7 +57,9 @@ void main() {
       }
       expect(tester.takeException(), isNull);
       final text = tester.widget<Text>(find.byKey(const ValueKey('countdown-digit-0')));
-      expect(text.style!.fontSize, greaterThan(size.width == 1920 ? 80 : 52));
+      expect(text.style!.fontSize, greaterThan(switch (size.width) {
+        1920 => 80, 1280 => 52, _ => 36,
+      }));
       if (Platform.environment['NURANI_SCREENSHOTS'] == '1') {
         await tester.runAsync(() async {
           final boundary = boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;

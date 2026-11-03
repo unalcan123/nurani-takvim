@@ -51,7 +51,7 @@ class DashboardHomePage extends ConsumerWidget {
         final stripHeightBase = (constraints.maxHeight * .155).clamp(76.0, 154.0);
         final stripHeight = phoneLandscape ? stripHeightBase * 0.68 : stripHeightBase;
         final city = _CityCard(location: selected, today: today, now: now, tight: phoneLandscape);
-        final countdown = _CountdownCard(next: next, now: now, unavailable: unavailable, tight: phoneLandscape);
+        final countdown = _CountdownCard(today: today, next: next, now: now, unavailable: unavailable, tight: phone);
         // Portrait phones are narrow enough that a single 6-column row
         // crushes each prayer name/time; split into a 3x2 grid there. A
         // landscape phone already has enough width for one row, but still
@@ -93,12 +93,9 @@ class DashboardHomePage extends ConsumerWidget {
         // Phone/portrait fallback keeps the same content and drawer access.
         // The city card gets extra height headroom on phone so its
         // phone-floor font sizes (see _CityCard) render at full size
-        // instead of being shrunk back down by its FittedBox. The
-        // countdown card's own width/height formula already produces large
-        // digits at phone widths without needing more outer height — giving
-        // it more height actually widens (and so enlarges) its content
-        // beyond its fixed internal 300px layout budget and overflows, so
-        // its box stays untouched.
+        // instead of being shrunk back down by its FittedBox. The countdown
+        // card uses its tight layout on phone, so a shorter box still keeps
+        // the digits readable.
         return ListView(padding: EdgeInsets.all(gap), children: [
           SizedBox(height: phone ? 285 : 215, child: city),
           SizedBox(height: gap),
@@ -106,7 +103,7 @@ class DashboardHomePage extends ConsumerWidget {
           SizedBox(height: gap),
           SizedBox(height: phone ? 168 : 88, child: strip),
           SizedBox(height: gap),
-          SizedBox(height: 270, child: countdown),
+          SizedBox(height: phone ? 170 : 270, child: countdown),
           SizedBox(height: gap),
           menuButton,
         ]);
@@ -182,31 +179,35 @@ class _CityCard extends StatelessWidget {
           ));
         }
 
-        final size = (c.maxWidth * .095).clamp(isPhoneContext(context) ? 33.0 : 18.0, 44.0);
+        final size = (c.maxWidth * .125).clamp(isPhoneContext(context) ? 33.0 : 22.0, 44.0);
         return Center(child: FittedBox(fit: BoxFit.scaleDown,
           child: SizedBox(width: c.maxWidth, child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.mosque_outlined, color: dashboardAccentGold, size: size * 1.05),
-            SizedBox(height: 8),
-            Text('NURANÎ TAKVİM', style: TextStyle(color: muted,
-                fontSize: size * .43, letterSpacing: 2.0, fontWeight: FontWeight.w700)),
-            SizedBox(height: size * .45),
-            Text(cityName, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: ink, fontSize: size,
-                    height: 1.1, fontWeight: FontWeight.w800)),
-            SizedBox(height: size * .4),
-            Text('${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
-                textAlign: TextAlign.center, style: TextStyle(color: ink,
-                    fontSize: size * .65, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            Text(gunAdlari[now.weekday - 1], style: TextStyle(
-                color: muted, fontSize: size * .57)),
-            SizedBox(height: size * .35),
-            Container(width: 44, height: 2, color: dashboardAccentGold),
-            SizedBox(height: size * .35),
-            Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
-                : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
-                style: TextStyle(color: ink, fontSize: size * .57,
-                    fontWeight: FontWeight.w500)),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.location_on_rounded, color: dashboardAccentGold, size: size * .9),
+              SizedBox(width: size * .15),
+              Flexible(child: Text(cityName, textAlign: TextAlign.center, maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: ink, fontSize: size,
+                      height: 1.1, fontWeight: FontWeight.w800))),
+            ]),
+            SizedBox(height: size * .32),
+            Text('${gunAdlari[now.weekday - 1]}, ${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
+                textAlign: TextAlign.center, style: TextStyle(color: muted,
+                    fontSize: size * .56, fontWeight: FontWeight.w600)),
+            SizedBox(height: size * .36),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: size * .42, vertical: size * .16),
+              decoration: BoxDecoration(color: dashboardActiveCell(brightness),
+                  borderRadius: BorderRadius.circular(size)),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.nightlight_round, color: dashboardAccentGold, size: size * .52),
+                SizedBox(width: size * .2),
+                Flexible(child: Text(today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun
+                    : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
+                    style: TextStyle(color: ink, fontSize: size * .52,
+                        fontWeight: FontWeight.w600))),
+              ]),
+            ),
             if (location == null) TextButton(onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const CountryPage())),
                 child: const Text('Konum seç')),
@@ -218,7 +219,8 @@ class _CityCard extends StatelessWidget {
 }
 
 class _CountdownCard extends StatelessWidget {
-  const _CountdownCard({required this.next, required this.now, required this.unavailable, this.tight = false});
+  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false});
+  final Vakit? today;
   final ({String name, DateTime time})? next;
   final DateTime now;
   final String unavailable;
@@ -234,27 +236,28 @@ class _CountdownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final ink = dashboardInk(brightness);
-    final muted = dashboardMuted(brightness);
+    const highlight = Color(0xFFE9C981);
+    const soft = Color(0xD9FFFFFF);
     return _Surface(
       key: const ValueKey('home-countdown'),
-      color: dashboardSurfaceWhite(brightness),
+      color: brightness == Brightness.dark ? dashboardCardGreenDark : dashboardAccentGreen,
+      borderColor: dashboardAccentGold.withValues(alpha: .45),
       child: LayoutBuilder(builder: (context, bounds) {
         final c = BoxConstraints.tightFor(
           width: math.min(bounds.maxWidth, bounds.maxHeight * 1.15),
           height: math.max(bounds.maxHeight, tight ? 200.0 : 300.0),
         );
-        final titleSize = (c.maxWidth * (tight ? .12 : .095)).clamp(18.0, 42.0);
-        final clockSize = (c.maxWidth * .09).clamp(18.0, 36.0);
+        final titleSize = (c.maxWidth * (tight ? .12 : .1)).clamp(18.0, 42.0);
+        final labelSize = (c.maxWidth * .06).clamp(isPhoneContext(context) ? 14.0 : 12.5, 20.0);
+        final clockSize = (c.maxWidth * .085).clamp(18.0, 34.0);
         final remaining = next?.time.difference(now);
         final value = remaining == null ? '--:--:--' : _formatRemaining(remaining);
-        final spacerFlex = tight ? 1 : 2;
+        final previous = today == null ? null : _previousPrayer(today!, now);
+        final progress = next == null || previous == null ? null
+            : _elapsedFraction(previous.time, next!.time, now);
         return Center(child: FittedBox(fit: BoxFit.scaleDown,
           child: SizedBox(width: c.maxWidth, height: c.maxHeight,
             child: Column(children: [
-          Spacer(flex: spacerFlex),
-          Icon(Icons.schedule_rounded, color: dashboardAccentGold,
-              size: (c.maxHeight * .11).clamp(22.0, 58.0)),
           const Spacer(),
           // Wrapped in Flexible+FittedBox (like the countdown digits already
           // are) so a large system text-scale setting shrinks these lines
@@ -263,40 +266,94 @@ class _CountdownCard extends StatelessWidget {
           // natural size is too big, it can't stop this inner Column (which
           // has a real, tight height) from overflowing on its own.
           Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+            child: Text('KALAN SÜRE', style: TextStyle(color: highlight,
+                letterSpacing: 2.5, fontSize: labelSize, fontWeight: FontWeight.w700)))),
+          SizedBox(height: (c.maxHeight * .02).clamp(3.0, 12.0)),
+          Flexible(child: FittedBox(fit: BoxFit.scaleDown,
             child: Text(next == null ? unavailable : next!.name == 'Güneş'
                 ? 'Güneşin Doğmasına' : '${next!.name} Vaktine',
                 key: const ValueKey('countdown-target'), textAlign: TextAlign.center,
-                style: TextStyle(color: ink, fontSize: titleSize,
+                style: TextStyle(color: Colors.white, fontSize: titleSize,
                     height: 1.15, fontWeight: FontWeight.w700)))),
-          SizedBox(height: (c.maxHeight * .035).clamp(6.0, 24.0)),
-          StableCountdownDigits(value: value, emphasis: tight ? 1.25 : 1.0),
-          const SizedBox(height: 8),
-          Flexible(child: FittedBox(fit: BoxFit.scaleDown,
-            child: Text('KALAN SÜRE', style: TextStyle(color: muted,
-                letterSpacing: 2, fontSize: (c.maxWidth * .044)
-                    .clamp(isPhoneContext(context) ? 14.0 : 10.0, 18.0),
-                fontWeight: FontWeight.w600)))),
-          Spacer(flex: spacerFlex),
-          Container(height: 1, color: dashboardBorder(brightness)),
+          SizedBox(height: (c.maxHeight * .03).clamp(4.0, 20.0)),
+          StableCountdownDigits(value: value, emphasis: tight ? 1.25 : 1.0,
+              color: Colors.white, separatorColor: highlight),
+          if (progress != null) ...[
+            SizedBox(height: (c.maxHeight * .03).clamp(4.0, 20.0)),
+            ClipRRect(borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                key: const ValueKey('countdown-progress'), value: progress,
+                minHeight: (c.maxHeight * .02).clamp(4.0, 8.0),
+                color: highlight, backgroundColor: const Color(0x33FFFFFF))),
+            if (!tight) ...[
+              const SizedBox(height: 8),
+              Flexible(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+                  child: Text('${previous!.name} ${_clock(previous.time)}',
+                      style: TextStyle(color: soft, fontSize: labelSize,
+                          fontWeight: FontWeight.w500)))),
+                const SizedBox(width: 8),
+                Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+                  child: Text('${next!.name} ${_clock(next!.time)}',
+                      style: TextStyle(color: Colors.white, fontSize: labelSize,
+                          fontWeight: FontWeight.w700)))),
+              ])),
+            ],
+          ],
           const Spacer(),
+          Container(height: 1, color: const Color(0x33FFFFFF)),
+          SizedBox(height: tight ? 4 : 10),
           Flexible(child: FittedBox(fit: BoxFit.scaleDown,
-            child: Text('${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}',
-                key: const ValueKey('home-live-clock'),
-                style: TextStyle(color: muted, fontSize: clockSize,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                    fontWeight: FontWeight.w500)))),
-          const Spacer(),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.schedule_rounded, color: highlight, size: clockSize),
+              const SizedBox(width: 8),
+              Text('${_clock(now)}:${_two(now.second)}',
+                  key: const ValueKey('home-live-clock'),
+                  style: TextStyle(color: Colors.white, fontSize: clockSize,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.w600)),
+            ]))),
+          SizedBox(height: tight ? 2 : 6),
         ]))));
       }),
     );
   }
 }
 
+/// The boundary the countdown's progress bar starts from. Before imsak that is
+/// last night's yatsı, approximated from today's time.
+({String name, DateTime time}) _previousPrayer(Vakit today, DateTime now) {
+  DateTime at(String text) {
+    final parts = text.split(':');
+    return DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
+  }
+
+  ({String name, DateTime time})? previous;
+  for (final (name, time) in prayerTimeEntries(today)) {
+    final value = at(time);
+    if (!value.isAfter(now)) previous = (name: name, time: value);
+  }
+  return previous ?? (name: 'Yatsı', time: at(today.yatsi).subtract(const Duration(days: 1)));
+}
+
+double _elapsedFraction(DateTime from, DateTime to, DateTime now) {
+  final total = to.difference(from).inSeconds;
+  if (total <= 0) return 0;
+  return (now.difference(from).inSeconds / total).clamp(0.0, 1.0);
+}
+
 /// Each digit owns an equal, fixed slot. Font fallback and proportional glyphs
 /// cannot move the neighbouring digits when a second changes.
 class StableCountdownDigits extends StatelessWidget {
-  const StableCountdownDigits({super.key, required this.value, this.emphasis = 1.0});
+  const StableCountdownDigits({super.key, required this.value, this.emphasis = 1.0,
+      this.color, this.separatorColor});
   final String value;
+
+  /// Defaults to the dashboard ink color.
+  final Color? color;
+
+  /// Color of the ':' separators; defaults to [color].
+  final Color? separatorColor;
 
   /// >1 makes the digits claim a bigger share of this card's natural height
   /// relative to the icon/title/label/clock around them — since the whole
@@ -307,7 +364,8 @@ class StableCountdownDigits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ink = dashboardInk(Theme.of(context).brightness);
+    final ink = color ?? dashboardInk(Theme.of(context).brightness);
+    final separator = separatorColor ?? ink;
     return Semantics(label: value, child: ExcludeSemantics(
       child: LayoutBuilder(builder: (context, c) {
         final fontSize = c.maxWidth / 4.8 * emphasis;
@@ -317,7 +375,7 @@ class StableCountdownDigits extends StatelessWidget {
             flex: value[i] == ':' ? 5 : 10,
             child: Center(child: FittedBox(fit: BoxFit.scaleDown,
               child: Text(value[i], key: ValueKey('countdown-digit-$i'),
-                style: TextStyle(color: ink, fontSize: fontSize,
+                style: TextStyle(color: value[i] == ':' ? separator : ink, fontSize: fontSize,
                     fontFamily: 'monospace', fontFeatures: const [FontFeature.tabularFigures()],
                     height: 1.05, fontWeight: FontWeight.w900)),
             )),
@@ -420,14 +478,15 @@ class PrayerTimeStrip extends StatelessWidget {
 }
 
 class _Surface extends StatelessWidget {
-  const _Surface({super.key, required this.color, required this.child});
+  const _Surface({super.key, required this.color, this.borderColor, required this.child});
   final Color color;
+  final Color? borderColor;
   final Widget child;
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) => Container(
     padding: EdgeInsets.all((c.maxWidth * .055).clamp(12.0, 26.0)),
     decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: dashboardBorder(Theme.of(context).brightness)),
+      border: Border.all(color: borderColor ?? dashboardBorder(Theme.of(context).brightness)),
       boxShadow: const [BoxShadow(color: Color(0x09000000), blurRadius: 16, offset: Offset(0, 4))]),
     child: child,
   ));
@@ -486,5 +545,6 @@ List<(String, String)> prayerTimeEntries(Vakit vakit) => [
   ('İkindi', vakit.ikindi), ('Akşam', vakit.aksam), ('Yatsı', vakit.yatsi),
 ];
 String _two(int n) => n.toString().padLeft(2, '0');
+String _clock(DateTime t) => '${_two(t.hour)}:${_two(t.minute)}';
 String _formatRemaining(Duration d) => d.isNegative ? '00:00:00'
     : '${_two(d.inHours)}:${_two(d.inMinutes.remainder(60))}:${_two(d.inSeconds.remainder(60))}';

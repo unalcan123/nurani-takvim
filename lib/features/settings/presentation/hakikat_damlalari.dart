@@ -11,12 +11,13 @@ class HakikatDamlalariPage extends ConsumerStatefulWidget {
   const HakikatDamlalariPage({super.key});
 
   @override
-  ConsumerState<HakikatDamlalariPage> createState() => _HakikatDamlalariPageState();
+  ConsumerState<HakikatDamlalariPage> createState() =>
+      _HakikatDamlalariPageState();
 }
 
 class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
   final CarouselSliderController _carouselController =
-  CarouselSliderController();
+      CarouselSliderController();
 
   final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
 
@@ -34,8 +35,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
 
   Future<void> _loadSlides() async {
     try {
-      final jsonString =
-      await rootBundle.loadString('assets/data/slides.json');
+      final jsonString = await rootBundle.loadString('assets/data/slides.json');
       final List<dynamic> jsonList = json.decode(jsonString);
       slides = jsonList.map((e) => SlideItem.fromJson(e)).toList();
     } catch (e, s) {
@@ -95,9 +95,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
     if (isLoading) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -150,10 +148,12 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
             right: 20,
             child: SafeArea(
               child: Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.35),
+                  color: Colors.black.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: Colors.white24),
                 ),
@@ -163,65 +163,65 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.auto_stories, color: Colors.white),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Hakikat Damlaları',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.auto_stories, color: Colors.white),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Hakikat Damlaları',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      tooltip: autoPlay ? 'Durdur' : 'Başlat',
-                      onPressed: _toggleAutoPlay,
-                      icon: Icon(
-                        autoPlay ? Icons.pause_circle : Icons.play_circle,
-                        color: Colors.white,
+                      const SizedBox(width: 16),
+                      IconButton(
+                        tooltip: autoPlay ? 'Durdur' : 'Başlat',
+                        onPressed: _toggleAutoPlay,
+                        icon: Icon(
+                          autoPlay ? Icons.pause_circle : Icons.play_circle,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Yavaşlat',
-                      onPressed: () {
-                        if (autoSeconds < 20) {
-                          setState(() {
-                            autoSeconds++;
-                          });
-                          _startTimer();
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.remove_circle_outline,
-                        color: Colors.white,
+                      IconButton(
+                        tooltip: 'Yavaşlat',
+                        onPressed: () {
+                          if (autoSeconds < 20) {
+                            setState(() {
+                              autoSeconds++;
+                            });
+                            _startTimer();
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${autoSeconds}s',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+                      Text(
+                        '${autoSeconds}s',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Hızlandır',
-                      onPressed: () {
-                        if (autoSeconds > 3) {
-                          setState(() {
-                            autoSeconds--;
-                          });
-                          _startTimer();
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.white,
+                      IconButton(
+                        tooltip: 'Hızlandır',
+                        onPressed: () {
+                          if (autoSeconds > 3) {
+                            setState(() {
+                              autoSeconds--;
+                            });
+                            _startTimer();
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
                   ),
                 ),
               ),
@@ -233,10 +233,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
             top: 0,
             bottom: 0,
             child: Center(
-              child: _NavButton(
-                icon: Icons.arrow_back_ios_new,
-                onTap: _goPrev,
-              ),
+              child: _NavButton(icon: Icons.arrow_back_ios_new, onTap: _goPrev),
             ),
           ),
 
@@ -245,10 +242,7 @@ class _HakikatDamlalariPageState extends ConsumerState<HakikatDamlalariPage> {
             top: 0,
             bottom: 0,
             child: Center(
-              child: _NavButton(
-                icon: Icons.arrow_forward_ios,
-                onTap: _goNext,
-              ),
+              child: _NavButton(icon: Icons.arrow_forward_ios, onTap: _goNext),
             ),
           ),
 
@@ -345,10 +339,7 @@ class _SlideCard extends StatelessWidget {
               child: Text(
                 'Resim bulunamadı:\nimg_${item.image}.jpg',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 22, color: Colors.white),
               ),
             );
           },
@@ -359,11 +350,7 @@ class _SlideCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0x99000000),
-                Color(0x44000000),
-                Color(0xCC000000),
-              ],
+              colors: [Color(0x99000000), Color(0x44000000), Color(0xCC000000)],
             ),
           ),
         ),
@@ -396,10 +383,7 @@ class _SlideCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   item.title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    color: Colors.white70,
-                  ),
+                  style: const TextStyle(fontSize: 22, color: Colors.white70),
                 ),
                 const Spacer(),
                 Container(
@@ -409,7 +393,7 @@ class _SlideCard extends StatelessWidget {
                     vertical: 26,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.38),
+                    color: Colors.black.withValues(alpha: 0.385),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: Colors.white24),
                   ),
@@ -427,7 +411,6 @@ class _SlideCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 18),
-
               ],
             ),
           ),
@@ -441,15 +424,12 @@ class _NavButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _NavButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _NavButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withOpacity(0.25),
+      color: Colors.black.withValues(alpha: 0.25),
       borderRadius: BorderRadius.circular(100),
       child: InkWell(
         borderRadius: BorderRadius.circular(100),

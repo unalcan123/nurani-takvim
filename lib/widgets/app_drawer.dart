@@ -23,11 +23,13 @@ class AppDrawer extends ConsumerWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.8),
+              color: theme.colorScheme.primary.withValues(alpha: 0.8),
             ),
             child: Text(
               'Ezan Vakti',
-              style: theme.textTheme.headlineSmall?.copyWith(color: Colors.white),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: Colors.white,
+              ),
             ),
           ),
           ListTile(
