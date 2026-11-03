@@ -280,14 +280,21 @@ class NotificationService {
     );
   }
 
+  /// Android delivers the same reminder through the alarm planned in
+  /// [_scheduleAlarms] and through the foreground watcher, in either order.
+  /// Sharing that alarm's id and [AndroidNotificationDetails.onlyAlertOnce]
+  /// collapses them into one notification with one sound, and the channel
+  /// already plays the sound, so the in-app player is only for other platforms.
   Future<void> showPrePrayerNotification(
     String prayerName,
     int minute,
-    String? assetPath,
-  ) async {
+    String? assetPath, {
+    required DateTime prayerTime,
+  }) async {
     if (adhanActive) return;
-    // Uygulama içindeyken ses çal
-    if (assetPath != null && !adhanActive) {
+    final channelPlaysSound =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    if (assetPath != null && !channelPlaysSound) {
       try {
         await _audioPlayer.setAsset(assetPath);
         if (!adhanActive) _audioPlayer.play();
@@ -297,8 +304,21 @@ class NotificationService {
     }
 
     if (adhanActive) return;
+    await _notificationsPlugin.show(
+      preNotificationId(
+        prayerTime,
+        prayerNames.indexOf(prayerName),
+        preNotificationMinutes.indexOf(minute),
+      ),
+      'Vakit Yaklaşıyor',
+      '$prayerName vaktine $minute dk kaldı.',
+      NotificationDetails(android: _preNotificationDetails(minute)),
+    );
+  }
+
+  AndroidNotificationDetails _preNotificationDetails(int minute) {
     final soundFileName = _getPreNotificationSoundFileName(minute);
-    final androidDetails = AndroidNotificationDetails(
+    return AndroidNotificationDetails(
       _preNotificationChannelId(minute),
       'Vakit Yaklaşıyor ($minute dk)',
       importance: Importance.max,
@@ -308,13 +328,8 @@ class NotificationService {
               ? null
               : RawResourceAndroidNotificationSound(soundFileName),
       playSound: soundFileName != null,
+      onlyAlertOnce: true,
       visibility: NotificationVisibility.public,
-    );
-    await _notificationsPlugin.show(
-      minute,
-      'Vakit Yaklaşıyor',
-      '$prayerName vaktine $minute dk kaldı.',
-      NotificationDetails(android: androidDetails),
     );
   }
 
@@ -322,16 +337,41 @@ class NotificationService {
   AlertSettings? _lastSettings;
   Future<void> _scheduleQueue = Future.value();
 
+  /// What the current plan was built from. The prayer times refresh every five
+  /// minutes and any settings change lands here too; replanning unchanged input
+  /// would wipe reminders already on screen and leave a gap with no alarms.
+  String? _plannedSignature;
+
+  String _scheduleSignature(List<Vakit> vakitler, AlertSettings settings) => [
+    DateTime.now().timeZoneOffset.inMinutes,
+    settings.fajrDelayMinutes,
+    for (final prayer in prayerNames) settings.isPrayerEnabled(prayer),
+    for (final minute in preNotificationMinutes)
+      settings.isPreNotificationEnabled(minute),
+    for (final v in vakitler) ...[
+      v.miladiTarihKisaIso8601,
+      v.imsak,
+      v.ogle,
+      v.ikindi,
+      v.aksam,
+      v.yatsi,
+    ],
+  ].join('|');
+
   Future<void> scheduleAlarms(List<Vakit> vakitler, AlertSettings settings) {
     _lastTimes = vakitler;
     _lastSettings = settings;
     if (kIsWeb) return Future.value();
+    final signature = _scheduleSignature(vakitler, settings);
+    if (signature == _plannedSignature) return _scheduleQueue;
+    _plannedSignature = signature;
     final next = _scheduleQueue.then(
       (_) => _scheduleAlarms(vakitler, settings),
     );
-    _scheduleQueue = next.catchError(
-      (Object e) => debugPrint('Alarm planlama: $e'),
-    );
+    _scheduleQueue = next.catchError((Object e) {
+      _plannedSignature = null; // a failed plan must be retried
+      debugPrint('Alarm planlama: $e');
+    });
     return next;
   }
 
@@ -419,29 +459,13 @@ class NotificationService {
           );
           if (preNotificationTime.isBefore(now)) continue;
 
-          final preSound = _getPreNotificationSoundFileName(minute);
-          final preSoundResource =
-              preSound == null
-                  ? null
-                  : RawResourceAndroidNotificationSound(preSound);
-
-          final preAndroidDetails = AndroidNotificationDetails(
-            _preNotificationChannelId(minute),
-            'Vakit Yaklaşıyor ($minute dk)',
-            importance: Importance.max,
-            priority: Priority.high,
-            sound: preSoundResource,
-            playSound: preSoundResource != null,
-            visibility: NotificationVisibility.public,
-          );
-
           try {
             await _notificationsPlugin.zonedSchedule(
               preNotificationId(prayerDate, i, m),
               'Vakit Yaklaşıyor',
               '${prayer.key} vaktine $minute dk kaldı.',
               tz.TZDateTime.from(preNotificationTime, tz.local),
-              NotificationDetails(android: preAndroidDetails),
+              NotificationDetails(android: _preNotificationDetails(minute)),
               androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
               uiLocalNotificationDateInterpretation:
                   UILocalNotificationDateInterpretation.absoluteTime,
@@ -489,23 +513,41 @@ class NotificationService {
     return DateTime(int.parse(d[2]), int.parse(d[1]), int.parse(d[0]));
   }
 
+  /// Tells Android about playback immediately and queues the reminder changes
+  /// behind [reminderWork], so the adhan never waits for them: cancelling the
+  /// planned reminders took about ten seconds on a real tablet.
   Future<void> setAdhanPlaybackActive(bool active) async {
     adhanActive = active;
-    if (!kIsWeb) {
-      if (active) {
-        await _scheduleQueue;
-        final pending =
-            await _notificationsPlugin.pendingNotificationRequests();
-        for (final request in pending) {
-          if (request.id >= 1000000) {
-            await _notificationsPlugin.cancel(request.id);
-          }
-        }
-      } else if (_lastTimes != null && _lastSettings != null) {
-        await scheduleAlarms(_lastTimes!, _lastSettings!);
+    _plannedSignature = null;
+    if (kIsWeb) return;
+    await _setPlaybackServiceActive(active);
+    if (active) {
+      _scheduleQueue = _scheduleQueue
+          .then((_) => _cancelPendingReminders())
+          .catchError((Object e) => debugPrint('Hatırlatma iptali: $e'));
+    } else if (_lastTimes != null && _lastSettings != null) {
+      unawaited(
+        scheduleAlarms(_lastTimes!, _lastSettings!)
+            .catchError((Object e) => debugPrint('Alarm planlama: $e')),
+      );
+    }
+  }
+
+  /// Completes once the reminder changes requested so far have been applied.
+  Future<void> get reminderWork => _scheduleQueue;
+
+  Future<void> _cancelPendingReminders() async {
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    for (final request in pending) {
+      if (!adhanActive) return; // the reschedule queued next replaces them all
+      if (request.id >= 1000000) {
+        await _notificationsPlugin.cancel(request.id);
       }
     }
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+  }
+
+  Future<void> _setPlaybackServiceActive(bool active) async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
     try {
       await _androidNotificationChannel.invokeMethod<void>(
         active ? 'startAdhanPlayback' : 'stopAdhanPlayback',

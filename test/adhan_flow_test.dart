@@ -192,10 +192,17 @@ void main() {
         'dexterous.com/flutter/local_notifications',
       );
       final scheduled = <Map<dynamic, dynamic>>[];
+      final shown = <Map<dynamic, dynamic>>[];
+      var cancelAllCalls = 0;
+      Future<void>? pendingGate;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
-            if (call.method == 'cancelAll') scheduled.clear();
+            if (call.method == 'cancelAll') {
+              cancelAllCalls++;
+              scheduled.clear();
+            }
             if (call.method == 'pendingNotificationRequests') {
+              await pendingGate;
               return scheduled
                   .map(
                     (e) => {
@@ -215,6 +222,7 @@ void main() {
             if (call.method == 'zonedSchedule') {
               scheduled.add(call.arguments as Map);
             }
+            if (call.method == 'show') shown.add(call.arguments as Map);
             return null;
           });
       addTearDown(
@@ -298,11 +306,22 @@ void main() {
         ).difference(DateTime.parse(pre['scheduledDateTime'])),
         const Duration(minutes: 10),
       );
+      final plansBefore = cancelAllCalls;
       await service.scheduleAlarms(times, settings);
       expect(scheduled.map((e) => e['id']).toSet(), ids);
+      expect(cancelAllCalls, plansBefore); // unchanged input keeps the plan
+
+      // The playback service must not wait for the reminder cleanup.
+      final releaseCleanup = Completer<void>();
+      pendingGate = releaseCleanup.future;
       await service.setAdhanPlaybackActive(true);
+      expect(scheduled.length, 18);
+      releaseCleanup.complete();
+      pendingGate = null;
+      await service.reminderWork;
       expect(scheduled.length, 10); // only the five adhans per day remain
       await service.scheduleAlarms(times, settings);
+      await service.reminderWork;
       expect(
         scheduled.length,
         10,
@@ -311,9 +330,27 @@ void main() {
         'Öğle',
         10,
         'assets/reminder.mp3',
+        prayerTime: tomorrow,
       );
       await service.setAdhanPlaybackActive(false);
+      await service.reminderWork;
       expect(scheduled.map((e) => e['id']).toSet(), ids);
+
+      // The in-app reminder must replace the planned one, not add a second.
+      expect(shown, isEmpty);
+      await service.showPrePrayerNotification(
+        'Öğle',
+        10,
+        'assets/reminder.mp3',
+        prayerTime: tomorrow,
+      );
+      final plannedPre = scheduled.firstWhere(
+        (e) => e['id'] == preNotificationId(tomorrow, 1, 2),
+      );
+      expect(shown.single['id'], plannedPre['id']);
+      for (final notification in [shown.single, plannedPre]) {
+        expect(notification['platformSpecifics']['onlyAlertOnce'], isTrue);
+      }
     },
   );
 

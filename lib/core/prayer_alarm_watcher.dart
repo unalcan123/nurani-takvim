@@ -204,6 +204,7 @@ class _PrayerAlarmWatcherState extends ConsumerState<PrayerAlarmWatcher>
           next.name,
           minute,
           preNotificationAssets[minute],
+          prayerTime: next.time,
         );
       }
     }
