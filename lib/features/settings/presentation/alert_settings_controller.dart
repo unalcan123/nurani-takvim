@@ -273,9 +273,9 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     );
   }
 
-  /// Sabah (fecr) vakti için ayrı bir kayıt seçer. [AdhanType.library] türü
-  /// zaten seçili değilse önce normal seçim de bu kayıtla doldurulur ki
-  /// diğer dört vakit için de anında bir seçim olsun.
+  /// Sabah (fecr) vakti için ayrı bir kayıt seçer. Sabah ezanı diğer dört
+  /// vakte kopyalanmaz: normal kayıt seçilene kadar onlarda varsayılan Mekke
+  /// ezanı çalar.
   Future<void> selectLibraryFajrEntry(
     EzanLibraryEntry entry, {
     String baseUrl = '',
@@ -291,8 +291,8 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       AdhanSettings(
         type: AdhanType.library,
         libraryEntryId: current.type == AdhanType.library
-            ? (current.libraryEntryId ?? entry.id)
-            : entry.id,
+            ? current.libraryEntryId
+            : null,
         libraryFajrEntryId: entry.id,
       ),
     );

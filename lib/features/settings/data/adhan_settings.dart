@@ -53,9 +53,9 @@ class AdhanSettings {
   /// kullanılan kütüphane kaydının kimliği.
   final String? libraryEntryId;
 
-  /// [AdhanType.library] seçiliyken: sabah (fecr) vakti için ayrı bir kayıt
-  /// seçildiyse onun kimliği. `null` ise sabah vaktinde de [libraryEntryId]
-  /// çalınır.
+  /// [AdhanType.library] seçiliyken: sabah (fecr) vakti için seçilen kaydın
+  /// kimliği. `null` ise sabah vaktinde varsayılan Mekke sabah ezanı çalınır;
+  /// normal bir kayıt sabah vaktinde hiçbir zaman kullanılmaz.
   final String? libraryFajrEntryId;
 
   const AdhanSettings({
@@ -138,7 +138,11 @@ Future<AdhanSource> resolveSelectedAdhan({
       );
     case AdhanType.world:
       final path = settings.worldAssetPath;
-      if (path != null && path.isNotEmpty) {
+      // A world recording is one file, so only use it for the prayer group it
+      // was recorded for: a fajr adhan contains "es-salâtü hayrun mine'n-nevm".
+      if (path != null &&
+          path.isNotEmpty &&
+          _isFajrRecordingPath(path) == prayer.isFajr) {
         return AdhanSource.asset(title: cleanAdhanTitle(path), path: path);
       }
       return _fallbackSource(prayer);
@@ -152,12 +156,16 @@ Future<AdhanSource> resolveSelectedAdhan({
       }
       return _fallbackSource(prayer);
     case AdhanType.library:
-      final id = (prayer.isFajr ? settings.libraryFajrEntryId : null) ??
-          settings.libraryEntryId;
-      if (id != null) {
-        final service = libraryService ?? EzanLibraryService();
+      // Older versions could store a fajr recording as the normal selection,
+      // so the entry's category is checked here as well as at selection time.
+      final ids = prayer.isFajr
+          ? [settings.libraryFajrEntryId, settings.libraryEntryId]
+          : [settings.libraryEntryId];
+      final service = libraryService ?? EzanLibraryService();
+      for (final id in ids) {
+        if (id == null) continue;
         final entry = await service.findById(id);
-        if (entry != null) {
+        if (entry != null && entry.isFajr == prayer.isFajr) {
           if (entry.source == EzanLibrarySource.asset) {
             return AdhanSource.asset(title: entry.title, path: entry.assetPath!);
           }
@@ -179,6 +187,9 @@ Future<AdhanSource> resolveSelectedAdhan({
       return _fallbackSource(prayer);
   }
 }
+
+bool _isFajrRecordingPath(String path) =>
+    RegExp(r'fajr|fecr|الفجر', caseSensitive: false).hasMatch(path);
 
 AdhanSource _fallbackSource(PrayerType prayer) {
   return AdhanSource.asset(

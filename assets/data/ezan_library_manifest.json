@@ -871,14 +871,14 @@
       "id": "r_ZmVjciBtZWRpbmUubXAz_104",
       "fileName": "fecr.medine.mp3",
       "title": "Fecr Medine",
-      "category": "normal",
+      "category": "fajr",
       "source": "remote"
     },
     {
       "id": "r_ZmVjciBtZWtrZS5tcDM_105",
       "fileName": "fecr.mekke.mp3",
       "title": "Fecr Mekke",
-      "category": "normal",
+      "category": "fajr",
       "source": "remote"
     },
     {
