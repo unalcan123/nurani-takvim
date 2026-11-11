@@ -146,56 +146,73 @@ Future<void> showLocationSheet(BuildContext context, WidgetRef ref) {
   String label(SavedLocation l) =>
       '${l.ilce.ilceAdi}, ${l.sehir.sehirAdi}, ${l.ulke.ulkeAdi}';
 
+  // Ana sayfadaki gibi: telefon biçimli dikey ekranda (Chrome "masaüstü
+  // sitesi" ~980px bildirse bile) pencere tam genişlikte ve orantılı büyük.
+  final size = MediaQuery.sizeOf(context);
+  final phoneShaped = size.height / size.width >= 1.75;
+  final s = phoneShaped ? (size.width / 400).clamp(1.0, 2.6) : 1.2;
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     useSafeArea: true,
     isScrollControlled: true,
-    constraints: const BoxConstraints(maxWidth: 560),
+    constraints: BoxConstraints(maxWidth: phoneShaped ? double.infinity : 640),
     builder: (sheetContext) {
       final theme = Theme.of(sheetContext);
       final muted = dashboardMuted(theme.brightness);
+      final ink = dashboardInk(theme.brightness);
+      final tileTitle = TextStyle(fontSize: 20 * s, fontWeight: FontWeight.w600, color: ink);
+      final tileSub = TextStyle(fontSize: 15 * s, color: muted);
+      final tilePad = EdgeInsets.symmetric(horizontal: 16 * s, vertical: 8 * s);
+      Widget tile({Key? key, required IconData icon, required String title,
+          String? subtitle, required VoidCallback onTap}) => ListTile(
+        key: key,
+        contentPadding: tilePad,
+        minLeadingWidth: 36 * s,
+        horizontalTitleGap: 16 * s,
+        leading: Icon(icon, size: 32 * s, color: ink),
+        title: Text(title, style: tileTitle),
+        subtitle: subtitle == null ? null : Padding(
+            padding: EdgeInsets.only(top: 4 * s), child: Text(subtitle, style: tileSub)),
+        onTap: onTap,
+      );
       void run(Future<void> Function() action) {
         Navigator.pop(sheetContext);
         action();
       }
 
       return SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+        padding: EdgeInsets.fromLTRB(8 * s, 0, 8 * s, 28 * s),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+              padding: EdgeInsets.fromLTRB(16 * s, 0, 16 * s, 6 * s),
               child: Text(
                 'Konum',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 30 * s, fontWeight: FontWeight.w700, color: ink),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: EdgeInsets.fromLTRB(16 * s, 0, 16 * s, 14 * s),
               child: Text(
                 current == null
                     ? 'Vakitlerin hesaplanması için bir konum seçin.'
                     : 'Şu an: ${label(current)}',
-                style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                style: TextStyle(fontSize: 16 * s, color: muted, fontWeight: FontWeight.w500),
               ),
             ),
-            ListTile(
+            tile(
               key: const ValueKey('sheet-auto-location'),
-              leading: const Icon(Icons.my_location_rounded),
-              title: const Text('Konumumu otomatik bul'),
-              subtitle: const Text(
-                'GPS ile ilçenizi bulur, kaydetmeden önce sorar',
-              ),
+              icon: Icons.my_location_rounded,
+              title: 'Konumumu otomatik bul',
+              subtitle: 'GPS ile ilçenizi bulur, kaydetmeden önce sorar',
               onTap: () => run(() => detectAndSaveLocation(context, ref)),
             ),
-            ListTile(
+            tile(
               key: const ValueKey('sheet-manual-location'),
-              leading: const Icon(Icons.travel_explore_rounded),
-              title: const Text('Ülke ve şehri elle seç'),
+              icon: Icons.travel_explore_rounded,
+              title: 'Ülke ve şehri elle seç',
               onTap:
                   () => run(
                     () => Navigator.push(
@@ -206,20 +223,17 @@ Future<void> showLocationSheet(BuildContext context, WidgetRef ref) {
             ),
             if (recent.length > 1) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                padding: EdgeInsets.fromLTRB(16 * s, 18 * s, 16 * s, 4 * s),
                 child: Text(
                   'Son konumlar',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: muted,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16 * s, color: muted, fontWeight: FontWeight.w700),
                 ),
               ),
               for (final l in recent.skip(1))
-                ListTile(
-                  leading: const Icon(Icons.history_rounded),
-                  title: Text(l.ilce.ilceAdi),
-                  subtitle: Text('${l.sehir.sehirAdi}, ${l.ulke.ulkeAdi}'),
+                tile(
+                  icon: Icons.history_rounded,
+                  title: l.ilce.ilceAdi,
+                  subtitle: '${l.sehir.sehirAdi}, ${l.ulke.ulkeAdi}',
                   onTap: () => run(() => openSavedLocation(context, ref, l)),
                 ),
             ],
