@@ -287,4 +287,32 @@ void main() {
     );
 
   }
+
+  for (final size in [const Size(400, 760), const Size(800, 1280)]) {
+    testWidgets('portrait home leads with the countdown and opens location options at $size',
+        (tester) async {
+      resize(tester, size);
+      final env = await layoutEnvironment(tester);
+      await showLayout(tester, env.container, const AppShell());
+      expect(tester.takeException(), isNull);
+      final header = tester.getRect(find.byKey(const ValueKey('home-city-card')));
+      final countdown = tester.getRect(find.byKey(const ValueKey('home-countdown')));
+      final slide = tester.getRect(find.byKey(const ValueKey('home-slideshow')));
+      final menu = tester.getRect(find.byKey(const ValueKey('home-menu-button')));
+      // Telefonda sayaç başlığın altında, tablette yanında; ikisinde de
+      // slayttan önce gelir ve düzen ekrana sığar.
+      if (size.width < 600) {
+        expect(countdown.top, greaterThanOrEqualTo(header.bottom));
+      } else {
+        expect(countdown.left, greaterThanOrEqualTo(header.right));
+      }
+      expect(slide.top, greaterThan(countdown.bottom));
+      expect(menu.bottom, lessThanOrEqualTo(size.height));
+      await tester.tap(find.byKey(const ValueKey('home-city-card')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('sheet-auto-location')), findsOneWidget);
+      expect(find.byKey(const ValueKey('sheet-manual-location')), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
 }

@@ -93,26 +93,74 @@ class DashboardHomePage extends ConsumerWidget {
             ]),
           );
         }
-        // Phone/portrait fallback keeps the same content and drawer access.
-        // The city and countdown cards use their tight layouts on phone, so
-        // shorter boxes still keep their text readable.
-        return ListView(padding: EdgeInsets.all(gap), children: [
-          SizedBox(height: phone ? 112 : 215, child: city),
-          SizedBox(height: gap),
-          SizedBox(height: constraints.maxWidth * .72, child: slide),
-          SizedBox(height: gap),
-          SizedBox(height: phone ? 168 : 88, child: strip),
-          SizedBox(height: gap),
-          SizedBox(height: phone ? 170 : 270, child: countdown),
-          SizedBox(height: gap),
-          menuButton,
-        ]);
+        // Portrait fills the viewport instead of scrolling a stack of fixed
+        // heights: the countdown, the reason people open the app, comes right
+        // after the place header and gets the biggest share; the slideshow
+        // takes what is left. A tablet uses its width to put the city card
+        // and the countdown side by side instead of stretching the phone stack.
+        Widget hero({required double aspect}) => _CountdownCard(today: today, next: next,
+            now: now, unavailable: unavailable, tight: phone, needsLocation: selected == null,
+            maxAspect: aspect, showLabel: false, digitEmphasis: phone ? .95 : null);
+        final h = constraints.maxHeight;
+        final w = constraints.maxWidth;
+        if (phone) {
+          final header = _PortraitHeader(location: selected, today: today, now: now);
+          final stripH = (h * .17).clamp(118.0, 160.0);
+          // Short windows (split screen, small phones) keep the same order
+          // but scroll, so nothing is squeezed below a readable size.
+          if (h < 600) {
+            return ListView(padding: EdgeInsets.all(gap), children: [
+              header,
+              SizedBox(height: gap),
+              SizedBox(height: 230, child: hero(aspect: 2.4)),
+              SizedBox(height: gap),
+              SizedBox(height: stripH, child: strip),
+              SizedBox(height: gap),
+              SizedBox(height: w * .62, child: slide),
+              SizedBox(height: gap),
+              menuButton,
+            ]);
+          }
+          return Padding(
+            padding: EdgeInsets.all(gap),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              header,
+              SizedBox(height: gap),
+              Expanded(flex: 52, child: hero(aspect: 2.4)),
+              SizedBox(height: gap),
+              SizedBox(height: stripH, child: strip),
+              SizedBox(height: gap),
+              Expanded(flex: 48, child: slide),
+              SizedBox(height: gap),
+              menuButton,
+            ]),
+          );
+        }
+        return Padding(
+          padding: EdgeInsets.all(gap),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            // The slideshow letterboxes its photos, so it only gets the height
+            // a landscape photo needs; everything else goes to the top row.
+            Expanded(child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Expanded(flex: 2, child: city),
+                SizedBox(width: gap),
+                Expanded(flex: 3, child: hero(aspect: 1.7)),
+              ])),
+            SizedBox(height: gap),
+            SizedBox(height: (h * .095).clamp(92.0, 130.0), child: strip),
+            SizedBox(height: gap),
+            SizedBox(height: math.min(w * .62, h * .42), child: slide),
+            SizedBox(height: gap),
+            menuButton,
+          ]),
+        );
       }),
     );
   }
 }
 
-class _CityCard extends StatelessWidget {
+class _CityCard extends ConsumerWidget {
   const _CityCard({required this.location, required this.today, required this.now, this.tight = false});
   final SavedLocation? location;
   final Vakit? today;
@@ -127,12 +175,14 @@ class _CityCard extends StatelessWidget {
   final bool tight;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final brightness = Theme.of(context).brightness;
     final ink = dashboardInk(brightness);
     final muted = dashboardMuted(brightness);
     return _Surface(
       key: const ValueKey('home-city-card'),
+      onTap: () => showLocationSheet(context, ref),
+      semanticLabel: 'Konumu değiştir',
       color: dashboardSurfaceCream(brightness),
       child: LayoutBuilder(builder: (context, c) {
         final cityName = location?.ilce.ilceAdi ?? 'Şehir seçin';
@@ -170,10 +220,6 @@ class _CityCard extends StatelessWidget {
                     : 'Hicri tarih bekleniyor', textAlign: TextAlign.center,
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: muted, fontSize: 15, fontWeight: FontWeight.w500)),
-                if (location == null)
-                  TextButton(onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const CountryPage())),
-                      child: const Text('Konum seç')),
               ],
             )),
           ));
@@ -189,6 +235,7 @@ class _CityCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: ink, fontSize: size,
                       height: 1.1, fontWeight: FontWeight.w800))),
+              Icon(Icons.expand_more_rounded, color: muted, size: size * .8),
             ]),
             SizedBox(height: size * .32),
             Text('${gunAdlari[now.weekday - 1]}, ${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
@@ -208,9 +255,6 @@ class _CityCard extends StatelessWidget {
                         fontWeight: FontWeight.w600))),
               ]),
             ),
-            if (location == null) TextButton(onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const CountryPage())),
-                child: const Text('Konum seç')),
           ])),
         ));
       }),
@@ -219,7 +263,13 @@ class _CityCard extends StatelessWidget {
 }
 
 class _CountdownCard extends StatelessWidget {
-  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false, this.maxAspect = 1.15, this.needsLocation = false});
+  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false, this.maxAspect = 1.15, this.needsLocation = false, this.showLabel = true, this.digitEmphasis});
+
+  /// Digit share of the card height; defaults to 1.25 when [tight].
+  final double? digitEmphasis;
+
+  /// The "KALAN SÜRE" label; portrait drops it so the title leads.
+  final bool showLabel;
 
   /// Henüz konum seçilmediyse boş sayaç yerine konum seçme düğmeleri gösterilir.
   final bool needsLocation;
@@ -254,7 +304,8 @@ class _CountdownCard extends StatelessWidget {
           width: math.min(bounds.maxWidth, bounds.maxHeight * maxAspect),
           height: math.max(bounds.maxHeight, tight ? 200.0 : 300.0),
         );
-        final titleSize = (c.maxWidth * (tight ? .12 : .1)).clamp(18.0, 42.0);
+        final titleSize = needsLocation ? (c.maxWidth * .06).clamp(16.0, 24.0)
+            : (c.maxWidth * (tight ? .12 : .1)).clamp(18.0, 42.0);
         final labelSize = (c.maxWidth * .06).clamp(isPhoneContext(context) ? 14.0 : 12.5, 20.0);
         final clockSize = (c.maxWidth * .085).clamp(18.0, 34.0);
         final remaining = next?.time.difference(now);
@@ -272,10 +323,12 @@ class _CountdownCard extends StatelessWidget {
           // enclosing FittedBox only rescales the *whole* column when its
           // natural size is too big, it can't stop this inner Column (which
           // has a real, tight height) from overflowing on its own.
-          Flexible(child: FittedBox(fit: BoxFit.scaleDown,
-            child: Text('KALAN SÜRE', style: TextStyle(color: highlight,
-                letterSpacing: 2.5, fontSize: labelSize, fontWeight: FontWeight.w700)))),
-          SizedBox(height: (c.maxHeight * .02).clamp(3.0, 12.0)),
+          if (showLabel) ...[
+            Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+              child: Text('KALAN SÜRE', style: TextStyle(color: highlight,
+                  letterSpacing: 2.5, fontSize: labelSize, fontWeight: FontWeight.w700)))),
+            SizedBox(height: (c.maxHeight * .02).clamp(3.0, 12.0)),
+          ],
           Flexible(child: FittedBox(fit: BoxFit.scaleDown,
             child: Text(next == null ? unavailable : next!.name == 'Güneş'
                 ? 'Güneşin Doğmasına' : '${next!.name} Vaktine',
@@ -286,7 +339,7 @@ class _CountdownCard extends StatelessWidget {
           if (needsLocation)
             _LocationPrompt(width: c.maxWidth, tight: tight)
           else
-            StableCountdownDigits(value: value, emphasis: tight ? 1.25 : 1.0,
+            StableCountdownDigits(value: value, emphasis: digitEmphasis ?? (tight ? 1.25 : 1.0),
                 color: Colors.white, separatorColor: highlight),
           if (progress != null) ...[
             SizedBox(height: (c.maxHeight * .03).clamp(4.0, 20.0)),
@@ -488,18 +541,83 @@ class PrayerTimeStrip extends StatelessWidget {
 }
 
 class _Surface extends StatelessWidget {
-  const _Surface({super.key, required this.color, this.borderColor, required this.child});
+  const _Surface({super.key, required this.color, this.borderColor, required this.child,
+      this.onTap, this.semanticLabel, this.padding});
   final Color color;
   final Color? borderColor;
   final Widget child;
+  final VoidCallback? onTap;
+  final String? semanticLabel;
+
+  /// Overrides the width-proportional padding.
+  final EdgeInsets? padding;
+
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) => Container(
-    padding: EdgeInsets.all((c.maxWidth * .055).clamp(12.0, 26.0)),
-    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: borderColor ?? dashboardBorder(Theme.of(context).brightness)),
-      boxShadow: const [BoxShadow(color: Color(0x09000000), blurRadius: 16, offset: Offset(0, 4))]),
-    child: child,
-  ));
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
+    final radius = BorderRadius.circular(18);
+    final body = Padding(
+      padding: padding ?? EdgeInsets.all((c.maxWidth * .055).clamp(12.0, 26.0)),
+      child: child,
+    );
+    return Container(
+      decoration: BoxDecoration(color: color, borderRadius: radius,
+        border: Border.all(color: borderColor ?? dashboardBorder(Theme.of(context).brightness)),
+        boxShadow: const [BoxShadow(color: Color(0x09000000), blurRadius: 16, offset: Offset(0, 4))]),
+      child: onTap == null ? body : Semantics(button: true, label: semanticLabel,
+        child: Material(type: MaterialType.transparency, borderRadius: radius,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(onTap: onTap, borderRadius: radius, child: body))),
+    );
+  });
+}
+
+/// Dikey telefonda üstteki ince başlık: şehir (dokununca konum seçenekleri)
+/// ve tek satırda miladi + hicri tarih.
+class _PortraitHeader extends ConsumerWidget {
+  const _PortraitHeader({required this.location, required this.today, required this.now});
+  final SavedLocation? location;
+  final Vakit? today;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final b = Theme.of(context).brightness;
+    final ink = dashboardInk(b);
+    final muted = dashboardMuted(b);
+    final hicri = today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun : null;
+    // Dar telefonlarda gün adı düşer ki hicri tarih kesilmeden sığsın.
+    final narrow = MediaQuery.sizeOf(context).width < 390;
+    final day = '${now.day} ${ayAdlari[now.month - 1]} ${now.year}';
+    final date = narrow ? day : '${gunAdlari[now.weekday - 1]}, $day';
+    return _Surface(
+      key: const ValueKey('home-city-card'),
+      color: dashboardSurfaceCream(b),
+      onTap: () => showLocationSheet(context, ref),
+      semanticLabel: 'Konumu değiştir',
+      padding: const EdgeInsets.fromLTRB(16, 12, 10, 12),
+      child: Row(children: [
+        Icon(Icons.location_on_rounded, color: dashboardAccentGold, size: 26),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min, children: [
+          Text(location?.ilce.ilceAdi ?? 'Konum seçin', maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: ink, fontSize: 22, height: 1.15,
+                  fontWeight: FontWeight.w800)),
+          const SizedBox(height: 2),
+          Text(hicri == null ? date : '$date  ·  $hicri', maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: muted, fontSize: 14, fontWeight: FontWeight.w600)),
+        ])),
+        const SizedBox(width: 6),
+        Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(color: dashboardActiveCell(b), shape: BoxShape.circle),
+          child: Icon(Icons.edit_location_alt_outlined, color: ink, size: 22),
+        ),
+      ]),
+    );
+  }
 }
 
 class _HomeMenuButton extends StatelessWidget {
@@ -586,9 +704,8 @@ class _LocationPromptState extends ConsumerState<_LocationPrompt> {
   @override
   Widget build(BuildContext context) {
     const gold = Color(0xFFE9C981);
-    final fontSize = (widget.width * .055).clamp(14.0, 20.0);
-    final padding = EdgeInsets.symmetric(
-        horizontal: 18, vertical: widget.tight ? 10 : 16);
+    final fontSize = (widget.width * .045).clamp(15.0, 18.0);
+    final padding = EdgeInsets.symmetric(horizontal: 16, vertical: widget.tight ? 12 : 16);
     final text = TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
     return SizedBox(
       width: widget.width * .82,
