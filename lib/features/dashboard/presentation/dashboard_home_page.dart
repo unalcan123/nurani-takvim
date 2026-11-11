@@ -5,7 +5,6 @@ import '../../../core/live_clock.dart';
 import '../../../core/responsive.dart';
 import '../../../theme.dart';
 import '../../locations/data/models.dart';
-import '../../locations/presentation/country_page.dart';
 import '../../media/player/compact_play_controls.dart';
 import '../../settings/data/prefs_repository.dart';
 import '../../times/presentation/slayt_widget.dart';
@@ -188,11 +187,11 @@ class _CityCard extends ConsumerWidget {
     final muted = dashboardMuted(brightness);
     return _Surface(
       key: const ValueKey('home-city-card'),
-      onTap: () => showLocationSheet(context, ref),
+      onTap: location == null ? null : () => showLocationSheet(context, ref),
       semanticLabel: 'Konumu değiştir',
       color: dashboardSurfaceCream(brightness),
       child: LayoutBuilder(builder: (context, c) {
-        final cityName = location?.ilce.ilceAdi ?? 'Şehir seçin';
+        final cityName = location?.ilce.ilceAdi ?? 'Konum seçilmedi';
 
         if (tight) {
           // A landscape phone gives this card only ~50-70 logical px of
@@ -242,7 +241,8 @@ class _CityCard extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: ink, fontSize: size,
                       height: 1.1, fontWeight: FontWeight.w800))),
-              Icon(Icons.expand_more_rounded, color: muted, size: size * .8),
+              if (location != null)
+                Icon(Icons.expand_more_rounded, color: muted, size: size * .8),
             ]),
             SizedBox(height: size * .32),
             Text('${gunAdlari[now.weekday - 1]}, ${now.day} ${ayAdlari[now.month - 1]} ${now.year}',
@@ -603,7 +603,7 @@ class _PortraitHeader extends ConsumerWidget {
     return _Surface(
       key: const ValueKey('home-city-card'),
       color: dashboardSurfaceCream(b),
-      onTap: () => showLocationSheet(context, ref),
+      onTap: location == null ? null : () => showLocationSheet(context, ref),
       semanticLabel: 'Konumu değiştir',
       padding: EdgeInsets.fromLTRB(16 * scale, 12 * scale, 10 * scale, 12 * scale),
       child: Row(children: [
@@ -611,7 +611,7 @@ class _PortraitHeader extends ConsumerWidget {
         SizedBox(width: 10 * scale),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min, children: [
-          Text(location?.ilce.ilceAdi ?? 'Konum seçin', maxLines: 1,
+          Text(location?.ilce.ilceAdi ?? 'Konum seçilmedi', maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: ink, fontSize: 22 * scale, height: 1.15,
                   fontWeight: FontWeight.w800)),
@@ -620,12 +620,14 @@ class _PortraitHeader extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: muted, fontSize: 14 * scale, fontWeight: FontWeight.w600)),
         ])),
-        SizedBox(width: 6 * scale),
-        Container(
-          width: 40 * scale, height: 40 * scale,
-          decoration: BoxDecoration(color: dashboardActiveCell(b), shape: BoxShape.circle),
-          child: Icon(Icons.edit_location_alt_outlined, color: ink, size: 22 * scale),
-        ),
+        if (location != null) ...[
+          SizedBox(width: 6 * scale),
+          Container(
+            width: 40 * scale, height: 40 * scale,
+            decoration: BoxDecoration(color: dashboardActiveCell(b), shape: BoxShape.circle),
+            child: Icon(Icons.edit_location_alt_outlined, color: ink, size: 22 * scale),
+          ),
+        ],
       ]),
     );
   }
@@ -692,68 +694,31 @@ String _formatRemaining(Duration d) => d.isNegative ? '00:00:00'
     : '${_two(d.inHours)}:${_two(d.inMinutes.remainder(60))}:${_two(d.inSeconds.remainder(60))}';
 
 
-/// Konum yokken geri sayım kartında gösterilen iki seçenek: GPS ile otomatik
-/// bulma ve ülke/şehir listesinden elle seçme.
-class _LocationPrompt extends ConsumerStatefulWidget {
+/// Konum yokken geri sayım kartındaki tek düğme. Otomatik bulma, elle seçme
+/// ve son konumlar açılan pencerede.
+class _LocationPrompt extends ConsumerWidget {
   const _LocationPrompt({required this.width, required this.tight});
   final double width;
   final bool tight;
 
   @override
-  ConsumerState<_LocationPrompt> createState() => _LocationPromptState();
-}
-
-class _LocationPromptState extends ConsumerState<_LocationPrompt> {
-  bool _detecting = false;
-
-  Future<void> _detect() async {
-    setState(() => _detecting = true);
-    try {
-      await detectAndSaveLocation(context, ref);
-    } finally {
-      if (mounted) setState(() => _detecting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const gold = Color(0xFFE9C981);
-    final fontSize = (widget.width * .045).clamp(15.0, 18.0);
-    final padding = EdgeInsets.symmetric(horizontal: 16, vertical: widget.tight ? 12 : 16);
-    final text = TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
+    final fontSize = (width * .05).clamp(16.0, 20.0);
     return SizedBox(
-      width: widget.width * .82,
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        FilledButton.icon(
-          key: const ValueKey('home-auto-location'),
-          style: FilledButton.styleFrom(
-            backgroundColor: gold, foregroundColor: dashboardAccentGreen,
-            disabledBackgroundColor: gold.withValues(alpha: .6),
-            padding: padding, textStyle: text,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          ),
-          onPressed: _detecting ? null : _detect,
-          icon: _detecting
-              ? SizedBox(width: fontSize, height: fontSize,
-                  child: const CircularProgressIndicator(strokeWidth: 2.4, color: dashboardAccentGreen))
-              : Icon(Icons.my_location_rounded, size: fontSize + 4),
-          label: Text(_detecting ? 'Konum aranıyor…' : 'Konumumu otomatik bul'),
+      width: width * .82,
+      child: FilledButton.icon(
+        key: const ValueKey('home-set-location'),
+        style: FilledButton.styleFrom(
+          backgroundColor: gold, foregroundColor: dashboardAccentGreen,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: tight ? 14 : 18),
+          textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
-        SizedBox(height: widget.tight ? 8 : 12),
-        OutlinedButton.icon(
-          key: const ValueKey('home-manual-location'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: const BorderSide(color: Color(0x80FFFFFF)),
-            padding: padding, textStyle: text,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          ),
-          onPressed: _detecting ? null : () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const CountryPage())),
-          icon: Icon(Icons.travel_explore_rounded, size: fontSize + 4),
-          label: const Text('Ülke ve şehri elle seç'),
-        ),
-      ]),
+        onPressed: () => showLocationSheet(context, ref),
+        icon: Icon(Icons.my_location_rounded, size: fontSize + 4),
+        label: const Text('Konumunu belirle'),
+      ),
     );
   }
 }
