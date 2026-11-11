@@ -605,10 +605,8 @@ class _PortraitHeader extends ConsumerWidget {
       color: dashboardSurfaceCream(b),
       onTap: location == null ? null : () => showLocationSheet(context, ref),
       semanticLabel: 'Konumu değiştir',
-      padding: EdgeInsets.fromLTRB(16 * scale, 12 * scale, 10 * scale, 12 * scale),
+      padding: EdgeInsets.fromLTRB(18 * scale, 12 * scale, 10 * scale, 12 * scale),
       child: Row(children: [
-        Icon(Icons.location_on_rounded, color: dashboardAccentGold, size: 26 * scale),
-        SizedBox(width: 10 * scale),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min, children: [
           Text(location?.ilce.ilceAdi ?? 'Konum seçilmedi', maxLines: 1,
