@@ -605,17 +605,19 @@ class _PortraitHeader extends ConsumerWidget {
       color: dashboardSurfaceCream(b),
       onTap: location == null ? null : () => showLocationSheet(context, ref),
       semanticLabel: 'Konumu değiştir',
-      padding: EdgeInsets.fromLTRB(18 * scale, 12 * scale, 10 * scale, 12 * scale),
+      padding: EdgeInsets.fromLTRB(10 * scale, 12 * scale, 10 * scale, 12 * scale),
       child: Row(children: [
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        // Sağdaki düğme kadar boşluk: şehir adı kartın tam ortasında durur.
+        if (location != null) SizedBox(width: 46 * scale),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min, children: [
           Text(location?.ilce.ilceAdi ?? 'Konum seçilmedi', maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,
               style: TextStyle(color: ink, fontSize: 22 * scale, height: 1.15,
                   fontWeight: FontWeight.w800)),
           SizedBox(height: 2 * scale),
           Text(hicri == null ? date : '$date  ·  $hicri', maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,
               style: TextStyle(color: muted, fontSize: 14 * scale, fontWeight: FontWeight.w600)),
         ])),
         if (location != null) ...[
