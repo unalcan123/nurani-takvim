@@ -12,6 +12,7 @@ import '../../times/presentation/slayt_widget.dart';
 import '../../times/presentation/time_utils.dart';
 import '../../times/presentation/times_page.dart' show timesProvider;
 import 'date_format.dart';
+import 'location_flow.dart';
 
 /// The home screen always shows today's live schedule, independently of the
 /// date being browsed on the separate prayer-times / daily-content pages.
@@ -52,6 +53,7 @@ class DashboardHomePage extends ConsumerWidget {
         final stripHeight = phoneLandscape ? stripHeightBase * 0.68 : stripHeightBase;
         final city = _CityCard(location: selected, today: today, now: now, tight: phone);
         final countdown = _CountdownCard(today: today, next: next, now: now, unavailable: unavailable, tight: phone,
+            needsLocation: selected == null,
             maxAspect: phone && !landscape ? 1.45 : 1.15);
         // Portrait phones are narrow enough that a single 6-column row
         // crushes each prayer name/time; split into a 3x2 grid there. A
@@ -217,7 +219,10 @@ class _CityCard extends StatelessWidget {
 }
 
 class _CountdownCard extends StatelessWidget {
-  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false, this.maxAspect = 1.15});
+  const _CountdownCard({required this.today, required this.next, required this.now, required this.unavailable, this.tight = false, this.maxAspect = 1.15, this.needsLocation = false});
+
+  /// Henüz konum seçilmediyse boş sayaç yerine konum seçme düğmeleri gösterilir.
+  final bool needsLocation;
 
   /// Widest content width relative to the card's height. The digits fill this
   /// width, so a higher value enlarges them in a short, wide card.
@@ -278,8 +283,11 @@ class _CountdownCard extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: titleSize,
                     height: 1.15, fontWeight: FontWeight.w700)))),
           SizedBox(height: (c.maxHeight * .03).clamp(4.0, 20.0)),
-          StableCountdownDigits(value: value, emphasis: tight ? 1.25 : 1.0,
-              color: Colors.white, separatorColor: highlight),
+          if (needsLocation)
+            _LocationPrompt(width: c.maxWidth, tight: tight)
+          else
+            StableCountdownDigits(value: value, emphasis: tight ? 1.25 : 1.0,
+                color: Colors.white, separatorColor: highlight),
           if (progress != null) ...[
             SizedBox(height: (c.maxHeight * .03).clamp(4.0, 20.0)),
             ClipRRect(borderRadius: BorderRadius.circular(4),
@@ -550,3 +558,71 @@ String _two(int n) => n.toString().padLeft(2, '0');
 String _clock(DateTime t) => '${_two(t.hour)}:${_two(t.minute)}';
 String _formatRemaining(Duration d) => d.isNegative ? '00:00:00'
     : '${_two(d.inHours)}:${_two(d.inMinutes.remainder(60))}:${_two(d.inSeconds.remainder(60))}';
+
+
+/// Konum yokken geri sayım kartında gösterilen iki seçenek: GPS ile otomatik
+/// bulma ve ülke/şehir listesinden elle seçme.
+class _LocationPrompt extends ConsumerStatefulWidget {
+  const _LocationPrompt({required this.width, required this.tight});
+  final double width;
+  final bool tight;
+
+  @override
+  ConsumerState<_LocationPrompt> createState() => _LocationPromptState();
+}
+
+class _LocationPromptState extends ConsumerState<_LocationPrompt> {
+  bool _detecting = false;
+
+  Future<void> _detect() async {
+    setState(() => _detecting = true);
+    try {
+      await detectAndSaveLocation(context, ref);
+    } finally {
+      if (mounted) setState(() => _detecting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const gold = Color(0xFFE9C981);
+    final fontSize = (widget.width * .055).clamp(14.0, 20.0);
+    final padding = EdgeInsets.symmetric(
+        horizontal: 18, vertical: widget.tight ? 10 : 16);
+    final text = TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
+    return SizedBox(
+      width: widget.width * .82,
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        FilledButton.icon(
+          key: const ValueKey('home-auto-location'),
+          style: FilledButton.styleFrom(
+            backgroundColor: gold, foregroundColor: dashboardAccentGreen,
+            disabledBackgroundColor: gold.withValues(alpha: .6),
+            padding: padding, textStyle: text,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          onPressed: _detecting ? null : _detect,
+          icon: _detecting
+              ? SizedBox(width: fontSize, height: fontSize,
+                  child: const CircularProgressIndicator(strokeWidth: 2.4, color: dashboardAccentGreen))
+              : Icon(Icons.my_location_rounded, size: fontSize + 4),
+          label: Text(_detecting ? 'Konum aranıyor…' : 'Konumumu otomatik bul'),
+        ),
+        SizedBox(height: widget.tight ? 8 : 12),
+        OutlinedButton.icon(
+          key: const ValueKey('home-manual-location'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white,
+            side: const BorderSide(color: Color(0x80FFFFFF)),
+            padding: padding, textStyle: text,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          onPressed: _detecting ? null : () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const CountryPage())),
+          icon: Icon(Icons.travel_explore_rounded, size: fontSize + 4),
+          label: const Text('Ülke ve şehri elle seç'),
+        ),
+      ]),
+    );
+  }
+}
