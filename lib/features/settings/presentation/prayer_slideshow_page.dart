@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +6,11 @@ import '../../../core/responsive.dart';
 import '../../times/presentation/slayt_widget.dart';
 /// ✅ Hem yatay hem dikey serbest
 Future<void> allowAllOrientations() async {
+  // Flutter Web uses the first listed orientation as a screen lock.
+  if (kIsWeb) {
+    await SystemChrome.setPreferredOrientations([]);
+    return;
+  }
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
