@@ -417,8 +417,12 @@ void main() {
           .selectMadinahAdhan();
       env.container.invalidate(alertSettingsProvider);
       expect(
-        env.container.read(alertSettingsProvider).adhanSettings.type,
-        AdhanType.madinah,
+        env.container.read(alertSettingsProvider).adhanSettings.perPrayer,
+        {
+          PrayerType.fajr: 'a_fecr_medine',
+          for (final p in PrayerType.values.where((p) => !p.isFajr))
+            p: 'a_ezan_medine',
+        },
       );
       final audio = env.container.read(audioManagerProvider);
       await audio.stopAllForAdhan();

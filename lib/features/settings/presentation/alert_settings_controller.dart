@@ -44,6 +44,7 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       'selected_adhan_library_entry_id';
   static const _keySelectedAdhanLibraryFajrEntryId =
       'selected_adhan_library_fajr_entry_id';
+  static const _keyAdhanPerPrayer = 'adhan_per_prayer_v1';
   static const _keyEzanVolume = 'ezan_volume';
   static const _keyPreNotifications = 'pre_notifications';
   static const _keySlideDuration = 'slide_duration';
@@ -102,13 +103,30 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       libraryEntryId: _prefs.getString(_keySelectedAdhanLibraryEntryId),
       libraryFajrEntryId: _prefs.getString(_keySelectedAdhanLibraryFajrEntryId),
     );
+    final perPrayerRaw = _prefs.getString(_keyAdhanPerPrayer);
+    Map<PrayerType, String>? perPrayer;
+    if (perPrayerRaw != null) {
+      try {
+        final decoded = Map<String, dynamic>.from(json.decode(perPrayerRaw));
+        perPrayer = {
+          for (final prayer in PrayerType.values)
+            if (decoded[prayer.name] is String)
+              prayer: decoded[prayer.name] as String,
+        };
+      } catch (_) {
+        perPrayer = null;
+      }
+    }
+    // İlk açılışta eski tek seçimi vakit başına seçime bir kez taşı.
+    final migrate = perPrayer == null;
+    perPrayer ??= adhanSettings.legacyPerPrayer();
 
     state = state.copyWith(
       prayerAlarms: alarmMap,
       prayerSounds: prayerSounds,
       ezanVolume: _prefs.getDouble(_keyEzanVolume) ?? 1.0,
       fajrDelayMinutes: _prefs.getInt('fajr_delay_minutes') ?? 30,
-      adhanSettings: adhanSettings,
+      adhanSettings: AdhanSettings(perPrayer: perPrayer),
       preNotifications: preNotifyMap,
       slideDuration: _prefs.getInt(_keySlideDuration) ?? 15,
       slideCategory: _prefs.getString(_keySlideCategory) ?? 'all',
@@ -116,6 +134,71 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
       bgMusicPaths: musicPaths,
       bgMusicEnabled: _prefs.getBool(_keyBgMusicEnabled) ?? false,
     );
+    if (migrate) {
+      // Yalnızca diske yazılır; durum zaten yukarıda güncellendi.
+      _writePerPrayer(perPrayer);
+      for (final key in [
+        _keySelectedAdhanType,
+        _keySelectedAdhanAssetPath,
+        _keySelectedAdhanCustomAudioId,
+        _keySelectedAdhanLibraryEntryId,
+        _keySelectedAdhanLibraryFajrEntryId,
+      ]) {
+        _prefs.remove(key);
+      }
+    }
+  }
+
+  /// [prayer] için kütüphaneden bir kayıt seçer. Fecr kaydı yalnızca sabaha,
+  /// normal kayıt yalnızca diğer dört vakte atanabilir. Uzak kayıt önce
+  /// indirilir; indirme başarısız olursa seçim değişmez.
+  Future<void> setPrayerAdhan(
+    PrayerType prayer,
+    EzanLibraryEntry entry, {
+    String baseUrl = '',
+    EzanDownloadCache? downloadCache,
+    void Function(double progress)? onProgress,
+    bool applyToAllNormal = false,
+  }) async {
+    if (entry.isFajr != prayer.isFajr) {
+      throw ArgumentError(prayer.isFajr
+          ? 'Sabah vakti için yalnızca sabah (fecr) ezanı seçilebilir.'
+          : 'Sabah (fecr) ezanı yalnızca sabah vaktinde okunur.');
+    }
+    if (entry.source == EzanLibrarySource.remote) {
+      final cache = downloadCache ?? EzanDownloadCache();
+      await cache.ensureDownloaded(entry, baseUrl: baseUrl, onProgress: onProgress);
+    }
+    final targets = applyToAllNormal && !prayer.isFajr
+        ? PrayerType.values.where((p) => !p.isFajr)
+        : [prayer];
+    await _setPerPrayer({for (final p in targets) p: entry.id});
+  }
+
+  /// [prayer] için telefondan seçilen bir ses dosyasını atar.
+  Future<void> setPrayerCustomAdhan(
+    PrayerType prayer,
+    String fileName,
+    Uint8List bytes,
+  ) async {
+    final file = await _customAudioStore.add(fileName, bytes);
+    await _setPerPrayer({prayer: '$customTokenPrefix${file.id}'});
+  }
+
+  /// [prayer] varsayılan Mekke ezanına döner.
+  Future<void> resetPrayerAdhan(PrayerType prayer) =>
+      _setPerPrayer({prayer: null});
+
+  Future<void> _setPerPrayer(Map<PrayerType, String?> changes) async {
+    final next = Map<PrayerType, String>.from(state.adhanSettings.perPrayer);
+    changes.forEach((prayer, token) {
+      if (token == null) {
+        next.remove(prayer);
+      } else {
+        next[prayer] = token;
+      }
+    });
+    await _persistAdhanSettings(AdhanSettings(perPrayer: next));
   }
 
   Future<void> setFajrDelayMinutes(int minutes, List<Vakit> days) async {
@@ -248,57 +331,13 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     return file;
   }
 
-  /// Ezan Kütüphanesi'nden normal (fecr dışı dört vakit) için bir kayıt
-  /// seçer. Kayıt uzak (remote) ise önce cihaza indirilir; ağ hatası olursa
-  /// seçim uygulanmaz ve hata yukarı fırlatılır.
-  Future<void> selectLibraryEntry(
-    EzanLibraryEntry entry, {
-    String baseUrl = '',
-    EzanDownloadCache? downloadCache,
-    void Function(double progress)? onProgress,
-  }) async {
-    if (entry.source == EzanLibrarySource.remote) {
-      final cache = downloadCache ?? EzanDownloadCache();
-      await cache.ensureDownloaded(entry, baseUrl: baseUrl, onProgress: onProgress);
-    }
-    final current = state.adhanSettings;
-    await _persistAdhanSettings(
-      AdhanSettings(
-        type: AdhanType.library,
-        libraryEntryId: entry.id,
-        libraryFajrEntryId: current.type == AdhanType.library
-            ? current.libraryFajrEntryId
-            : null,
-      ),
-    );
-  }
-
-  /// Sabah (fecr) vakti için ayrı bir kayıt seçer. Sabah ezanı diğer dört
-  /// vakte kopyalanmaz: normal kayıt seçilene kadar onlarda varsayılan Mekke
-  /// ezanı çalar.
-  Future<void> selectLibraryFajrEntry(
-    EzanLibraryEntry entry, {
-    String baseUrl = '',
-    EzanDownloadCache? downloadCache,
-    void Function(double progress)? onProgress,
-  }) async {
-    if (entry.source == EzanLibrarySource.remote) {
-      final cache = downloadCache ?? EzanDownloadCache();
-      await cache.ensureDownloaded(entry, baseUrl: baseUrl, onProgress: onProgress);
-    }
-    final current = state.adhanSettings;
-    await _persistAdhanSettings(
-      AdhanSettings(
-        type: AdhanType.library,
-        libraryEntryId: current.type == AdhanType.library
-            ? current.libraryEntryId
-            : null,
-        libraryFajrEntryId: entry.id,
-      ),
-    );
-  }
-
+  /// Tek seçimli eski çağrılar (Mekke/Medine/dosya, tüm vakitler) vakit başına
+  /// seçime çevrilerek kaydedilir; durum her zaman yalnızca [perPrayer] taşır.
   Future<void> _persistAdhanSettings(AdhanSettings settings) async {
+    if (settings.perPrayer.isEmpty && settings.type != AdhanType.makkah) {
+      settings = AdhanSettings(perPrayer: settings.legacyPerPrayer());
+    }
+    await _writePerPrayer(settings.perPrayer);
     await _prefs.setString(_keySelectedAdhanType, settings.type.storageValue);
     if (settings.worldAssetPath == null) {
       await _prefs.remove(_keySelectedAdhanAssetPath);
@@ -334,6 +373,12 @@ class AlertSettingsNotifier extends StateNotifier<AlertSettings> {
     }
     state = state.copyWith(adhanSettings: settings);
   }
+
+  Future<void> _writePerPrayer(Map<PrayerType, String> perPrayer) =>
+      _prefs.setString(
+        _keyAdhanPerPrayer,
+        json.encode({for (final e in perPrayer.entries) e.key.name: e.value}),
+      );
 
   Future<void> togglePreNotification(int minute, bool value) async {
     final prefs = await SharedPreferences.getInstance();

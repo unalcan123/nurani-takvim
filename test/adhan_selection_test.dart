@@ -20,6 +20,12 @@ class _FakeLibrary extends EzanLibraryService {
     _fajrRemote: EzanLibraryEntry(id: _fajrRemote, title: 'Fecr Uzak',
         category: EzanLibraryCategory.fajr, source: EzanLibrarySource.remote,
         fileName: 'fecr.uzak.mp3'),
+    'a_ezan_medine': EzanLibraryEntry(id: 'a_ezan_medine',
+        title: 'Medine - Mescid-i Nebevi', category: EzanLibraryCategory.normal,
+        source: EzanLibrarySource.asset, assetPath: madinahNormalAdhanAsset),
+    'a_fecr_medine': EzanLibraryEntry(id: 'a_fecr_medine',
+        title: 'Medine - Sabah Ezanı', category: EzanLibraryCategory.fajr,
+        source: EzanLibrarySource.asset, assetPath: madinahFajrAdhanAsset),
   };
 
   @override
@@ -125,4 +131,48 @@ void main() {
         RegExp(r'fajr|fecr|sabah', caseSensitive: false).hasMatch(e.title));
     expect(mislabeled.map((e) => e.title), isEmpty);
   });
+
+  test('each prayer plays its own per-prayer adhan', () async {
+    const settings = AdhanSettings(perPrayer: {
+      PrayerType.fajr: _fajrRemote,
+      PrayerType.asr: _normalAsset,
+    });
+    expect((await _resolve(PrayerType.fajr, settings)).title, 'Fecr Uzak');
+    expect((await _resolve(PrayerType.asr, settings)).assetPath, 'normal.mp3');
+    // Seçimi olmayan vakit varsayılan Mekke ezanını çalar.
+    expect((await _resolve(PrayerType.dhuhr, settings)).assetPath,
+        makkahNormalAdhanAsset);
+  });
+
+  test('a fajr recording assigned to a normal prayer never plays there',
+      () async {
+    const settings = AdhanSettings(perPrayer: {
+      PrayerType.isha: _fajrAsset,
+      PrayerType.fajr: _normalAsset,
+    });
+    expect((await _resolve(PrayerType.isha, settings)).assetPath,
+        makkahNormalAdhanAsset);
+    expect((await _resolve(PrayerType.fajr, settings)).assetPath,
+        makkahFajrAdhanAsset);
+  });
+
+  for (final legacy in const [
+    AdhanSettings(type: AdhanType.madinah),
+    AdhanSettings(type: AdhanType.library,
+        libraryEntryId: _normalAsset, libraryFajrEntryId: _fajrAsset),
+    AdhanSettings(type: AdhanType.library, libraryEntryId: _fajrRemote),
+    AdhanSettings(type: AdhanType.world,
+        worldAssetPath: 'assets/audio/adhan/dunya_ezan/Adhan_Kuwait.mp3'),
+  ]) {
+    test('migrating ${legacy.type} keeps every prayer sounding the same',
+        () async {
+      final migrated = AdhanSettings(perPrayer: legacy.legacyPerPrayer());
+      for (final prayer in PrayerType.values) {
+        final before = await _resolve(prayer, legacy);
+        final after = await _resolve(prayer, migrated);
+        expect(after.title, before.title, reason: '$prayer');
+        expect(after.assetPath, before.assetPath, reason: '$prayer');
+      }
+    });
+  }
 }

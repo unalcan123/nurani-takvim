@@ -109,7 +109,7 @@ class AppDrawer extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
-            title: const Text('Uygulama Ayarları'),
+            title: const Text('Ezan ve Bildirimler'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(

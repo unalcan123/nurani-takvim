@@ -18,13 +18,19 @@ class FajrDelaySetting extends ConsumerWidget {
     final now = phoneLocalNow();
     final available = days != null && findVakitForDate(days, now) != null;
     return ListTile(
-      title: const Text('Sabah ezanı: imsaktan kaç dakika sonra?'),
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 16, 8),
+      leading: const Icon(Icons.schedule_outlined),
+      title: Text(
+        available
+            ? 'Sabah ezanı imsaktan ${settings.fajrDelayMinutes} dakika sonra okunur'
+            : 'Sabah ezanı vakti',
+      ),
       subtitle: Text(
         available
-            ? '${settings.fajrDelayMinutes} dakika. İmsak ve geri sayım değişmez.'
+            ? 'İmsak saati ve geri sayım değişmez.'
             : 'Önce şehir seçin ve güncel vakitlerin yüklenmesini bekleyin.',
       ),
-      trailing: const Icon(Icons.edit),
+      trailing: available ? const _ChangeLabel() : null,
       onTap:
           !available
               ? null
@@ -102,4 +108,17 @@ class FajrDelaySetting extends ConsumerWidget {
               },
     );
   }
+}
+
+/// Satırın tamamı dokunulabilir; bu yalnızca eylemi gösteren etiket.
+class _ChangeLabel extends StatelessWidget {
+  const _ChangeLabel();
+
+  @override
+  Widget build(BuildContext context) => Text(
+    'Değiştir',
+    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: Theme.of(context).colorScheme.primary,
+    ),
+  );
 }

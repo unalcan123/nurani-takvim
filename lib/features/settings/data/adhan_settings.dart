@@ -58,13 +58,48 @@ class AdhanSettings {
   /// normal bir kayıt sabah vaktinde hiçbir zaman kullanılmaz.
   final String? libraryFajrEntryId;
 
+  /// Vakit başına ezan seçimi. Değer bir kütüphane kaydı kimliği,
+  /// `custom:<id>` (telefondan seçilen dosya) ya da `asset:<yol>` olabilir.
+  /// Kaydı olmayan vakit varsayılan Mekke ezanını çalar (sabahta fecr kaydı).
+  final Map<PrayerType, String> perPrayer;
+
   const AdhanSettings({
     this.type = AdhanType.makkah,
     this.worldAssetPath,
     this.customAudioId,
     this.libraryEntryId,
     this.libraryFajrEntryId,
+    this.perPrayer = const {},
   });
+
+  /// Eski tek seçimli ayarı vakit başına seçime çevirir. Sonuç her vakitte
+  /// eskisiyle aynı sesi çalar; fecr kaydı yine yalnızca sabah kullanılır.
+  Map<PrayerType, String> legacyPerPrayer() {
+    final out = <PrayerType, String>{};
+    for (final prayer in PrayerType.values) {
+      final fajr = prayer.isFajr;
+      String? token;
+      switch (type) {
+        case AdhanType.makkah:
+          break;
+        case AdhanType.madinah:
+          token = fajr ? 'a_fecr_medine' : 'a_ezan_medine';
+        case AdhanType.world:
+          final path = worldAssetPath;
+          if (path != null && _isFajrRecordingPath(path) == fajr) {
+            token = '$assetTokenPrefix$path';
+          }
+        case AdhanType.custom:
+          if (customAudioId != null) token = '$customTokenPrefix$customAudioId';
+        case AdhanType.library:
+          // Eski sürümler sabah için normal kaydı da deniyordu; kategori
+          // çözümlemede yeniden denetlendiği için ikisi de aday olarak kalır.
+          token = fajr ? (libraryFajrEntryId ?? libraryEntryId) : libraryEntryId;
+      }
+      if (token != null) out[prayer] = token;
+    }
+    return out;
+  }
 
   AdhanSettings copyWith({
     AdhanType? type,
@@ -75,6 +110,7 @@ class AdhanSettings {
     bool clearWorldAssetPath = false,
     bool clearCustomAudioId = false,
     bool clearLibraryFajrEntryId = false,
+    Map<PrayerType, String>? perPrayer,
   }) {
     return AdhanSettings(
       type: type ?? this.type,
@@ -84,9 +120,13 @@ class AdhanSettings {
       libraryFajrEntryId: clearLibraryFajrEntryId
           ? null
           : (libraryFajrEntryId ?? this.libraryFajrEntryId),
+      perPrayer: perPrayer ?? this.perPrayer,
     );
   }
 }
+
+const String customTokenPrefix = 'custom:';
+const String assetTokenPrefix = 'asset:';
 
 class AdhanSource {
   final String title;
@@ -125,6 +165,20 @@ Future<AdhanSource> resolveSelectedAdhan({
   EzanLibraryService? libraryService,
   EzanDownloadCache? downloadCache,
 }) async {
+  final token = settings.perPrayer[prayer];
+  if (token != null) {
+    return await _resolveToken(
+          token,
+          prayer: prayer,
+          customAudioStore: customAudioStore,
+          libraryService: libraryService,
+          downloadCache: downloadCache,
+        ) ??
+        _fallbackSource(prayer);
+  }
+  if (settings.perPrayer.isNotEmpty || settings.type == AdhanType.makkah) {
+    return _fallbackSource(prayer);
+  }
   switch (settings.type) {
     case AdhanType.makkah:
       return AdhanSource.asset(
@@ -186,6 +240,45 @@ Future<AdhanSource> resolveSelectedAdhan({
       }
       return _fallbackSource(prayer);
   }
+}
+
+/// Bir vaktin seçim kaydını sese çevirir. Kayıt bulunamazsa, indirilmemişse
+/// ya da kaydın vakit grubu tutmuyorsa (normal vakitte fecr kaydı gibi)
+/// `null` döner; çağıran taraf varsayılan Mekke ezanını çalar.
+Future<AdhanSource?> _resolveToken(
+  String token, {
+  required PrayerType prayer,
+  required CustomAudioStore customAudioStore,
+  EzanLibraryService? libraryService,
+  EzanDownloadCache? downloadCache,
+}) async {
+  if (token.startsWith(customTokenPrefix)) {
+    final file =
+        await customAudioStore.get(token.substring(customTokenPrefix.length));
+    if (file == null) return null;
+    return AdhanSource.custom(title: cleanAdhanTitle(file.fileName), file: file);
+  }
+  if (token.startsWith(assetTokenPrefix)) {
+    final path = token.substring(assetTokenPrefix.length);
+    if (_isFajrRecordingPath(path) != prayer.isFajr) return null;
+    return AdhanSource.asset(title: cleanAdhanTitle(path), path: path);
+  }
+  final entry = await (libraryService ?? EzanLibraryService()).findById(token);
+  if (entry == null || entry.isFajr != prayer.isFajr) return null;
+  if (entry.source == EzanLibrarySource.asset) {
+    return AdhanSource.asset(title: entry.title, path: entry.assetPath!);
+  }
+  final bytes = await (downloadCache ?? EzanDownloadCache()).cachedBytes(entry);
+  if (bytes == null) return null;
+  return AdhanSource.custom(
+    title: entry.title,
+    file: CustomAudioFile(
+      id: entry.id,
+      fileName: '${entry.title}.mp3',
+      bytes: bytes,
+      addedAt: DateTime.now(),
+    ),
+  );
 }
 
 bool _isFajrRecordingPath(String path) =>

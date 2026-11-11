@@ -267,7 +267,7 @@ void main() {
           textScale: 1.5,
         );
         expect(tester.takeException(), isNull);
-        final play = find.text('Dinle').first;
+        final play = find.byTooltip('Dinle').first;
         await tester.ensureVisible(play);
         await tester.tap(play);
         await tester.pumpAndSettle();
@@ -276,7 +276,7 @@ void main() {
         );
         await tester.pump();
         expect(env.player.isPlaying, isTrue);
-        final stop = find.text('Durdur').first;
+        final stop = find.byTooltip('Durdur').first;
         await tester.ensureVisible(stop);
         await tester.tap(stop);
         await tester.pumpAndSettle();
