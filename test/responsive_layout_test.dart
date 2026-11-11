@@ -288,7 +288,8 @@ void main() {
 
   }
 
-  for (final size in [const Size(400, 760), const Size(800, 1280)]) {
+  // 980x1820: telefonda Chrome'un "masaüstü sitesi" görünümü.
+  for (final size in [const Size(400, 760), const Size(980, 1820), const Size(800, 1280)]) {
     testWidgets('portrait home leads with the countdown and opens location options at $size',
         (tester) async {
       resize(tester, size);
@@ -301,7 +302,7 @@ void main() {
       final menu = tester.getRect(find.byKey(const ValueKey('home-menu-button')));
       // Telefonda sayaç başlığın altında, tablette yanında; ikisinde de
       // slayttan önce gelir ve düzen ekrana sığar.
-      if (size.width < 600) {
+      if (size.height / size.width >= 1.75) {
         expect(countdown.top, greaterThanOrEqualTo(header.bottom));
       } else {
         expect(countdown.left, greaterThanOrEqualTo(header.right));

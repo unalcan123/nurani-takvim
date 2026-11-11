@@ -49,6 +49,15 @@ class DashboardHomePage extends ConsumerWidget {
         // far less height, so its cards need denser chrome to render their
         // text at a readable size instead of being shrunk hard by FittedBox.
         final phoneLandscape = phone && landscape;
+        // A phone-shaped portrait window gets the phone stack even when the
+        // browser reports a wide viewport (Chrome's "desktop site" mode or
+        // page zoom report ~980px on a phone). Tablets are 1.33-1.6 tall.
+        final w = constraints.maxWidth;
+        final h = constraints.maxHeight;
+        final narrowPortrait = !landscape && (phone || h / w >= 1.75);
+        // Phone-stack sizes are tuned for ~400px; wider phone-shaped
+        // viewports scale them up instead of leaving tiny text.
+        final scale = narrowPortrait ? (w / 400).clamp(1.0, 2.6) : 1.0;
         final stripHeightBase = (constraints.maxHeight * .155).clamp(76.0, 154.0);
         final stripHeight = phoneLandscape ? stripHeightBase * 0.68 : stripHeightBase;
         final city = _CityCard(location: selected, today: today, now: now, tight: phone);
@@ -60,8 +69,8 @@ class DashboardHomePage extends ConsumerWidget {
         // landscape phone already has enough width for one row, but still
         // gets denser cell padding since it has less height to spend.
         final strip = PrayerTimeStrip(today: today, now: now,
-            compact: phone && !landscape, dense: phoneLandscape);
-        final menuButton = _HomeMenuButton(compact: phoneLandscape);
+            compact: narrowPortrait, dense: phoneLandscape);
+        final menuButton = _HomeMenuButton(compact: phoneLandscape, scale: scale);
         final slide = ClipRRect(
           borderRadius: BorderRadius.circular(18),
           child: SlaytWidget(
@@ -99,20 +108,18 @@ class DashboardHomePage extends ConsumerWidget {
         // takes what is left. A tablet uses its width to put the city card
         // and the countdown side by side instead of stretching the phone stack.
         Widget hero({required double aspect}) => _CountdownCard(today: today, next: next,
-            now: now, unavailable: unavailable, tight: phone, needsLocation: selected == null,
-            maxAspect: aspect, showLabel: false, digitEmphasis: phone ? .95 : null);
-        final h = constraints.maxHeight;
-        final w = constraints.maxWidth;
-        if (phone) {
-          final header = _PortraitHeader(location: selected, today: today, now: now);
-          final stripH = (h * .17).clamp(118.0, 160.0);
+            now: now, unavailable: unavailable, tight: narrowPortrait, needsLocation: selected == null,
+            maxAspect: aspect, showLabel: false, digitEmphasis: narrowPortrait ? .95 : null);
+        if (narrowPortrait) {
+          final header = _PortraitHeader(location: selected, today: today, now: now, scale: scale);
+          final stripH = (h * .17).clamp(118.0 * scale, 160.0 * scale);
           // Short windows (split screen, small phones) keep the same order
           // but scroll, so nothing is squeezed below a readable size.
-          if (h < 600) {
+          if (h < 600 * scale) {
             return ListView(padding: EdgeInsets.all(gap), children: [
               header,
               SizedBox(height: gap),
-              SizedBox(height: 230, child: hero(aspect: 2.4)),
+              SizedBox(height: 230 * scale, child: hero(aspect: 2.4)),
               SizedBox(height: gap),
               SizedBox(height: stripH, child: strip),
               SizedBox(height: gap),
@@ -479,10 +486,10 @@ class PrayerTimeStrip extends StatelessWidget {
       final hGap = (c.maxWidth * (compact ? .025 : .009)).clamp(4.0, 14.0);
       final cellWidth = (c.maxWidth - hGap * (columns - 1)) / columns;
       final nameSize = compact
-          ? (cellWidth / 7.4).clamp(14.0, 20.0)
+          ? (cellWidth / 7.4).clamp(14.0, 34.0)
           : (c.maxWidth / 44).clamp(phoneFloor ? 14.0 : 12.0, 31.0);
       final timeSize = compact
-          ? (cellWidth / 4.6).clamp(18.0, 30.0)
+          ? (cellWidth / 4.6).clamp(18.0, 52.0)
           : (c.maxWidth / 30).clamp(phoneFloor ? 18.0 : 17.0, 46.0);
 
       Widget cell(int i) => Semantics(selected: entries[i].$1 == active,
@@ -574,10 +581,14 @@ class _Surface extends StatelessWidget {
 /// Dikey telefonda üstteki ince başlık: şehir (dokununca konum seçenekleri)
 /// ve tek satırda miladi + hicri tarih.
 class _PortraitHeader extends ConsumerWidget {
-  const _PortraitHeader({required this.location, required this.today, required this.now});
+  const _PortraitHeader({required this.location, required this.today, required this.now,
+      this.scale = 1});
   final SavedLocation? location;
   final Vakit? today;
   final DateTime now;
+
+  /// 1 at ~400px wide; larger on wide phone-shaped viewports.
+  final double scale;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -586,7 +597,7 @@ class _PortraitHeader extends ConsumerWidget {
     final muted = dashboardMuted(b);
     final hicri = today?.hicriTarihUzun.isNotEmpty == true ? today!.hicriTarihUzun : null;
     // Dar telefonlarda gün adı düşer ki hicri tarih kesilmeden sığsın.
-    final narrow = MediaQuery.sizeOf(context).width < 390;
+    final narrow = MediaQuery.sizeOf(context).width / scale < 440;
     final day = '${now.day} ${ayAdlari[now.month - 1]} ${now.year}';
     final date = narrow ? day : '${gunAdlari[now.weekday - 1]}, $day';
     return _Surface(
@@ -594,26 +605,26 @@ class _PortraitHeader extends ConsumerWidget {
       color: dashboardSurfaceCream(b),
       onTap: () => showLocationSheet(context, ref),
       semanticLabel: 'Konumu değiştir',
-      padding: const EdgeInsets.fromLTRB(16, 12, 10, 12),
+      padding: EdgeInsets.fromLTRB(16 * scale, 12 * scale, 10 * scale, 12 * scale),
       child: Row(children: [
-        Icon(Icons.location_on_rounded, color: dashboardAccentGold, size: 26),
-        const SizedBox(width: 10),
+        Icon(Icons.location_on_rounded, color: dashboardAccentGold, size: 26 * scale),
+        SizedBox(width: 10 * scale),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min, children: [
           Text(location?.ilce.ilceAdi ?? 'Konum seçin', maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: ink, fontSize: 22, height: 1.15,
+              style: TextStyle(color: ink, fontSize: 22 * scale, height: 1.15,
                   fontWeight: FontWeight.w800)),
-          const SizedBox(height: 2),
+          SizedBox(height: 2 * scale),
           Text(hicri == null ? date : '$date  ·  $hicri', maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: muted, fontSize: 14, fontWeight: FontWeight.w600)),
+              style: TextStyle(color: muted, fontSize: 14 * scale, fontWeight: FontWeight.w600)),
         ])),
-        const SizedBox(width: 6),
+        SizedBox(width: 6 * scale),
         Container(
-          width: 40, height: 40,
+          width: 40 * scale, height: 40 * scale,
           decoration: BoxDecoration(color: dashboardActiveCell(b), shape: BoxShape.circle),
-          child: Icon(Icons.edit_location_alt_outlined, color: ink, size: 22),
+          child: Icon(Icons.edit_location_alt_outlined, color: ink, size: 22 * scale),
         ),
       ]),
     );
@@ -621,7 +632,10 @@ class _PortraitHeader extends ConsumerWidget {
 }
 
 class _HomeMenuButton extends StatelessWidget {
-  const _HomeMenuButton({this.compact = false});
+  const _HomeMenuButton({this.compact = false, this.scale = 1});
+
+  /// Grows the bar on wide phone-shaped viewports (see the home layout).
+  final double scale;
 
   /// A landscape phone's info column is too narrow to fit the play
   /// controls (when a track is loaded) next to a full "Menü" label without
@@ -653,12 +667,12 @@ class _HomeMenuButton extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
             style: FilledButton.styleFrom(backgroundColor: dashboardAccentGreen, foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              textStyle: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600)),
-            icon: const Icon(Icons.menu_rounded, color: Color(0xFFE9C981)),
+              textStyle: TextStyle(fontSize: 19 * scale, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.menu_rounded, color: const Color(0xFFE9C981), size: 24 * scale),
             label: const Text('Menü'),
           );
     return SizedBox(
-      height: 54,
+      height: 54 * scale,
       child: Row(children: [
         CompactPlayControls(compact: compact),
         const SizedBox(width: 8),
